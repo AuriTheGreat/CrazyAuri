@@ -1,0 +1,2 @@
+# CrazyAuri
+Crazyhouse Chess AI
