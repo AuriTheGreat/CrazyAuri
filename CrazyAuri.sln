@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrazyAuriLibrary", "Library
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrazyAuriApplication", "Application\CrazyAuriApplication.csproj", "{93223681-7D25-47D5-88E6-87F428C6E699}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrazyAuriConsole", "CrazyAuriConsole\CrazyAuriConsole.csproj", "{CA511532-7D5C-4BFA-BB61-0C7F18CD5422}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrazyAuriConsole", "ConsoleApp\CrazyAuriConsole.csproj", "{CA511532-7D5C-4BFA-BB61-0C7F18CD5422}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
