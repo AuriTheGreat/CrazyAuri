@@ -7,12 +7,19 @@ using System.Threading.Tasks;
 
 namespace CrazyAuri
 {
-    class CrazyAuri
+    public static class CrazyAuriLibrary
     {
-        static public void Main(string[] args)
+        public static void FindBestMove(string FEN)
         {
-            Board board = new Board();
+            Board board = new Board(FEN);
             board.PrintBoard();
+            foreach (var i in board.WhitePieces)
+            {
+                foreach (var j in i.GetMoves(board))
+                {
+                    Console.Write(j);
+                }
+            }
         }
     }
 }

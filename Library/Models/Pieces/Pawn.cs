@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CrazyAuriLibrary.Models;
+using CrazyAuriLibrary.Models.Pieces;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -9,24 +11,39 @@ namespace CrazyAuri.Models.Pieces
 {
     public class Pawn : Piece
     {
-        public Pawn(bool color)
+        public Pawn(bool color, (int, int) location) : base(color, location)
         {
-            this.color = color;
+            acronym = "p";
+        }
+
+        public override List<Move> GetMoves(Board board)
+        {
+            int x = location.Item1;
+            int y = location.Item2;
+            int colorint = color == true ? 1 : -1;
+            List<Move> result = new List<Move>();
+
+            var piece = board.GetPieceOnSquare((x + colorint * 1, y));
+            if (piece == null)
+            {
+                result.Add(new Move(location, (x + colorint * 1, y)));
+                if ((x==1 && color==true) || (x==6  && color==false))
+                {
+                    piece = board.GetPieceOnSquare((x + colorint * 2, y));
+                    if (piece == null)
+                    {
+                        result.Add(new Move(location, (x + colorint * 2, y)));
+                    }
+                }
+            }
+
+            return result;
 
         }
 
-        public override string ToString()
+        public override void MakeMove(Board board, Move move)
         {
-            if (color == true)
-            {
-                return "p";
-            }
-            else
-            {
-                return "P";
-            }
+            throw new NotImplementedException();
         }
-
-        public bool color { get; set; }
     }
 }

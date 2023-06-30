@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CrazyAuriLibrary.Models;
+using CrazyAuriLibrary.Models.Pieces;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -9,24 +11,19 @@ namespace CrazyAuri.Models.Pieces
 {
     public class King : Piece
     {
-        public King(bool color)
-        {
-            this.color = color;
-
+        public King(bool color, (int, int) location ) : base(color, location) 
+        { 
+            acronym = "k";
         }
 
-        public override string ToString()
+        public override List<Move> GetMoves(Board board)
         {
-            if (color == true)
-            {
-                return "k";
-            }
-            else
-            {
-                return "K";
-            }
+            throw new NotImplementedException();
         }
 
-        public bool color { get; set; }
+        public override void MakeMove(Board board, Move move)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

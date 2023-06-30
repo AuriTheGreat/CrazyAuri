@@ -9,11 +9,19 @@ namespace CrazyAuri.Models
 {
     public class Board
     {
-        private Piece[,] array = new Piece[8, 8];
-        public List<Piece> WhitePieces;
-        public List<Piece> BlackPieces;
-        public Piece WhiteKing;
-        public Piece BlackKing;
+        private IPiece[,] array = new IPiece[8, 8];
+        public List<IPiece> WhitePieces = new List<IPiece>();
+        public List<IPiece> BlackPieces = new List<IPiece>();
+        public IPiece WhiteKing;
+        public IPiece BlackKing;
+        public bool CurrentColor = false;
+        public bool CanWhiteCastleQueenside = true;
+        public bool CanWhiteCastleKingside = true;
+        public bool CanBlackCastleQueenside = true;
+        public bool CanWhiteCastleingside = true;
+        public (int, int) EnPassantSquare = (-1, -1);
+        public int HalfMoveClock = 0;
+        public int FullMoveClock = 1;
         public Board()
         {
             InitialiseBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
@@ -29,58 +37,87 @@ namespace CrazyAuri.Models
         {
             int currenttile = 0;
             bool BoardIsBeingRead = true;
+            IPiece newpiece = new Pawn(true, (-1, -1));
             for (int i = 0; i < FEN.Length; i++)
             {
                 if (BoardIsBeingRead==true)
                 {
+                    int x = (int)Math.Floor((decimal)currenttile / 8);
+                    int y = currenttile % 8;
                     switch (FEN[i])
                     {
                         case 'p':
-                            array[(int)Math.Floor((decimal)currenttile / 8), currenttile % 8] = new Pawn(true);
+                            newpiece = new Pawn(true, (x, y));
+                            array[x, y] = newpiece;
+                            BlackPieces.Add(newpiece);
                             currenttile += 1;
                             break;
                         case 'P':
-                            array[(int)Math.Floor((decimal)currenttile / 8), currenttile % 8] = new Pawn(false);
+                            newpiece = new Pawn(false, (x, y));
+                            array[x, y] = newpiece;
+                            WhitePieces.Add(newpiece);
                             currenttile += 1;
                             break;
                         case 'r':
-                            array[(int)Math.Floor((decimal)currenttile / 8), currenttile % 8]= new Rook(true);
+                            newpiece = new Rook(true, (x, y));
+                            array[x, y] = newpiece;
+                            BlackPieces.Add(newpiece);
                             currenttile += 1;
                             break;
                         case 'R':
-                            array[(int)Math.Floor((decimal)currenttile / 8), currenttile % 8] = new Rook(false);
+                            newpiece = new Rook(false, (x, y));
+                            array[x, y] = newpiece;
+                            WhitePieces.Add(newpiece);
                             currenttile += 1;
                             break;
                         case 'b':
-                            array[(int)Math.Floor((decimal)currenttile / 8), currenttile % 8] = new Bishop(true);
+                            newpiece = new Bishop(true, (x, y));
+                            array[x, y] = newpiece;
+                            BlackPieces.Add(newpiece);
                             currenttile += 1;
                             break;
                         case 'B':
-                            array[(int)Math.Floor((decimal)currenttile / 8), currenttile % 8] = new Bishop(false);
+                            newpiece = new Bishop(false, (x, y));
+                            array[x, y] = newpiece;
+                            WhitePieces.Add(newpiece);
                             currenttile += 1;
                             break;
                         case 'n':
-                            array[(int)Math.Floor((decimal)currenttile / 8), currenttile % 8] = new Knight(true);
+                            newpiece = new Knight(true, (x, y));
+                            array[x, y] = newpiece;
+                            BlackPieces.Add(newpiece);
                             currenttile += 1;
                             break;
                         case 'N':
-                            array[(int)Math.Floor((decimal)currenttile / 8), currenttile % 8] = new Knight(false);
+                            newpiece = new Knight(false, (x, y));
+                            array[x, y] = newpiece;
+                            WhitePieces.Add(newpiece);
                             currenttile += 1;
                             break;
                         case 'q':
-                            array[(int)Math.Floor((decimal)currenttile / 8), currenttile % 8] = new Queen(true);
+                            newpiece = new Queen(true, (x, y));
+                            array[x, y] = newpiece;
+                            BlackPieces.Add(newpiece);
                             currenttile += 1;
                             break;
                         case 'Q':
-                            array[(int)Math.Floor((decimal)currenttile / 8), currenttile % 8] = new Queen(false);
+                            newpiece = new Queen(false, (x, y));
+                            array[x, y] = newpiece;
+                            WhitePieces.Add(newpiece);
                             currenttile += 1;
                             break;
                         case 'k':
-                            array[(int)Math.Floor((decimal)currenttile / 8), currenttile % 8] = new King(true);
+                            newpiece = new King(true, (x, y));
+                            array[x, y] = newpiece;
+                            BlackPieces.Add(newpiece);
+                            BlackKing = newpiece;
                             currenttile += 1;
                             break;
                         case 'K':
-                            array[(int)Math.Floor((decimal)currenttile / 8), currenttile % 8] = new King(false);
+                            newpiece = new King(false, (x, y));
+                            array[x, y] = newpiece;
+                            WhitePieces.Add(newpiece);
+                            WhiteKing = newpiece;
                             currenttile += 1;
                             break;
                         case '/':
@@ -125,6 +162,17 @@ namespace CrazyAuri.Models
         public string PrintFEN()
         {
             return base.ToString();
+        }
+
+        public IPiece GetPieceOnSquare((int, int) location)
+        {
+            int x = location.Item1;
+            int y = location.Item2;
+            if (array[x, y] != null)
+            {
+                return array[x,y];
+            }
+            return null;
         }
     }
 }
