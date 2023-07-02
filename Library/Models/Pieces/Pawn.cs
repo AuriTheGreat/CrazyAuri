@@ -20,19 +20,19 @@ namespace CrazyAuri.Models.Pieces
         {
             int x = location.Item1;
             int y = location.Item2;
-            int colorint = color == true ? 1 : -1;
+            int colorint = color == true ? 1 : -1; // determines which direction to move the pawns in
             List<Move> result = new List<Move>();
 
             var piece = board.GetPieceOnSquare((x + colorint * 1, y));
             if (piece == null)
             {
-                result.Add(new Move(location, (x + colorint * 1, y)));
+                result.Add(new Move(this, location, (x + colorint * 1, y)));
                 if ((x==1 && color==true) || (x==6  && color==false))
                 {
                     piece = board.GetPieceOnSquare((x + colorint * 2, y));
                     if (piece == null)
                     {
-                        result.Add(new Move(location, (x + colorint * 2, y)));
+                        result.Add(new Move(this, location, (x + colorint * 2, y)));
                     }
                 }
             }
@@ -43,7 +43,7 @@ namespace CrazyAuri.Models.Pieces
 
         public override void MakeMove(Board board, Move move)
         {
-            throw new NotImplementedException();
+            
         }
     }
 }

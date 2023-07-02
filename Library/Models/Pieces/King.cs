@@ -18,12 +18,16 @@ namespace CrazyAuri.Models.Pieces
 
         public override List<Move> GetMoves(Board board)
         {
-            throw new NotImplementedException();
+            List<Move> result = new List<Move>();
+
+
+
+            return result;
         }
 
         public override void MakeMove(Board board, Move move)
         {
-            throw new NotImplementedException();
+            
         }
     }
 }

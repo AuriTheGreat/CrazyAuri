@@ -4,16 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CrazyAuri.Models.Pieces;
+using CrazyAuriLibrary.Models;
 
 namespace CrazyAuri.Models
 {
     public class Board
     {
-        private IPiece[,] array = new IPiece[8, 8];
+        public IPiece[,] array = new IPiece[8, 8];
         public List<IPiece> WhitePieces = new List<IPiece>();
         public List<IPiece> BlackPieces = new List<IPiece>();
         public IPiece WhiteKing;
         public IPiece BlackKing;
+
         public bool CurrentColor = false;
         public bool CanWhiteCastleQueenside = true;
         public bool CanWhiteCastleKingside = true;
@@ -22,6 +24,8 @@ namespace CrazyAuri.Models
         public (int, int) EnPassantSquare = (-1, -1);
         public int HalfMoveClock = 0;
         public int FullMoveClock = 1;
+
+        private Dictionary<string, Move> LegalMoves = new Dictionary<string, Move>();
         public Board()
         {
             InitialiseBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
@@ -174,5 +178,43 @@ namespace CrazyAuri.Models
             }
             return null;
         }
+
+        public List<Move> GetAllMoves()
+        {
+            LegalMoves.Clear();
+            List<Move> result = new List<Move>();
+
+            if (CurrentColor == false)
+            {
+                foreach (var i in WhitePieces)
+                {
+                    foreach (var j in i.GetMoves(this))
+                    {
+                        LegalMoves.Add(j.ToString(), j);
+                        result.Add(j);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var i in BlackPieces)
+                {
+                    foreach (var j in i.GetMoves(this))
+                    {
+                        LegalMoves.Add(j.ToString(), j);
+                        result.Add(j);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public void MakeMove(string move)
+        {
+            Move moveobject = LegalMoves[move];
+            moveobject.MakeMove(this);
+        }
+
     }
 }

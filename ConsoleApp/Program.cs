@@ -11,7 +11,12 @@ namespace CrazyAuri
     {
         static public void Main(string[] args)
         {
-            CrazyAuriLibrary.FindBestMove("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
+            var ChessInstance = new ChessGameInstance("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
+            ChessInstance.PrintBoard();
+            ChessInstance.PrintAllMoves();
+            ChessInstance.MakeMove("e2e4");
+            ChessInstance.PrintBoard();
+            ChessInstance.PrintAllMoves();
         }
     }
 }

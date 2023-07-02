@@ -1,25 +1,41 @@
 ﻿using CrazyAuri.Models;
+using CrazyAuriLibrary.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace CrazyAuri
 {
-    public static class CrazyAuriLibrary
+    public class ChessGameInstance
     {
-        public static void FindBestMove(string FEN)
+        private Board board = new Board();
+        public ChessGameInstance(string FEN)
         {
-            Board board = new Board(FEN);
+            board = new Board(FEN);
+
+        }
+
+        public void PrintBoard()
+        {
             board.PrintBoard();
-            foreach (var i in board.WhitePieces)
+        }
+
+        public void PrintAllMoves()
+        {
+            foreach (var i in board.GetAllMoves())
             {
-                foreach (var j in i.GetMoves(board))
-                {
-                    Console.Write(j);
-                }
+                Console.Write(i);
+                Console.Write(" ");
             }
+            Console.WriteLine();
+        }
+
+        public void MakeMove(string move)
+        {
+            board.MakeMove(move);
         }
     }
 }
