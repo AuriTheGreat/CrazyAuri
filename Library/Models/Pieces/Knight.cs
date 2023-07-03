@@ -1,4 +1,4 @@
-﻿using CrazyAuriLibrary.Models;
+﻿using CrazyAuriLibrary.Models.Moves;
 using CrazyAuriLibrary.Models.Pieces;
 using System;
 using System.Collections.Generic;
@@ -28,6 +28,11 @@ namespace CrazyAuri.Models.Pieces
         public override void MakeMove(Board board, Move move)
         {
             
+        }
+
+        public override void GetAttacks(Board board, short[,] attackedSquares, bool[,] pinRays)
+        {
+
         }
     }
 }

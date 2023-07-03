@@ -4,17 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CrazyAuri.Models.Pieces;
-using CrazyAuriLibrary.Models;
+using CrazyAuriLibrary.Models.Moves;
+using CrazyAuriLibrary.Models.Pieces;
 
 namespace CrazyAuri.Models
 {
     public class Board
     {
-        public IPiece[,] array = new IPiece[8, 8];
-        public List<IPiece> WhitePieces = new List<IPiece>();
-        public List<IPiece> BlackPieces = new List<IPiece>();
-        public IPiece WhiteKing;
-        public IPiece BlackKing;
+        public Piece[,] array = new Piece[8, 8];
+        public List<Piece> WhitePieces = new List<Piece>();
+        public List<Piece> BlackPieces = new List<Piece>();
+        public Piece WhiteKing;
+        public Piece BlackKing;
 
         public bool CurrentColor = false;
         public bool CanWhiteCastleQueenside = true;
@@ -22,8 +23,22 @@ namespace CrazyAuri.Models
         public bool CanBlackCastleQueenside = true;
         public bool CanWhiteCastleingside = true;
         public (int, int) EnPassantSquare = (-1, -1);
-        public int HalfMoveClock = 0;
-        public int FullMoveClock = 1;
+        public ushort HalfMoveClock = 0;
+        public ushort FullMoveClock = 1;
+
+        public ushort WhiteCrazyHousePawns = 0;
+        public ushort WhiteCrazyHouseKnights = 0;
+        public ushort WhiteCrazyHouseBishops = 0;
+        public ushort WhiteCrazyHouseRooks = 0;
+        public ushort WhiteCrazyHouseQueens = 0;
+
+        public ushort BlackCrazyHousePawns = 0;
+        public ushort BlackCrazyHouseKnights = 0;
+        public ushort BlackCrazyHouseBishops = 0;
+        public ushort BlackCrazyHouseRooks = 0;
+        public ushort BlackCrazyHouseQueens = 0;
+
+
 
         private Dictionary<string, Move> LegalMoves = new Dictionary<string, Move>();
         public Board()
@@ -41,7 +56,7 @@ namespace CrazyAuri.Models
         {
             int currenttile = 0;
             bool BoardIsBeingRead = true;
-            IPiece newpiece = new Pawn(true, (-1, -1));
+            Piece newpiece = new Pawn(true, (-1, -1));
             for (int i = 0; i < FEN.Length; i++)
             {
                 if (BoardIsBeingRead==true)
@@ -168,13 +183,13 @@ namespace CrazyAuri.Models
             return base.ToString();
         }
 
-        public IPiece GetPieceOnSquare((int, int) location)
+        public Piece GetPieceOnSquare((int, int) location)
         {
             int x = location.Item1;
             int y = location.Item2;
             if (array[x, y] != null)
             {
-                return array[x,y];
+                    return array[x, y];
             }
             return null;
         }
@@ -182,38 +197,101 @@ namespace CrazyAuri.Models
         public List<Move> GetAllMoves()
         {
             LegalMoves.Clear();
-            List<Move> result = new List<Move>();
+
+            var ourPieces = BlackPieces;
+            var ourKing = BlackKing;
+            var enemyPieces = WhitePieces;
+            var enemyKing = WhiteKing;
 
             if (CurrentColor == false)
             {
-                foreach (var i in WhitePieces)
-                {
-                    foreach (var j in i.GetMoves(this))
-                    {
-                        LegalMoves.Add(j.ToString(), j);
-                        result.Add(j);
-                    }
-                }
+                ourPieces = WhitePieces;
+                ourKing = WhiteKing;
+                enemyPieces = BlackPieces;
+                enemyKing = BlackKing;
             }
-            else
+
+            short[,] attackedSquares = new short[8, 8];
+            bool[,] pinRays = new bool[8, 8];
+
+            foreach (var i in enemyPieces)
             {
-                foreach (var i in BlackPieces)
+                i.GetAttacks(this, attackedSquares, pinRays);
+            }
+
+            for (int i=0; i<8; i++)
+            {
+                for (int j=0; j<8; j++)
                 {
-                    foreach (var j in i.GetMoves(this))
-                    {
-                        LegalMoves.Add(j.ToString(), j);
-                        result.Add(j);
-                    }
+                    Console.Write(attackedSquares[i, j]);
+                    Console.Write(" ");
+                }
+                Console.WriteLine();
+
+            }
+
+            Console.WriteLine();
+
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    Console.Write(pinRays[i, j] ? 1 : 0);
+                    Console.Write(" ");
+                }
+                Console.WriteLine();
+
+            }
+
+            return GetAllMovesStandard(ourPieces, ourKing);
+        }
+
+        private List<Move> GetAllMovesStandard(List<Piece> pieces, Piece king)
+        {
+            var result = new List<Move>();
+
+            foreach (var i in pieces)
+            {
+                foreach (var j in i.GetMoves(this))
+                {
+                    LegalMoves.Add(j.ToString(), j);
+                    result.Add(j);
                 }
             }
 
             return result;
         }
 
-        public void MakeMove(string move)
+        private List<Move> GetAllMovesInCheck(List<Piece> pieces, Piece king)
         {
-            Move moveobject = LegalMoves[move];
-            moveobject.MakeMove(this);
+            var result = new List<Move>();
+
+            return result;
+        }
+
+        private List<Move> GetAllMovesInDoubleCheck(List<Piece> pieces, Piece king)
+        {
+            var result = new List<Move>();
+
+            return result;
+        }
+
+        public bool MakeMove(string move)
+        {
+            if (LegalMoves.ContainsKey(move))
+            {
+                Move moveobject = LegalMoves[move];
+
+                HalfMoveClock += 1;
+                if (CurrentColor == true)
+                    FullMoveClock += 1;
+                CurrentColor = !CurrentColor;
+
+                moveobject.MakeMove(this);
+
+                return true;
+            }
+            return false;
         }
 
     }

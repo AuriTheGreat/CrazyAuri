@@ -1,4 +1,4 @@
-﻿using CrazyAuriLibrary.Models;
+﻿using CrazyAuriLibrary.Models.Moves;
 using CrazyAuriLibrary.Models.Pieces;
 using System;
 using System.Collections.Generic;
@@ -18,6 +18,10 @@ namespace CrazyAuri.Models.Pieces
 
         public override List<Move> GetMoves(Board board)
         {
+            if ((location.Item1 == 1 && color == false) || (location.Item1 == 6 && color == true))
+            {
+                return GetPromotionMoves(board);
+            }
             int x = location.Item1;
             int y = location.Item2;
             int colorint = color == true ? 1 : -1; // determines which direction to move the pawns in
@@ -37,13 +41,58 @@ namespace CrazyAuri.Models.Pieces
                 }
             }
 
+            if (y < 7)
+            {
+                piece = board.GetPieceOnSquare((x + colorint * 1, y + 1));
+                if (piece != null)
+                {
+                    result.Add(new CaptureMove(this, location, (x + colorint * 1, y + 1)));
+                }
+            }
+
+            if (y > 0)
+            {
+                piece = board.GetPieceOnSquare((x + colorint * 1, y - 1));
+                if (piece != null)
+                {
+                    result.Add(new CaptureMove(this, location, (x + colorint * 1, y - 1)));
+                }
+            }
+
             return result;
 
         }
 
+        private List<Move> GetPromotionMoves(Board board)
+        {
+            int x = location.Item1;
+            int y = location.Item2;
+            int colorint = color == true ? 1 : -1; // determines which direction to move the pawns in
+            List<Move> result = new List<Move>();
+
+            return result;
+        }
+
         public override void MakeMove(Board board, Move move)
         {
-            
+            board.EnPassantSquare = move.endsquare;
+        }
+
+        public override void GetAttacks(Board board, short[,] attackedSquares, bool[,] pinRays)
+        {
+            int x = location.Item1;
+            int y = location.Item2;
+            int colorint = color == true ? 1 : -1; // determines which direction to move the pawns in
+
+            if (y < 7)
+            {
+                attackedSquares[x + colorint * 1, y + 1] += 1;
+            }
+
+            if (y > 0)
+            {
+                attackedSquares[x + colorint * 1, y - 1] += 1;
+            }
         }
     }
 }

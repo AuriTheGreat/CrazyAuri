@@ -1,4 +1,4 @@
-﻿using CrazyAuriLibrary.Models;
+﻿using CrazyAuriLibrary.Models.Moves;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +13,7 @@ namespace CrazyAuri.Models.Pieces
 
         public List<Move> GetMoves(Board board);
         public void MakeMove(Board board, Move move);
+        public void GetAttacks(Board board, short[,] attackedSquares, bool[,] pinRays);
 
     }
 }

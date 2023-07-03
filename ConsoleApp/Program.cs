@@ -1,4 +1,6 @@
 ﻿using CrazyAuri;
+using CrazyAuri.Models;
+using CrazyAuriLibrary.Models.Moves;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,12 +13,39 @@ namespace CrazyAuri
     {
         static public void Main(string[] args)
         {
-            var ChessInstance = new ChessGameInstance("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
-            ChessInstance.PrintBoard();
-            ChessInstance.PrintAllMoves();
-            ChessInstance.MakeMove("e2e4");
-            ChessInstance.PrintBoard();
-            ChessInstance.PrintAllMoves();
+            Board board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
+            while (true)
+            {
+                board.PrintBoard();
+                var possiblemoves = board.GetAllMoves();
+                if (possiblemoves.Count == 0)
+                    break;
+                while (true)
+                {
+                    PrintMoves(possiblemoves);
+                    Console.WriteLine("Enter your move:");
+                    string move = Console.ReadLine();
+                    if (board.MakeMove(move) == true)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Move is illegal!");
+                    }
+                }
+            }
+            
+        }
+
+        private static void PrintMoves(List<Move> possiblemoves)
+        {
+            foreach (var i in possiblemoves)
+            {
+                Console.Write(i);
+                Console.Write(" ");
+            }
+            Console.WriteLine();
         }
     }
 }
