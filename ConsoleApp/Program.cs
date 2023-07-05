@@ -1,6 +1,6 @@
 ﻿using CrazyAuri;
 using CrazyAuri.Models;
-using CrazyAuriLibrary.Models.Moves;
+using CrazyAuriLibrary.Models.Moves.MoveTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +14,7 @@ namespace CrazyAuri
         static public void Main(string[] args)
         {
             Board board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
+            //Board board = new Board("rn1qk1nr/pppppppp/8/7b/5q1b/5BQ1/PPPP1K1P/RN3BNR w HAkq - 0 1"); // pin test
             while (true)
             {
                 board.PrintBoard();

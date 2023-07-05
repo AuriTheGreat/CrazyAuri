@@ -1,4 +1,4 @@
-﻿using CrazyAuriLibrary.Models.Moves;
+﻿using CrazyAuriLibrary.Models.Moves.MoveTypes;
 using CrazyAuriLibrary.Models.Pieces;
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace CrazyAuri.Models.Pieces
             acronym = "p";
         }
 
-        public override List<Move> GetMoves(Board board)
+        public override List<Move> GetMoves(Board board, short[,] attackedSquares, bool[,] pinRays, bool[,] checkRays)
         {
             if ((location.Item1 == 1 && color == false) || (location.Item1 == 6 && color == true))
             {
@@ -24,38 +24,53 @@ namespace CrazyAuri.Models.Pieces
             }
             int x = location.Item1;
             int y = location.Item2;
+
             int colorint = color == true ? 1 : -1; // determines which direction to move the pawns in
             List<Move> result = new List<Move>();
+
+            bool isPinned = false;
+            if (pinRays[x, y] == true)
+                isPinned = true;
 
             var piece = board.GetPieceOnSquare((x + colorint * 1, y));
             if (piece == null)
             {
-                result.Add(new Move(this, location, (x + colorint * 1, y)));
-                if ((x==1 && color==true) || (x==6  && color==false))
+                if ((isPinned == true && pinRays[x + colorint * 1, y] == true) || isPinned == false)
                 {
-                    piece = board.GetPieceOnSquare((x + colorint * 2, y));
-                    if (piece == null)
+                    result.Add(new Move(this, location, (x + colorint * 1, y)));
+                    if ((x == 1 && color == true) || (x == 6 && color == false))
                     {
-                        result.Add(new Move(this, location, (x + colorint * 2, y)));
+                        piece = board.GetPieceOnSquare((x + colorint * 2, y));
+                        if (piece == null)
+                        {
+                            if ((isPinned = true && pinRays[x + colorint * 2, y] == true) || isPinned == false)
+                                result.Add(new Move(this, location, (x + colorint * 2, y)));
+                        }
                     }
                 }
             }
 
             if (y < 7)
             {
-                piece = board.GetPieceOnSquare((x + colorint * 1, y + 1));
-                if (piece != null)
+                if ((isPinned == true && pinRays[x + colorint * 1, y+1] == true) || isPinned == false)
                 {
-                    result.Add(new CaptureMove(this, location, (x + colorint * 1, y + 1)));
+                    piece = board.GetPieceOnSquare((x + colorint * 1, y + 1));
+                    if (piece != null)
+                    {
+                        result.Add(new CaptureMove(this, location, (x + colorint * 1, y + 1)));
+                    }
                 }
             }
 
             if (y > 0)
             {
-                piece = board.GetPieceOnSquare((x + colorint * 1, y - 1));
-                if (piece != null)
+                if ((isPinned == true && pinRays[x + colorint * 1, y-1] == true) || isPinned == false)
                 {
-                    result.Add(new CaptureMove(this, location, (x + colorint * 1, y - 1)));
+                    piece = board.GetPieceOnSquare((x + colorint * 1, y - 1));
+                    if (piece != null)
+                    {
+                        result.Add(new CaptureMove(this, location, (x + colorint * 1, y - 1)));
+                    }
                 }
             }
 
@@ -78,7 +93,7 @@ namespace CrazyAuri.Models.Pieces
             board.EnPassantSquare = move.endsquare;
         }
 
-        public override void GetAttacks(Board board, short[,] attackedSquares, bool[,] pinRays)
+        public override void GetAttacks(Board board, short[,] attackedSquares, bool[,] pinRays, bool[,] checkRays)
         {
             int x = location.Item1;
             int y = location.Item2;

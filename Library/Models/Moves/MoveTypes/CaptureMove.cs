@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CrazyAuriLibrary.Models.Moves
+namespace CrazyAuriLibrary.Models.Moves.MoveTypes
 {
     public class CaptureMove : Move
     {

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CrazyAuri.Models.Pieces;
 using CrazyAuriLibrary.Models.Moves;
+using CrazyAuriLibrary.Models.Moves.MoveTypes;
 using CrazyAuriLibrary.Models.Pieces;
 
 namespace CrazyAuri.Models
@@ -21,7 +22,7 @@ namespace CrazyAuri.Models
         public bool CanWhiteCastleQueenside = true;
         public bool CanWhiteCastleKingside = true;
         public bool CanBlackCastleQueenside = true;
-        public bool CanWhiteCastleingside = true;
+        public bool CanBlackCastleKingside = true;
         public (int, int) EnPassantSquare = (-1, -1);
         public ushort HalfMoveClock = 0;
         public ushort FullMoveClock = 1;
@@ -38,9 +39,7 @@ namespace CrazyAuri.Models
         public ushort BlackCrazyHouseRooks = 0;
         public ushort BlackCrazyHouseQueens = 0;
 
-
-
-        private Dictionary<string, Move> LegalMoves = new Dictionary<string, Move>();
+        private BoardMove boardmove;
         public Board()
         {
             InitialiseBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
@@ -196,102 +195,13 @@ namespace CrazyAuri.Models
 
         public List<Move> GetAllMoves()
         {
-            LegalMoves.Clear();
-
-            var ourPieces = BlackPieces;
-            var ourKing = BlackKing;
-            var enemyPieces = WhitePieces;
-            var enemyKing = WhiteKing;
-
-            if (CurrentColor == false)
-            {
-                ourPieces = WhitePieces;
-                ourKing = WhiteKing;
-                enemyPieces = BlackPieces;
-                enemyKing = BlackKing;
-            }
-
-            short[,] attackedSquares = new short[8, 8];
-            bool[,] pinRays = new bool[8, 8];
-
-            foreach (var i in enemyPieces)
-            {
-                i.GetAttacks(this, attackedSquares, pinRays);
-            }
-
-            for (int i=0; i<8; i++)
-            {
-                for (int j=0; j<8; j++)
-                {
-                    Console.Write(attackedSquares[i, j]);
-                    Console.Write(" ");
-                }
-                Console.WriteLine();
-
-            }
-
-            Console.WriteLine();
-
-            for (int i = 0; i < 8; i++)
-            {
-                for (int j = 0; j < 8; j++)
-                {
-                    Console.Write(pinRays[i, j] ? 1 : 0);
-                    Console.Write(" ");
-                }
-                Console.WriteLine();
-
-            }
-
-            return GetAllMovesStandard(ourPieces, ourKing);
-        }
-
-        private List<Move> GetAllMovesStandard(List<Piece> pieces, Piece king)
-        {
-            var result = new List<Move>();
-
-            foreach (var i in pieces)
-            {
-                foreach (var j in i.GetMoves(this))
-                {
-                    LegalMoves.Add(j.ToString(), j);
-                    result.Add(j);
-                }
-            }
-
-            return result;
-        }
-
-        private List<Move> GetAllMovesInCheck(List<Piece> pieces, Piece king)
-        {
-            var result = new List<Move>();
-
-            return result;
-        }
-
-        private List<Move> GetAllMovesInDoubleCheck(List<Piece> pieces, Piece king)
-        {
-            var result = new List<Move>();
-
-            return result;
+            boardmove = new BoardMove(this);
+            return boardmove.GetAllMoves();
         }
 
         public bool MakeMove(string move)
         {
-            if (LegalMoves.ContainsKey(move))
-            {
-                Move moveobject = LegalMoves[move];
-
-                HalfMoveClock += 1;
-                if (CurrentColor == true)
-                    FullMoveClock += 1;
-                CurrentColor = !CurrentColor;
-
-                moveobject.MakeMove(this);
-
-                return true;
-            }
-            return false;
+            return boardmove.MakeMove(move);
         }
 
     }
