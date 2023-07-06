@@ -15,8 +15,11 @@ namespace CrazyAuri
         {
             Board board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
             //Board board = new Board("rn1qk1nr/pppppppp/8/7b/5q1b/5BQ1/PPPP1K1P/RN3BNR w HAkq - 0 1"); // pin test
+            //Board board = new Board("rnbk1b1r/pp3ppp/2p5/4q1B1/4n3/8/PPP2PPP/2KR1BNR b - - 1 10"); // double check test
+
             while (true)
             {
+                Console.WriteLine(board);
                 board.PrintBoard();
                 var possiblemoves = board.GetAllMoves();
                 if (possiblemoves.Count == 0)

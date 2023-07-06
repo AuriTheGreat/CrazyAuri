@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,10 +20,10 @@ namespace CrazyAuri.Models
         public Piece BlackKing;
 
         public bool CurrentColor = false;
-        public bool CanWhiteCastleQueenside = true;
-        public bool CanWhiteCastleKingside = true;
-        public bool CanBlackCastleQueenside = true;
-        public bool CanBlackCastleKingside = true;
+        public bool CanWhiteCastleQueenside = false;
+        public bool CanWhiteCastleKingside = false;
+        public bool CanBlackCastleQueenside = false;
+        public bool CanBlackCastleKingside = false;
         public (int, int) EnPassantSquare = (-1, -1);
         public ushort HalfMoveClock = 0;
         public ushort FullMoveClock = 1;
@@ -53,99 +54,144 @@ namespace CrazyAuri.Models
 
         protected void InitialiseBoard(string FEN)
         {
+            var separatedFEN = FEN.Split(" ");
             int currenttile = 0;
             bool BoardIsBeingRead = true;
             Piece newpiece = new Pawn(true, (-1, -1));
             for (int i = 0; i < FEN.Length; i++)
             {
-                if (BoardIsBeingRead==true)
+                if (BoardIsBeingRead == true)
                 {
                     int x = (int)Math.Floor((decimal)currenttile / 8);
                     int y = currenttile % 8;
-                    switch (FEN[i])
+                    if (x < 8)
                     {
-                        case 'p':
-                            newpiece = new Pawn(true, (x, y));
-                            array[x, y] = newpiece;
-                            BlackPieces.Add(newpiece);
-                            currenttile += 1;
-                            break;
-                        case 'P':
-                            newpiece = new Pawn(false, (x, y));
-                            array[x, y] = newpiece;
-                            WhitePieces.Add(newpiece);
-                            currenttile += 1;
-                            break;
-                        case 'r':
-                            newpiece = new Rook(true, (x, y));
-                            array[x, y] = newpiece;
-                            BlackPieces.Add(newpiece);
-                            currenttile += 1;
-                            break;
-                        case 'R':
-                            newpiece = new Rook(false, (x, y));
-                            array[x, y] = newpiece;
-                            WhitePieces.Add(newpiece);
-                            currenttile += 1;
-                            break;
-                        case 'b':
-                            newpiece = new Bishop(true, (x, y));
-                            array[x, y] = newpiece;
-                            BlackPieces.Add(newpiece);
-                            currenttile += 1;
-                            break;
-                        case 'B':
-                            newpiece = new Bishop(false, (x, y));
-                            array[x, y] = newpiece;
-                            WhitePieces.Add(newpiece);
-                            currenttile += 1;
-                            break;
-                        case 'n':
-                            newpiece = new Knight(true, (x, y));
-                            array[x, y] = newpiece;
-                            BlackPieces.Add(newpiece);
-                            currenttile += 1;
-                            break;
-                        case 'N':
-                            newpiece = new Knight(false, (x, y));
-                            array[x, y] = newpiece;
-                            WhitePieces.Add(newpiece);
-                            currenttile += 1;
-                            break;
-                        case 'q':
-                            newpiece = new Queen(true, (x, y));
-                            array[x, y] = newpiece;
-                            BlackPieces.Add(newpiece);
-                            currenttile += 1;
-                            break;
-                        case 'Q':
-                            newpiece = new Queen(false, (x, y));
-                            array[x, y] = newpiece;
-                            WhitePieces.Add(newpiece);
-                            currenttile += 1;
-                            break;
-                        case 'k':
-                            newpiece = new King(true, (x, y));
-                            array[x, y] = newpiece;
-                            BlackPieces.Add(newpiece);
-                            BlackKing = newpiece;
-                            currenttile += 1;
-                            break;
-                        case 'K':
-                            newpiece = new King(false, (x, y));
-                            array[x, y] = newpiece;
-                            WhitePieces.Add(newpiece);
-                            WhiteKing = newpiece;
-                            currenttile += 1;
-                            break;
-                        case '/':
-                            break;
-                        case ' ':
-                            BoardIsBeingRead=false;
-                            break;
-                        default:
-                            currenttile += int.Parse(FEN[i].ToString());
-                            break;
+                        switch (FEN[i])
+                        {
+                            case 'p':
+                                newpiece = new Pawn(true, (x, y));
+                                array[x, y] = newpiece;
+                                BlackPieces.Add(newpiece);
+                                currenttile += 1;
+                                break;
+                            case 'P':
+                                newpiece = new Pawn(false, (x, y));
+                                array[x, y] = newpiece;
+                                WhitePieces.Add(newpiece);
+                                currenttile += 1;
+                                break;
+                            case 'r':
+                                newpiece = new Rook(true, (x, y));
+                                array[x, y] = newpiece;
+                                BlackPieces.Add(newpiece);
+                                currenttile += 1;
+                                break;
+                            case 'R':
+                                newpiece = new Rook(false, (x, y));
+                                array[x, y] = newpiece;
+                                WhitePieces.Add(newpiece);
+                                currenttile += 1;
+                                break;
+                            case 'b':
+                                newpiece = new Bishop(true, (x, y));
+                                array[x, y] = newpiece;
+                                BlackPieces.Add(newpiece);
+                                currenttile += 1;
+                                break;
+                            case 'B':
+                                newpiece = new Bishop(false, (x, y));
+                                array[x, y] = newpiece;
+                                WhitePieces.Add(newpiece);
+                                currenttile += 1;
+                                break;
+                            case 'n':
+                                newpiece = new Knight(true, (x, y));
+                                array[x, y] = newpiece;
+                                BlackPieces.Add(newpiece);
+                                currenttile += 1;
+                                break;
+                            case 'N':
+                                newpiece = new Knight(false, (x, y));
+                                array[x, y] = newpiece;
+                                WhitePieces.Add(newpiece);
+                                currenttile += 1;
+                                break;
+                            case 'q':
+                                newpiece = new Queen(true, (x, y));
+                                array[x, y] = newpiece;
+                                BlackPieces.Add(newpiece);
+                                currenttile += 1;
+                                break;
+                            case 'Q':
+                                newpiece = new Queen(false, (x, y));
+                                array[x, y] = newpiece;
+                                WhitePieces.Add(newpiece);
+                                currenttile += 1;
+                                break;
+                            case 'k':
+                                newpiece = new King(true, (x, y));
+                                array[x, y] = newpiece;
+                                BlackPieces.Add(newpiece);
+                                BlackKing = newpiece;
+                                currenttile += 1;
+                                break;
+                            case 'K':
+                                newpiece = new King(false, (x, y));
+                                array[x, y] = newpiece;
+                                WhitePieces.Add(newpiece);
+                                WhiteKing = newpiece;
+                                currenttile += 1;
+                                break;
+                            case '/':
+                                break;
+                            case ' ':
+                                BoardIsBeingRead = false;
+                                break;
+                            default:
+                                currenttile += int.Parse(FEN[i].ToString());
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        switch (FEN[i])
+                        {
+                            case 'p':
+                                BlackCrazyHousePawns += 1;
+                                break;
+                            case 'P':
+                                WhiteCrazyHousePawns += 1;
+                                break;
+                            case 'r':
+                                BlackCrazyHouseRooks += 1;
+                                break;
+                            case 'R':
+                                WhiteCrazyHouseRooks += 1;
+                                break;
+                            case 'b':
+                                BlackCrazyHouseBishops += 1;
+                                break;
+                            case 'B':
+                                WhiteCrazyHouseBishops += 1;
+                                break;
+                            case 'n':
+                                BlackCrazyHouseKnights += 1;
+                                break;
+                            case 'N':
+                                WhiteCrazyHouseKnights += 1;
+                                break;
+                            case 'q':
+                                BlackCrazyHouseQueens += 1;
+                                break;
+                            case 'Q':
+                                WhiteCrazyHouseQueens += 1;
+                                break;
+                            case '/':
+                                break;
+                            case ' ':
+                                BoardIsBeingRead = false;
+                                break;
+                        }
                     }
                 }
                 else
@@ -153,6 +199,28 @@ namespace CrazyAuri.Models
                     break;
                 }
             }
+
+            if (separatedFEN[1] == "b")
+            {
+                CurrentColor = true;
+            }
+
+            if (separatedFEN[2].Contains("K"))
+                CanWhiteCastleKingside = true;
+            if (separatedFEN[2].Contains("Q"))
+                CanWhiteCastleQueenside = true;
+            if (separatedFEN[2].Contains("k"))
+                CanBlackCastleKingside = true;
+            if (separatedFEN[2].Contains("q"))
+                CanBlackCastleQueenside = true;
+
+            if (separatedFEN[3] != "-")
+            {
+                EnPassantSquare = ConvertTileNameToLocation(separatedFEN[3]);
+            }
+
+            HalfMoveClock = ushort.Parse(separatedFEN[4]);
+            FullMoveClock = ushort.Parse(separatedFEN[5]);
 
         }
 
@@ -164,12 +232,12 @@ namespace CrazyAuri.Models
         public void PrintBoard()
         {
             Console.WriteLine("+---+---+---+---+---+---+---+---+");
-            for (int i=0; i<8; i++)
+            for (int i = 0; i < 8; i++)
             {
                 Console.Write("| ");
                 for (int j = 0; j < 8; j++)
                 {
-                    Console.Write(array[i, j]!=null ? array[i, j] : " ");
+                    Console.Write(array[i, j] != null ? array[i, j] : " ");
                     Console.Write(" | ");
                 }
                 Console.WriteLine("");
@@ -179,7 +247,81 @@ namespace CrazyAuri.Models
 
         public string PrintFEN()
         {
-            return base.ToString();
+            StringBuilder sb = new StringBuilder("", 120);
+
+            for (int i = 0; i < 8; i++)
+            {
+                int currentspace = 0;
+                for (int j = 0; j < 8; j++)
+                {
+                    Piece piece = GetPieceOnSquare((i, j));
+                    if (piece != null)
+                    {
+                        if (currentspace != 0)
+                            sb.Append(currentspace);
+                        currentspace = 0;
+                        sb.Append(piece.ToString());
+                    }
+                    else
+                    {
+                        currentspace += 1;
+                    }
+                }
+                if (currentspace != 0)
+                    sb.Append(currentspace);
+                sb.Append("/");
+            }
+
+            FENCrazyHousePiecesInsert(sb, WhiteCrazyHousePawns, "P");
+            FENCrazyHousePiecesInsert(sb, WhiteCrazyHouseKnights, "N");
+            FENCrazyHousePiecesInsert(sb, WhiteCrazyHouseBishops, "B");
+            FENCrazyHousePiecesInsert(sb, WhiteCrazyHouseRooks, "R");
+            FENCrazyHousePiecesInsert(sb, WhiteCrazyHouseQueens, "Q");
+            FENCrazyHousePiecesInsert(sb, BlackCrazyHousePawns, "p");
+            FENCrazyHousePiecesInsert(sb, BlackCrazyHouseKnights, "n");
+            FENCrazyHousePiecesInsert(sb, BlackCrazyHouseBishops, "b");
+            FENCrazyHousePiecesInsert(sb, BlackCrazyHouseRooks, "r");
+            FENCrazyHousePiecesInsert(sb, BlackCrazyHouseQueens, "q");
+
+            sb.Append(" ");
+
+            sb.Append(CurrentColor == true ? "b" : "w");
+            sb.Append(" ");
+            bool castlingExists = false;
+            if (CanWhiteCastleKingside == true)
+            {
+                castlingExists = true;
+                sb.Append("K");
+            }
+            if (CanWhiteCastleQueenside == true)
+            {
+                castlingExists = true;
+                sb.Append("Q");
+            }
+            if (CanBlackCastleKingside == true)
+            {
+                castlingExists = true;
+                sb.Append("k");
+            }
+            if (CanBlackCastleQueenside == true)
+            {
+                castlingExists = true;
+                sb.Append("q");
+            }
+            sb.Append(castlingExists == true ? " " : "- ");
+            sb.Append(EnPassantSquare!=(-1,-1) ? ConvertLocationToTileName(EnPassantSquare) : "-");
+            sb.Append(" ");
+            sb.Append(HalfMoveClock);
+            sb.Append(" ");
+            sb.Append(FullMoveClock);
+
+            return sb.ToString();
+        }
+
+        private void FENCrazyHousePiecesInsert(StringBuilder sb, ushort piececount, string piece)
+        {
+            for (int i = 0; i < piececount; i++)
+                sb.Append(piece);
         }
 
         public Piece GetPieceOnSquare((int, int) location)
@@ -202,6 +344,19 @@ namespace CrazyAuri.Models
         public bool MakeMove(string move)
         {
             return boardmove.MakeMove(move);
+        }
+
+        public (int,int) ConvertTileNameToLocation(string tile)
+        {
+            return (-1*(tile[1] - 56), tile[0]-97);
+        }
+
+        public string ConvertLocationToTileName((int, int) location)
+        {
+            var x = location.Item1;
+            var y = location.Item2;
+
+            return char.ConvertFromUtf32(y + 97) + (8 - x).ToString();
         }
 
     }

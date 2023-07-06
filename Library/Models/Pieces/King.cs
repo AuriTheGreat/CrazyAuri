@@ -17,7 +17,7 @@ namespace CrazyAuri.Models.Pieces
             acronym = "k";
         }
 
-        public override List<Move> GetMoves(Board board, short[,] attackedSquares, bool[,] pinRays, bool[,] checkRays)
+        public override List<Move> GetMoves(Board board, short[,] attackedSquares, short[,] pinRays)
         {
             List<Move> result = new List<Move>();
 
@@ -34,6 +34,11 @@ namespace CrazyAuri.Models.Pieces
             return result;
         }
 
+        public override List<Move> GetCheckMoves(Board board, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
+        {
+            return GetMoves(board, attackedSquares, pinRays);
+        }
+
         private void CheckMove(Board board, List<Move> result, short[,] attackedSquares, (short, short) direction)
         {
             int x = location.Item1 + direction.Item1;
@@ -48,10 +53,6 @@ namespace CrazyAuri.Models.Pieces
                 if (piece != null)
                 {
                     if (piece.color != this.color)
-                    {
-                        result.Add(new Move(this, location, (x, y)));
-                    }
-                    else
                     {
                         result.Add(new CaptureMove(this, location, (x, y)));
                     }
@@ -77,7 +78,7 @@ namespace CrazyAuri.Models.Pieces
             }
         }
 
-        public override void GetAttacks(Board board, short[,] attackedSquares, bool[,] pinRays, bool[,] checkRays)
+        public override void GetAttacks(Board board, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
         {
             CheckAttackDirection((1, 1), attackedSquares);
             CheckAttackDirection((1, 0), attackedSquares);

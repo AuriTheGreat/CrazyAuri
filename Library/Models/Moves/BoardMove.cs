@@ -14,7 +14,7 @@ namespace CrazyAuriLibrary.Models.Moves
         private Board board = new Board();
   
         private short[,] attackedSquares = new short[8, 8];
-        private bool[,] pinRays = new bool[8, 8];
+        private short[,] pinRays = new short[8, 8];
         private bool[,] checkRays = new bool[8, 8];
 
         private Dictionary<string, Move> LegalMovesDictionary = new Dictionary<string, Move>();
@@ -44,53 +44,63 @@ namespace CrazyAuriLibrary.Models.Moves
                 i.GetAttacks(board, attackedSquares, pinRays, checkRays);
             }
 
-            for (int i = 0; i < 8; i++)
+            //for (int i = 0; i < 8; i++)
+            //{
+            //    for (int j = 0; j < 8; j++)
+            //    {
+            //        Console.Write(attackedSquares[i, j]);
+            //        Console.Write(" ");
+            //    }
+            //    Console.WriteLine();
+
+            //}
+
+            //Console.WriteLine();
+
+            //for (int i = 0; i < 8; i++)
+            //{
+            //    for (int j = 0; j < 8; j++)
+            //    {
+            //        Console.Write(pinRays[i, j]);
+            //        Console.Write(" ");
+            //    }
+            //    Console.WriteLine();
+
+            //}
+
+            //Console.WriteLine();
+
+            //for (int i = 0; i < 8; i++)
+            //{
+            //    for (int j = 0; j < 8; j++)
+            //    {
+            //        Console.Write(checkRays[i, j] ? 1 : 0);
+            //        Console.Write(" ");
+            //    }
+            //    Console.WriteLine();
+            //}
+
+            if (attackedSquares[ourKing.location.Item1, ourKing.location.Item2]==0)
             {
-                for (int j = 0; j < 8; j++)
-                {
-                    Console.Write(attackedSquares[i, j]);
-                    Console.Write(" ");
-                }
-                Console.WriteLine();
-
+                return GetAllMovesStandard(ourPieces);
             }
-
-            Console.WriteLine();
-
-            for (int i = 0; i < 8; i++)
+            else if (attackedSquares[ourKing.location.Item1, ourKing.location.Item2] == 1)
             {
-                for (int j = 0; j < 8; j++)
-                {
-                    Console.Write(pinRays[i, j] ? 1 : 0);
-                    Console.Write(" ");
-                }
-                Console.WriteLine();
-
+                return GetAllMovesInCheck(ourPieces);
             }
-
-            Console.WriteLine();
-
-            for (int i = 0; i < 8; i++)
+            else
             {
-                for (int j = 0; j < 8; j++)
-                {
-                    Console.Write(checkRays[i, j] ? 1 : 0);
-                    Console.Write(" ");
-                }
-                Console.WriteLine();
+                return GetAllMovesInDoubleCheck(ourKing);
             }
-
-
-            return GetAllMovesStandard(ourPieces, ourKing);
         }
 
-        private List<Move> GetAllMovesStandard(List<Piece> pieces, Piece king)
+        private List<Move> GetAllMovesStandard(List<Piece> pieces)
         {
             var result = new List<Move>();
 
             foreach (var i in pieces)
             {
-                foreach (var j in i.GetMoves(board, attackedSquares, pinRays, checkRays))
+                foreach (var j in i.GetMoves(board, attackedSquares, pinRays))
                 {
                     LegalMovesDictionary.Add(j.ToString(), j);
                     result.Add(j);
@@ -100,17 +110,30 @@ namespace CrazyAuriLibrary.Models.Moves
             return result;
         }
 
-        private List<Move> GetAllMovesInCheck(List<Piece> pieces, Piece king)
+        private List<Move> GetAllMovesInCheck(List<Piece> pieces)
         {
             var result = new List<Move>();
+
+            foreach (var i in pieces)
+            {
+                foreach (var j in i.GetCheckMoves(board, attackedSquares, pinRays, checkRays))
+                {
+                    LegalMovesDictionary.Add(j.ToString(), j);
+                    result.Add(j);
+                }
+            }
 
             return result;
         }
 
-        private List<Move> GetAllMovesInDoubleCheck(List<Piece> pieces, Piece king)
+        private List<Move> GetAllMovesInDoubleCheck(Piece king)
         {
-            var result = new List<Move>();
+            var result = king.GetMoves(board, attackedSquares, pinRays);
 
+            foreach (var j in result)
+            {
+                LegalMovesDictionary.Add(j.ToString(), j);
+            }
             return result;
         }
 

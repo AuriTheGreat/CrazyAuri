@@ -31,8 +31,9 @@ namespace CrazyAuriLibrary.Models.Pieces
                 return acronym.ToUpper();
             }
         }
-        public abstract List<Move> GetMoves(Board board, short[,] attackedSquares, bool[,] pinRays, bool[,] checkRays);
+        public abstract List<Move> GetMoves(Board board, short[,] attackedSquares, short[,] pinRays);
+        public abstract List<Move> GetCheckMoves(Board board, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays);
         public abstract void MakeMove(Board board, Move move);
-        public abstract void GetAttacks(Board board, short[,] attackedSquares, bool[,] pinRays, bool[,] checkRays);
+        public abstract void GetAttacks(Board board, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays);
     }
 }
