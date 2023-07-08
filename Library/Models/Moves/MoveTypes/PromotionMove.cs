@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CrazyAuriLibrary.Models.Moves.MoveTypes
 {
-    public class PromotionMove : Move
+    public class PromotionMove : CaptureMove
     {
         string promotionPiece;
 
@@ -18,54 +18,49 @@ namespace CrazyAuriLibrary.Models.Moves.MoveTypes
             this.promotionPiece = promotionpiece;
         }
 
+        public override string ToString()
+        {
+            return GetMoveName() + promotionPiece;
+        }
+
         public override void MakeMove(Board board)
         {
-            board.HalfMoveClock = 0;
-            var endpiece = board.GetPieceOnSquare(endsquare);
-            switch (endpiece.ToString())
+            int x1 = startsquare.Item1;
+            int x2 = endsquare.Item1;
+            int y1 = startsquare.Item2;
+            int y2 = endsquare.Item2;
+
+            Piece newpiece= new Queen(piece.color, (x2, y2));
+
+            switch (promotionPiece)
             {
-                case "p":
-                    board.WhiteCrazyHousePawns += 1;
-                    break;
-                case "n":
-                    board.WhiteCrazyHouseKnights += 1;
+                case "r":
+                    newpiece = new Rook(piece.color, (x2, y2));
                     break;
                 case "b":
-                    board.WhiteCrazyHouseBishops += 1;
+                    newpiece = new Bishop(piece.color, (x2, y2));
                     break;
-                case "r":
-                    board.WhiteCrazyHouseRooks += 1;
-                    break;
-                case "q":
-                    board.WhiteCrazyHouseQueens += 1;
-                    break;
-                case "P":
-                    board.BlackCrazyHousePawns += 1;
-                    break;
-                case "N":
-                    board.BlackCrazyHouseKnights += 1;
-                    break;
-                case "B":
-                    board.BlackCrazyHouseBishops += 1;
-                    break;
-                case "R":
-                    board.BlackCrazyHouseRooks += 1;
-                    break;
-                case "Q":
-                    board.BlackCrazyHouseQueens += 1;
+                case "n":
+                    newpiece = new Knight(piece.color, (x2, y2));
                     break;
             }
 
-            if (board.CurrentColor == false)
+            var startpiece = board.GetPieceOnSquare(startsquare);
+            if (board.CurrentColor == true)
             {
-                board.WhitePieces.Remove(endpiece);
+                board.WhitePieces.Remove(startpiece);
+                board.WhitePieces.Add(newpiece);
             }
             else
             {
-                board.BlackPieces.Remove(endpiece);
+                board.BlackPieces.Remove(startpiece);
+                board.BlackPieces.Add(newpiece);
             }
 
-            base.MakeMove(board);
+            board.HalfMoveClock = 0;
+
+            board.array[x2, y2] = newpiece;
+            board.array[x1, y1] = null;
         }
     }
 }

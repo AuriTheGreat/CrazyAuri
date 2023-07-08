@@ -11,12 +11,15 @@ namespace CrazyAuriLibrary.Models.Moves
 {
     public class BoardMove
     {
+        public bool movesHaveBeenChecked=false;
+
         private Board board = new Board();
   
         private short[,] attackedSquares = new short[8, 8];
         private short[,] pinRays = new short[8, 8];
         private bool[,] checkRays = new bool[8, 8];
 
+        private List <Move> LegalMoves = new List <Move>();
         private Dictionary<string, Move> LegalMovesDictionary = new Dictionary<string, Move>();
 
         public BoardMove(Board board)
@@ -26,6 +29,12 @@ namespace CrazyAuriLibrary.Models.Moves
 
         public List<Move> GetAllMoves()
         {
+            if (movesHaveBeenChecked == true)
+            {
+                return LegalMoves;
+            }
+            movesHaveBeenChecked = true;
+
             var ourPieces = board.BlackPieces;
             var ourKing = board.BlackKing;
             var enemyPieces = board.WhitePieces;
@@ -82,16 +91,17 @@ namespace CrazyAuriLibrary.Models.Moves
 
             if (attackedSquares[ourKing.location.Item1, ourKing.location.Item2]==0)
             {
-                return GetAllMovesStandard(ourPieces);
+                LegalMoves=GetAllMovesStandard(ourPieces);
             }
             else if (attackedSquares[ourKing.location.Item1, ourKing.location.Item2] == 1)
             {
-                return GetAllMovesInCheck(ourPieces);
+                LegalMoves = GetAllMovesInCheck(ourPieces);
             }
             else
             {
-                return GetAllMovesInDoubleCheck(ourKing);
+                LegalMoves = GetAllMovesInDoubleCheck(ourKing);
             }
+            return LegalMoves;
         }
 
         private List<Move> GetAllMovesStandard(List<Piece> pieces)
@@ -154,11 +164,33 @@ namespace CrazyAuriLibrary.Models.Moves
                 moveobject.MakeMove(board);
 
                 LegalMovesDictionary.Clear();
+                LegalMoves.Clear();
+                movesHaveBeenChecked = false;
                 return true;
             }
             return false;
         }
 
+        public string GetWinner()
+        {
+            string result = "d";
+            if (GetAllMoves().Count == 0)
+            {
+                if (attackedSquares[board.WhiteKing.location.Item1, board.WhiteKing.location.Item2] > 0)
+                {
+                    result = "w";
+                }
+                else if (attackedSquares[board.BlackKing.location.Item1, board.BlackKing.location.Item2] > 0)
+                {
+                    result = "b";
+                }
+                else
+                {
+                    result = "s";
+                }
+            }
+            return result;
+        }
 
     }
 }

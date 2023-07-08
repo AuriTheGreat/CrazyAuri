@@ -30,6 +30,8 @@ namespace CrazyAuri.Models.Pieces
             CheckMove(board, result, attackedSquares, (-1, 0));
             CheckMove(board, result, attackedSquares, (-1, -1));
 
+            result.AddRange(GetCastlingMoves(board, attackedSquares));
+
 
             return result;
         }
@@ -62,6 +64,58 @@ namespace CrazyAuri.Models.Pieces
                     result.Add(new Move(this, location, (x, y)));
                 }
             }
+        }
+
+        private List<Move> GetCastlingMoves(Board board, short[,] attackedSquares)
+        {
+            List<Move> result = new List<Move>();
+
+            if (attackedSquares[location.Item1, location.Item2] > 0)
+                return result;
+
+            if (this == board.WhiteKing)
+            {
+                //e1g1
+                var neededsquares = new List<(int, int)>() { (7, 5), (7,6) };
+                if (CheckIfPossibleToCastle(board, attackedSquares, neededsquares) == true)
+                {
+                    result.Add(new CastlingMove(this, location, (7, 6)));
+                }
+                neededsquares= new List<(int, int)>() { (7, 2), (7, 3) };
+                if (board.GetPieceOnSquare((7, 1)) == null && CheckIfPossibleToCastle(board, attackedSquares, neededsquares) == true)
+                {
+                    result.Add(new CastlingMove(this, location, (7, 2)));
+                }
+
+            }
+            else
+            {
+                var neededsquares = new List<(int, int)>() { (0, 5), (0, 6) };
+                if (CheckIfPossibleToCastle(board, attackedSquares, neededsquares) == true)
+                {
+                    result.Add(new CastlingMove(this, location, (0, 6)));
+                }
+                neededsquares = new List<(int, int)>() { (0, 2), (0, 3) };
+                if (board.GetPieceOnSquare((0,1)) == null && CheckIfPossibleToCastle(board, attackedSquares, neededsquares) == true)
+                {
+                    result.Add(new CastlingMove(this, location, (0, 2)));
+                }
+            }
+
+            return result;
+
+        }
+
+        private Boolean CheckIfPossibleToCastle(Board board, short[,] attackedSquares, List<(int, int)> neededSquares)
+        {
+            foreach (var square in neededSquares)
+            {
+                if (board.GetPieceOnSquare(square)!=null || attackedSquares[square.Item1, square.Item2] > 0)
+                    return false;
+            }
+
+            return true;
+
         }
 
         public override void MakeMove(Board board, Move move)

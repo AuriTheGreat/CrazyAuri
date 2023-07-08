@@ -18,8 +18,55 @@ namespace CrazyAuriLibrary.Models.Moves.MoveTypes
         public override void MakeMove(Board board)
         {
             board.HalfMoveClock = 0;
+
+            HandleCapture(board);
+
+            base.MakeMove(board);
+        }
+
+        protected void HandleCapture(Board board)
+        {
             var endpiece = board.GetPieceOnSquare(endsquare);
-            switch (endpiece.ToString())
+            if (endpiece is PromotablePiece)
+            {
+                AddToCrazyHouseReserve(board, (PromotablePiece)endpiece);
+            }
+            else
+            {
+                AddToCrazyHouseReserve(board, endpiece);
+            }
+
+            if (board.CurrentColor == false)
+            {
+                board.WhitePieces.Remove(endpiece);
+            }
+            else
+            {
+                board.BlackPieces.Remove(endpiece);
+            }
+        }
+
+        private void AddToCrazyHouseReserve(Board board, PromotablePiece piece)
+        {
+            if (piece.promoted == true)
+            {
+                if (board.CurrentColor == false)
+                {
+                    board.WhiteCrazyHousePawns += 1;
+                }
+                else
+                {
+                    board.BlackCrazyHousePawns += 1;
+                }
+            }
+            else
+            {
+                AddToCrazyHouseReserve(board, (Piece) piece);
+            }
+        }
+        private void AddToCrazyHouseReserve(Board board, Piece piece)
+        {
+            switch (piece.ToString())
             {
                 case "p":
                     board.WhiteCrazyHousePawns += 1;
@@ -52,17 +99,7 @@ namespace CrazyAuriLibrary.Models.Moves.MoveTypes
                     board.BlackCrazyHouseQueens += 1;
                     break;
             }
-
-            if (board.CurrentColor == false)
-            {
-                board.WhitePieces.Remove(endpiece);
-            }
-            else
-            {
-                board.BlackPieces.Remove(endpiece);
-            }
-
-            base.MakeMove(board);
         }
+
     }
 }

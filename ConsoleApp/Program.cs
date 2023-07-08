@@ -23,7 +23,30 @@ namespace CrazyAuri
                 board.PrintBoard();
                 var possiblemoves = board.GetAllMoves();
                 if (possiblemoves.Count == 0)
-                    break;
+                {
+                    var winner = board.GetWinner();
+                    if (winner == "w")
+                    {
+                        Console.WriteLine("White has won the game!");
+                    }
+                    else if (winner == "b")
+                    {
+                        Console.WriteLine("Black has won the game!");
+                    }
+                    else if (winner == "s")
+                    {
+                        Console.WriteLine("Stalemate!");
+                    }
+                    else if (winner == "r")
+                    {
+                        Console.WriteLine("Draw due to repetition!");
+                    }
+                    else if (winner == "50")
+                    {
+                        Console.WriteLine("Draw due to 50 move rule!");
+                    }
+                }
+
                 while (true)
                 {
                     PrintMoves(possiblemoves);

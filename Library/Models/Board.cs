@@ -346,6 +346,11 @@ namespace CrazyAuri.Models
             return boardmove.MakeMove(move);
         }
 
+        public string GetWinner()
+        {
+            return boardmove.GetWinner();
+        }
+
         public (int,int) ConvertTileNameToLocation(string tile)
         {
             return (-1*(tile[1] - 56), tile[0]-97);
