@@ -24,12 +24,16 @@ namespace CrazyAuriLibrary.Models.Moves.MoveTypes
                 {
                     board.array[0, 3] = board.array[0, 0];
                     board.array[0, 2] = board.array[0, 4];
+                    board.array[0, 3].location = (0, 3);
+                    board.array[0, 2].location = (0, 2);
                     board.array[0, 0] = null;
                 }
                 else // h8
                 {
                     board.array[0, 5] = board.array[0, 7];
                     board.array[0, 6] = board.array[0, 4];
+                    board.array[0, 5].location = (0, 5);
+                    board.array[0, 6].location = (0, 6);
                     board.array[0, 7] = null;
                 }
                 board.array[0, 4] = null;
@@ -42,12 +46,16 @@ namespace CrazyAuriLibrary.Models.Moves.MoveTypes
                 {
                     board.array[7, 3] = board.array[7, 0];
                     board.array[7, 2] = board.array[7, 4];
+                    board.array[7, 3].location = (7, 3);
+                    board.array[7, 2].location = (7, 2);
                     board.array[7, 0] = null;
                 }
                 else // h8
                 {
                     board.array[7, 5] = board.array[7, 7];
                     board.array[7, 6] = board.array[7, 4];
+                    board.array[7, 5].location = (7, 5);
+                    board.array[7, 6].location = (7, 6);
                     board.array[7, 7] = null;
                 }
                 board.array[7, 4] = null;

@@ -341,6 +341,15 @@ namespace CrazyAuri.Models
             return boardmove.GetAllMoves();
         }
 
+        public List<Move> GetAllPieceMoves((int,int) location)
+        {
+            if (boardmove == null)
+            {
+                GetAllMoves();
+            }
+            return boardmove.GetAllPieceMoves(location);
+        }
+
         public bool MakeMove(string move)
         {
             return boardmove.MakeMove(move);

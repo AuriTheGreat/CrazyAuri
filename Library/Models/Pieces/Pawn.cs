@@ -65,7 +65,7 @@ namespace CrazyAuri.Models.Pieces
                 if ((isPinned > 0 && pinRays[checkedsquare.Item1, checkedsquare.Item2] == isPinned) || isPinned == 0)
                 {
                     piece = board.GetPieceOnSquare(checkedsquare);
-                    if (piece != null)
+                    if (piece != null && piece.color != this.color)
                     {
                         if ((x == 1 && color == false) || (x == 6 && color == true))
                         {
@@ -88,16 +88,19 @@ namespace CrazyAuri.Models.Pieces
                 if ((isPinned > 0 && pinRays[checkedsquare.Item1, checkedsquare.Item2] == isPinned) || isPinned == 0)
                 {
                     piece = board.GetPieceOnSquare(checkedsquare);
-                    if ((x == 1 && color == false) || (x == 6 && color == true))
+                    if (piece != null && piece.color!=this.color)
                     {
-                        result.Add(new PromotionCaptureMove(this, location, checkedsquare, "q"));
-                        result.Add(new PromotionCaptureMove(this, location, checkedsquare, "r"));
-                        result.Add(new PromotionCaptureMove(this, location, checkedsquare, "b"));
-                        result.Add(new PromotionCaptureMove(this, location, checkedsquare, "n"));
-                    }
-                    else
-                    {
-                        result.Add(new CaptureMove(this, location, checkedsquare));
+                        if ((x == 1 && color == false) || (x == 6 && color == true))
+                        {
+                            result.Add(new PromotionCaptureMove(this, location, checkedsquare, "q"));
+                            result.Add(new PromotionCaptureMove(this, location, checkedsquare, "r"));
+                            result.Add(new PromotionCaptureMove(this, location, checkedsquare, "b"));
+                            result.Add(new PromotionCaptureMove(this, location, checkedsquare, "n"));
+                        }
+                        else
+                        {
+                            result.Add(new CaptureMove(this, location, checkedsquare));
+                        }
                     }
                 }
             }

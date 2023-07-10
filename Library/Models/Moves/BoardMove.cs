@@ -192,5 +192,21 @@ namespace CrazyAuriLibrary.Models.Moves
             return result;
         }
 
+        public List<Move>GetAllPieceMoves((int, int) location)
+        {
+            if (LegalMovesDictionary.Count == 0)
+                GetAllMoves();
+
+            var result = new List<Move>();
+
+            foreach(var i in LegalMoves)
+            {
+                if (i.startsquare == location)
+                    result.Add(i);
+            }
+
+            return result;
+        }
+
     }
 }

@@ -104,17 +104,21 @@ namespace CrazyAuriLibrary.Models.Pieces
                         else if ((color == true && piece == board.WhiteKing) || (color == false && piece == board.BlackKing))
                         {
                             // This is not a pin, this is a check, marking it on checkboard
+                            var checkrayx = newx;
+                            var checkrayy = newy;
                             for (short j = 0; j < 8; j++)
                             {
-                                newx -= directionx;
-                                newy -= directiony;
-                                checkRays[newx, newy] = true;
-                                if (newx == x)
+                                checkrayx -= directionx;
+                                checkrayy -= directiony;
+                                checkRays[checkrayx, checkrayy] = true;
+                                if (checkrayx == x)
                                 {
                                     break;
                                 }
                             }
-                            break;
+                            // Continue checking for attacked squares behind the king - king cannot escape into check.
+                            checkingAttacks = true;
+
                         }
                     }
                 }

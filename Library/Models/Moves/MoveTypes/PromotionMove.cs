@@ -30,7 +30,7 @@ namespace CrazyAuriLibrary.Models.Moves.MoveTypes
             int y1 = startsquare.Item2;
             int y2 = endsquare.Item2;
 
-            Piece newpiece= new Queen(piece.color, (x2, y2));
+            PromotablePiece newpiece= new Queen(piece.color, (x2, y2));
 
             switch (promotionPiece)
             {
@@ -44,6 +44,8 @@ namespace CrazyAuriLibrary.Models.Moves.MoveTypes
                     newpiece = new Knight(piece.color, (x2, y2));
                     break;
             }
+
+            newpiece.promoted = true;
 
             var startpiece = board.GetPieceOnSquare(startsquare);
             if (board.CurrentColor == true)

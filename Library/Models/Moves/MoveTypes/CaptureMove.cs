@@ -52,11 +52,11 @@ namespace CrazyAuriLibrary.Models.Moves.MoveTypes
             {
                 if (board.CurrentColor == false)
                 {
-                    board.WhiteCrazyHousePawns += 1;
+                    board.BlackCrazyHousePawns += 1;
                 }
                 else
                 {
-                    board.BlackCrazyHousePawns += 1;
+                    board.WhiteCrazyHousePawns += 1;
                 }
             }
             else

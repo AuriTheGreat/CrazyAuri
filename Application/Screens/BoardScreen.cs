@@ -11,6 +11,11 @@ using MonoGame.Extended.Screens.Transitions;
 using MonoGame.Extended;
 using Myra.Graphics2D.TextureAtlases;
 using Myra.Graphics2D.Brushes;
+using CrazyAuri.Models;
+using System.Collections.Generic;
+using CrazyAuri.Models.Pieces;
+using System;
+using CrazyAuriApplication.Models;
 
 public class BoardScreen : GameScreen
 {
@@ -18,6 +23,10 @@ public class BoardScreen : GameScreen
     public BoardScreen(Game1 game) : base(game) { }
 
     private Desktop _desktop;
+
+    private Board board;
+
+    public ImageButton[,] boardTiles = new ImageButton[8, 8];
 
     public override void LoadContent()
     {
@@ -36,26 +45,12 @@ public class BoardScreen : GameScreen
 
         panel.Widgets.Add(grid);
 
-        for (int i = 0; i < 8; i++)
-        {
-            for (int j = 0; j < 8; j++)
-            {
-                var boardTile = new ImageButton();
-                boardTile.Background= new TextureRegion(Content.Load<Texture2D>("gfx/wQ"));
-                boardTile.OverBackground = null;
-                boardTile.VerticalAlignment = VerticalAlignment.Stretch;
-                boardTile.HorizontalAlignment = HorizontalAlignment.Stretch;
-                boardTile.GridRow = i;
-                boardTile.GridColumn = j;
-                grid.Widgets.Add(boardTile);
-                boardTile.TouchDown += (s, a) =>
-                {
-                    Game.Exit();
-                };
-            }
-        }
+        board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
+        var drawboard = new DrawBoard(board, this);
+        panel.Widgets.Add(drawboard.grid);
 
-        panel.Widgets.Add(grid);
+        //drawBoard(board.ToString());
+
 
 
         // Add it to the desktop
@@ -72,4 +67,5 @@ public class BoardScreen : GameScreen
     {
         _desktop.Render();
     }
+
 }
