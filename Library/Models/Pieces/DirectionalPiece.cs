@@ -111,7 +111,7 @@ namespace CrazyAuriLibrary.Models.Pieces
                                 checkrayx -= directionx;
                                 checkrayy -= directiony;
                                 checkRays[checkrayx, checkrayy] = true;
-                                if (checkrayx == x)
+                                if (checkrayx == x && checkrayy == y)
                                 {
                                     break;
                                 }
@@ -136,7 +136,7 @@ namespace CrazyAuriLibrary.Models.Pieces
                                 newx -= directionx;
                                 newy -= directiony;
                                 pinRays[newx, newy] = (short)pieceposition;
-                                if (newx == x)
+                                if (newx == x && newy == y)
                                 {
                                     break;
                                 }

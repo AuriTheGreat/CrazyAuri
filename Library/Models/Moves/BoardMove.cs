@@ -147,6 +147,22 @@ namespace CrazyAuriLibrary.Models.Moves
             return result;
         }
 
+        public bool MakeMove(Move move)
+        {
+            board.EnPassantSquare = (-1, -1);
+            board.HalfMoveClock += 1;
+            if (board.CurrentColor == true)
+                board.FullMoveClock += 1;
+            board.CurrentColor = !board.CurrentColor;
+
+            move.MakeMove(board);
+
+            LegalMovesDictionary.Clear();
+            LegalMoves.Clear();
+            movesHaveBeenChecked = false;
+            return true;
+        }
+
         public bool MakeMove(string move)
         {
             if (LegalMovesDictionary.Count == 0)
@@ -154,42 +170,50 @@ namespace CrazyAuriLibrary.Models.Moves
             if (LegalMovesDictionary.ContainsKey(move))
             {
                 Move moveobject = LegalMovesDictionary[move];
-
-                board.EnPassantSquare = (-1, -1);
-                board.HalfMoveClock += 1;
-                if (board.CurrentColor == true)
-                    board.FullMoveClock += 1;
-                board.CurrentColor = !board.CurrentColor;
-
-                moveobject.MakeMove(board);
-
-                LegalMovesDictionary.Clear();
-                LegalMoves.Clear();
-                movesHaveBeenChecked = false;
-                return true;
+                return MakeMove(moveobject);
             }
             return false;
         }
 
         public string GetWinner()
         {
-            string result = "d";
+            string result = "0";
             if (GetAllMoves().Count == 0)
             {
-                if (attackedSquares[board.WhiteKing.location.Item1, board.WhiteKing.location.Item2] > 0)
+                if (board.CurrentColor == false && attackedSquares[board.WhiteKing.location.Item1, board.WhiteKing.location.Item2] > 0)
                 {
-                    result = "w";
+                    return "b";
                 }
-                else if (attackedSquares[board.BlackKing.location.Item1, board.BlackKing.location.Item2] > 0)
+                else if (board.CurrentColor == true && attackedSquares[board.BlackKing.location.Item1, board.BlackKing.location.Item2] > 0)
                 {
-                    result = "b";
+                    return "w";
                 }
                 else
                 {
-                    result = "s";
+                    return "s";
                 }
             }
+            if (board.HalfMoveClock>50)
+            {
+                return "50";
+            }
+            if (DrawByRepetitionCheck() == true)
+            {
+                return "r";
+            }
             return result;
+        }
+
+        private bool DrawByRepetitionCheck()
+        {
+            foreach (var i in board.FormerPositions)
+            {
+                if (board.FormerPositions[i.Key] > 2)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public List<Move>GetAllPieceMoves((int, int) location)

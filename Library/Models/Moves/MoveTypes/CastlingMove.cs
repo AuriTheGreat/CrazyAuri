@@ -40,9 +40,13 @@ namespace CrazyAuriLibrary.Models.Moves.MoveTypes
             }
             else
             {
+                if (board.WhiteKing.location.Item1 == 6)
+                {
+                    //
+                }
                 board.CanWhiteCastleKingside = false;
                 board.CanWhiteCastleQueenside = false;
-                if (endsquare == (7, 2)) //a8
+                if (endsquare == (7, 2)) //a1
                 {
                     board.array[7, 3] = board.array[7, 0];
                     board.array[7, 2] = board.array[7, 4];
@@ -50,7 +54,7 @@ namespace CrazyAuriLibrary.Models.Moves.MoveTypes
                     board.array[7, 2].location = (7, 2);
                     board.array[7, 0] = null;
                 }
-                else // h8
+                else // h1
                 {
                     board.array[7, 5] = board.array[7, 7];
                     board.array[7, 6] = board.array[7, 4];

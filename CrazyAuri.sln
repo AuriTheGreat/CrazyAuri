@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrazyAuriConsole", "Console
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrazyAuriTests", "Tests\CrazyAuriTests.csproj", "{D2A05EDA-684A-42D8-AFE5-C0D02ABA1E84}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrazyAuriAI", "CrazyAuriAI\CrazyAuriAI.csproj", "{A294E317-5175-40C1-85AA-422C9735C29D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{D2A05EDA-684A-42D8-AFE5-C0D02ABA1E84}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2A05EDA-684A-42D8-AFE5-C0D02ABA1E84}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2A05EDA-684A-42D8-AFE5-C0D02ABA1E84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A294E317-5175-40C1-85AA-422C9735C29D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A294E317-5175-40C1-85AA-422C9735C29D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A294E317-5175-40C1-85AA-422C9735C29D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A294E317-5175-40C1-85AA-422C9735C29D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

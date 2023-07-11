@@ -27,6 +27,7 @@ namespace CrazyAuri.Models
         public (int, int) EnPassantSquare = (-1, -1);
         public ushort HalfMoveClock = 0;
         public ushort FullMoveClock = 1;
+        public Dictionary<string,ushort> FormerPositions = new Dictionary<string,ushort>();
 
         public ushort WhiteCrazyHousePawns = 0;
         public ushort WhiteCrazyHouseKnights = 0;
@@ -50,6 +51,15 @@ namespace CrazyAuri.Models
         public Board(string FEN)
         {
             InitialiseBoard(FEN);
+        }
+
+        public Board(string FEN, Dictionary<string, ushort> FormerPositions)
+        {
+            InitialiseBoard(FEN);
+            foreach (var i in FormerPositions)
+            {
+                this.FormerPositions.Add(i.Key, i.Value);
+            }
         }
 
         protected void InitialiseBoard(string FEN)
@@ -350,13 +360,54 @@ namespace CrazyAuri.Models
             return boardmove.GetAllPieceMoves(location);
         }
 
+        public bool MakeMove(Move move)
+        {
+            if (boardmove == null)
+            {
+                GetAllMoves();
+            }
+            if (boardmove.MakeMove(move) == true)
+            {
+                boardmove = new BoardMove(this);
+                AddNewPosition(PrintFEN().Split(" ")[0]);
+                return true;
+            }
+            return false;
+        }
+
         public bool MakeMove(string move)
         {
-            return boardmove.MakeMove(move);
+            if (boardmove == null)
+            {
+                GetAllMoves();
+            }
+            if (boardmove.MakeMove(move) == true)
+            {
+                boardmove = new BoardMove(this);
+                AddNewPosition(PrintFEN().Split(" ")[0]);
+                return true;
+            }
+            return false;
+        }
+
+        private void AddNewPosition(string position)
+        {
+            if (FormerPositions.ContainsKey(position))
+            {
+                FormerPositions[position] += 1;
+            }
+            else
+            {
+                FormerPositions.Add(position, 1);
+            }
         }
 
         public string GetWinner()
         {
+            if (boardmove == null)
+            {
+                GetAllMoves();
+            }
             return boardmove.GetWinner();
         }
 

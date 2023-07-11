@@ -77,12 +77,12 @@ namespace CrazyAuri.Models.Pieces
             {
                 //e1g1
                 var neededsquares = new List<(int, int)>() { (7, 5), (7,6) };
-                if (CheckIfPossibleToCastle(board, attackedSquares, neededsquares) == true)
+                if (board.CanWhiteCastleKingside==true && CheckIfPossibleToCastle(board, attackedSquares, neededsquares) == true)
                 {
                     result.Add(new CastlingMove(this, location, (7, 6)));
                 }
                 neededsquares= new List<(int, int)>() { (7, 2), (7, 3) };
-                if (board.GetPieceOnSquare((7, 1)) == null && CheckIfPossibleToCastle(board, attackedSquares, neededsquares) == true)
+                if (board.CanWhiteCastleQueenside == true && board.GetPieceOnSquare((7, 1)) == null && CheckIfPossibleToCastle(board, attackedSquares, neededsquares) == true)
                 {
                     result.Add(new CastlingMove(this, location, (7, 2)));
                 }
@@ -91,12 +91,12 @@ namespace CrazyAuri.Models.Pieces
             else
             {
                 var neededsquares = new List<(int, int)>() { (0, 5), (0, 6) };
-                if (CheckIfPossibleToCastle(board, attackedSquares, neededsquares) == true)
+                if (board.CanBlackCastleKingside == true && CheckIfPossibleToCastle(board, attackedSquares, neededsquares) == true)
                 {
                     result.Add(new CastlingMove(this, location, (0, 6)));
                 }
                 neededsquares = new List<(int, int)>() { (0, 2), (0, 3) };
-                if (board.GetPieceOnSquare((0,1)) == null && CheckIfPossibleToCastle(board, attackedSquares, neededsquares) == true)
+                if (board.CanBlackCastleQueenside == true && board.GetPieceOnSquare((0,1)) == null && CheckIfPossibleToCastle(board, attackedSquares, neededsquares) == true)
                 {
                     result.Add(new CastlingMove(this, location, (0, 2)));
                 }
