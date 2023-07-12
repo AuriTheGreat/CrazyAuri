@@ -3,10 +3,12 @@ using CrazyAuriLibrary.Models.Moves.MoveTypes;
 using CrazyAuriLibrary.Models.Pieces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace CrazyAuriAI.Models
 {
@@ -14,11 +16,20 @@ namespace CrazyAuriAI.Models
     {
         private Dictionary<string, double> piecevalues = new Dictionary<string, double>() 
         {
-            { "p", 100 },
-            { "n", 300 },
-            { "b", 325 },
-            { "r", 500 },
-            { "q", 900 },
+            { "p", 134 },
+            { "n", 235 },
+            { "b", 300 },
+            { "r", 314 },
+            { "q", 604 },
+        };
+
+        private Dictionary<string, double> reservepiecevalues = new Dictionary<string, double>()
+        {
+            { "p", 149 },
+            { "n", 296 },
+            { "b", 281 },
+            { "r", 353 },
+            { "q", 563 },
         };
 
         private Dictionary<string, double[,]> tilepiecevalues = new Dictionary<string, double[,]>() {
@@ -98,7 +109,10 @@ namespace CrazyAuriAI.Models
 
         public string GetMove(Board board)
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             (string, double) result = NegaMax(board, 4, double.MinValue, double.MaxValue, board.CurrentColor);
+            stopwatch.Stop();
             var move = board.GetAllMoves()[0].ToString();
             if (result.Item1 != "")
                 move = result.Item1;
@@ -107,8 +121,11 @@ namespace CrazyAuriAI.Models
                 evaluation = "Winning";
             else if (result.Item2 < -100000000)
                 evaluation = "Hopeless";
+            var color = "White";
+            if (board.CurrentColor == true)
+                color = "Black";
 
-            Console.WriteLine("Move chosen: " + move + " (" + evaluation + ")");
+            Console.WriteLine(color + " move chosen: " + move + " (" + evaluation + ") After " + double.Round(stopwatch.Elapsed.TotalSeconds,2) + "s.");
             return move;
         }
 
@@ -180,6 +197,8 @@ namespace CrazyAuriAI.Models
                 result += GetPieceSquareValue(i.ToString().ToLower(), i.location, i.color);
             }
 
+            result += GetReservePieceEvaluation(board);
+
             return result;
         }
 
@@ -201,6 +220,24 @@ namespace CrazyAuriAI.Models
                 return tilepiecevalues[piece][location.Item1, location.Item2];
             }
             return 0;
+        }
+
+        private double GetReservePieceEvaluation(Board board)
+        {
+            double evaluation = 0;
+
+            evaluation += board.WhiteCrazyHousePawns * reservepiecevalues["p"];
+            evaluation += board.WhiteCrazyHouseKnights * reservepiecevalues["n"];
+            evaluation += board.WhiteCrazyHouseBishops * reservepiecevalues["b"];
+            evaluation += board.WhiteCrazyHouseRooks * reservepiecevalues["r"];
+            evaluation += board.WhiteCrazyHouseQueens * reservepiecevalues["q"];
+            evaluation -= board.BlackCrazyHousePawns * reservepiecevalues["p"];
+            evaluation -= board.BlackCrazyHouseKnights * reservepiecevalues["n"];
+            evaluation -= board.BlackCrazyHouseBishops * reservepiecevalues["b"];
+            evaluation -= board.BlackCrazyHouseRooks * reservepiecevalues["r"];
+            evaluation -= board.BlackCrazyHouseQueens * reservepiecevalues["q"];
+
+            return evaluation;
         }
     }
 }

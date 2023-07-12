@@ -117,6 +117,8 @@ namespace CrazyAuriLibrary.Models.Moves
                 }
             }
 
+            result.AddRange(GetCrazyhouseMoves());
+
             return result;
         }
 
@@ -133,6 +135,8 @@ namespace CrazyAuriLibrary.Models.Moves
                 }
             }
 
+            result.AddRange(GetCrazyhouseMoves(checkRays));
+
             return result;
         }
 
@@ -144,6 +148,94 @@ namespace CrazyAuriLibrary.Models.Moves
             {
                 LegalMovesDictionary.Add(j.ToString(), j);
             }
+            return result;
+        }
+
+        private List<Move> GetCrazyhouseMoves()
+        {
+            var result = new List<Move>();
+            var possiblepieces = GetPossibleCrazyhousePieces();
+            if (possiblepieces.Count == 0)
+                return result;
+            for (int i=0; i<8; i++)
+            {
+                for (int j=0; j<8; j++)
+                {
+                    if (board.array[i, j] == null)
+                    {
+                        foreach(var piece in possiblepieces)
+                        {
+                            if (piece != "p" || (i != 0 && i != 7))
+                            {
+                                var newmove = new CrazyhouseMove((i, j), piece);
+                                result.Add(newmove);
+                                LegalMovesDictionary.Add(newmove.ToString(), newmove);
+                            }
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        private List<Move> GetCrazyhouseMoves(bool[,] checkrays)
+        {
+            var result = new List<Move>();
+            var possiblepieces = GetPossibleCrazyhousePieces();
+            if (possiblepieces.Count == 0)
+                return result;
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    if (checkrays[i,j] == true && board.array[i, j] == null)
+                    {
+                        foreach (var piece in possiblepieces)
+                        {
+                            if (piece != "p" || (i != 0 && i != 7))
+                            {
+                                var newmove = new CrazyhouseMove((i, j), piece);
+                                result.Add(newmove);
+                                LegalMovesDictionary.Add(newmove.ToString(), newmove);
+                            }
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        private List<string> GetPossibleCrazyhousePieces()
+        {
+            var result = new List<string>();
+            if (board.CurrentColor == true)
+            {
+                if (board.BlackCrazyHousePawns>0)
+                    result.Add("p");
+                if (board.BlackCrazyHouseKnights > 0)
+                    result.Add("n");
+                if (board.BlackCrazyHouseBishops > 0)
+                    result.Add("b");
+                if (board.BlackCrazyHouseRooks > 0)
+                    result.Add("r");
+                if (board.BlackCrazyHouseQueens > 0)
+                    result.Add("q");
+            }
+            else
+            {
+                if (board.WhiteCrazyHousePawns > 0)
+                    result.Add("p");
+                if (board.WhiteCrazyHouseKnights > 0)
+                    result.Add("n");
+                if (board.WhiteCrazyHouseBishops > 0)
+                    result.Add("b");
+                if (board.WhiteCrazyHouseRooks > 0)
+                    result.Add("r");
+                if (board.WhiteCrazyHouseQueens > 0)
+                    result.Add("q");
+            }
+
+
             return result;
         }
 
@@ -206,13 +298,19 @@ namespace CrazyAuriLibrary.Models.Moves
 
         private bool DrawByRepetitionCheck()
         {
-            foreach (var i in board.FormerPositions)
+            string currentposition = board.PrintFEN().Split(" ")[0];
+            if (board.FormerPositions[currentposition] > 2)
             {
-                if (board.FormerPositions[i.Key] > 2)
-                {
-                    return true;
-                }
+                return true;
             }
+
+            //foreach (var i in board.FormerPositions)
+            //{
+            //    if (board.FormerPositions[i.Key] > 2)
+            //    {
+            //        return true;
+            //    }
+            //}
             return false;
         }
 

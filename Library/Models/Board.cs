@@ -45,12 +45,14 @@ namespace CrazyAuri.Models
         public Board()
         {
             InitialiseBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
+            AddNewPosition(PrintFEN().Split(" ")[0]);
 
         }
 
         public Board(string FEN)
         {
             InitialiseBoard(FEN);
+            AddNewPosition(PrintFEN().Split(" ")[0]);
         }
 
         public Board(string FEN, Dictionary<string, ushort> FormerPositions)
