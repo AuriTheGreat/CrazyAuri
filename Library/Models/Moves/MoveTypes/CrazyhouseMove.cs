@@ -11,7 +11,7 @@ namespace CrazyAuriLibrary.Models.Moves.MoveTypes
 {
     public class CrazyhouseMove : Move
     {
-        string placedPiece;
+        public string placedPiece;
 
         public CrazyhouseMove((int, int) endsquare, string placedPiece) : base(null, (-1, -1), endsquare)
         {

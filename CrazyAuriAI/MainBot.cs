@@ -5,11 +5,12 @@ namespace CrazyAuriAI
 {
     public class MainBot
     {
-        private IBot bot = new Bot();
+        private IBot bot = new MinimaxBot();
 
         public string GetMove(Board board)
         {
-            return bot.GetMove(board);
+            var newboard = new Board(board.ToString(), board.FormerPositions);
+            return bot.GetMove(newboard);
         }
     }
 }

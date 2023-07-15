@@ -1,20 +1,16 @@
 ﻿using CrazyAuri.Models;
 using CrazyAuriLibrary.Models.Moves.MoveTypes;
-using CrazyAuriLibrary.Models.Pieces;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
 
-namespace CrazyAuriAI.Models
+namespace CrazyAuriAI.SearchAlgorithms
 {
-    public class Bot : IBot
+    public class Minimax
     {
-        private Dictionary<string, double> piecevalues = new Dictionary<string, double>() 
+        private Dictionary<string, double> piecevalues = new Dictionary<string, double>()
         {
             { "p", 134 },
             { "n", 235 },
@@ -107,33 +103,11 @@ namespace CrazyAuriAI.Models
                 }
             };
 
-        public string GetMove(Board board)
+        public (string, double) NegaMax(Board currentboard, int depth, double alpha, double beta, bool color) // Alpha beta minimax
         {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            (string, double) result = NegaMax(board, 4, double.MinValue, double.MaxValue, board.CurrentColor);
-            stopwatch.Stop();
-            var move = board.GetAllMoves()[0].ToString();
-            if (result.Item1 != "")
-                move = result.Item1;
-            var evaluation = result.Item2.ToString();
-            if (result.Item2 > 100000000)
-                evaluation = "Winning";
-            else if (result.Item2 < -100000000)
-                evaluation = "Hopeless";
-            var color = "White";
-            if (board.CurrentColor == true)
-                color = "Black";
-
-            Console.WriteLine(color + " move chosen: " + move + " (" + evaluation + ") After " + double.Round(stopwatch.Elapsed.TotalSeconds,2) + "s.");
-            return move;
-        }
-
-        private (string, double) NegaMax(Board currentboard, int depth, double alpha, double beta, bool color) // Alpha beta minimax
-        {
-            if (depth == 0 || currentboard.GetWinner()!="0")
+            if (depth == 0 || currentboard.GetWinner() != "0")
             {
-                return ("", (color==true ? -1 : 1) * EvaluationFunction(currentboard));
+                return ("", (color == true ? -1 : 1) * EvaluationFunction(currentboard));
             }
             var childNodes = currentboard.GetAllMoves();
             // sort moves here
@@ -239,5 +213,6 @@ namespace CrazyAuriAI.Models
 
             return evaluation;
         }
+
     }
 }

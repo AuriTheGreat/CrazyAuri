@@ -16,6 +16,8 @@ using System.Collections.Generic;
 using CrazyAuri.Models.Pieces;
 using System;
 using CrazyAuriApplication.Models;
+using CrazyAuriApplication.Players;
+using System.Threading;
 
 public class BoardScreen : GameScreen
 {
@@ -26,7 +28,13 @@ public class BoardScreen : GameScreen
 
     private Board board;
 
-    public ImageButton[,] boardTiles = new ImageButton[8, 8];
+    public DrawBoard drawboard;
+
+    public IPlayer WhitePlayer = new HumanPlayer();
+
+    public IPlayer BlackPlayer = new BotPlayer();
+
+    private Thread MoveGetter = new Thread(() => { }); 
 
     public override void LoadContent()
     {
@@ -35,22 +43,13 @@ public class BoardScreen : GameScreen
         MyraEnvironment.Game = Game;
 
         var panel = new Panel();
-        panel.Height = 600;
-        panel.Width = 600;
-        panel.Top = 50;
-        panel.Left = 20;
-
-        var grid = new Grid();
-        grid.Background = new TextureRegion(Content.Load<Texture2D>("gfx/Board"));
-
-        panel.Widgets.Add(grid);
+        panel.Height = 1200;
+        panel.Width = 800;
 
         board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
-        var drawboard = new DrawBoard(board, this);
-        panel.Widgets.Add(drawboard.grid);
-
-        //drawBoard(board.ToString());
-
+        drawboard = new DrawBoard(board, this);
+        panel.Widgets.Add(drawboard.reservegrid);
+        panel.Widgets.Add(drawboard.boardgrid);
 
 
         // Add it to the desktop
@@ -60,7 +59,27 @@ public class BoardScreen : GameScreen
 
     public override void Update(GameTime gameTime)
     {
-        
+        if (MoveGetter.IsAlive == false)
+        {
+            if (board.CurrentColor == true)
+            {
+                MoveGetter = new Thread(() =>
+                {
+                    Thread.CurrentThread.IsBackground = true;
+                    BlackPlayer.MakeMove(board, this);
+                });
+                MoveGetter.Start();
+            }
+            else
+            {
+                MoveGetter = new Thread(() =>
+                {
+                    Thread.CurrentThread.IsBackground = true;
+                    WhitePlayer.MakeMove(board, this);
+                });
+                MoveGetter.Start();
+            }
+        }
     }
 
     public override void Draw(GameTime gameTime)
