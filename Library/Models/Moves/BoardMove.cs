@@ -241,6 +241,7 @@ namespace CrazyAuriLibrary.Models.Moves
 
         public bool MakeMove(Move move)
         {
+            board.lastmovemade = move;
             board.EnPassantSquare = (-1, -1);
             board.HalfMoveClock += 1;
             if (board.CurrentColor == true)

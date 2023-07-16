@@ -41,18 +41,20 @@ namespace CrazyAuri.Models
         public ushort BlackCrazyHouseRooks = 0;
         public ushort BlackCrazyHouseQueens = 0;
 
+        public Move lastmovemade;
+
         private BoardMove boardmove;
         public Board()
         {
             InitialiseBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
-            AddNewPosition(PrintFEN().Split(" ")[0]);
+            AddNewPosition(GetPositionHash());
 
         }
 
         public Board(string FEN)
         {
             InitialiseBoard(FEN);
-            AddNewPosition(PrintFEN().Split(" ")[0]);
+            AddNewPosition(GetPositionHash());
         }
 
         public Board(string FEN, Dictionary<string, ushort> FormerPositions)
@@ -371,7 +373,7 @@ namespace CrazyAuri.Models
             if (boardmove.MakeMove(move) == true)
             {
                 boardmove = new BoardMove(this);
-                AddNewPosition(PrintFEN().Split(" ")[0]);
+                AddNewPosition(GetPositionHash());
                 return true;
             }
             return false;
@@ -386,7 +388,7 @@ namespace CrazyAuri.Models
             if (boardmove.MakeMove(move) == true)
             {
                 boardmove = new BoardMove(this);
-                AddNewPosition(PrintFEN().Split(" ")[0]);
+                AddNewPosition(GetPositionHash());
                 return true;
             }
             return false;
@@ -424,6 +426,11 @@ namespace CrazyAuri.Models
             var y = location.Item2;
 
             return char.ConvertFromUtf32(y + 97) + (8 - x).ToString();
+        }
+
+        public string GetPositionHash()
+        {
+            return PrintFEN().Split(" ")[0];
         }
 
     }

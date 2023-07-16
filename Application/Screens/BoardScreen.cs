@@ -18,6 +18,7 @@ using System;
 using CrazyAuriApplication.Models;
 using CrazyAuriApplication.Players;
 using System.Threading;
+using System.Diagnostics;
 
 public class BoardScreen : GameScreen
 {
@@ -30,11 +31,15 @@ public class BoardScreen : GameScreen
 
     public DrawBoard drawboard;
 
-    public IPlayer WhitePlayer = new HumanPlayer();
+    public IPlayer WhitePlayer = new BotPlayer();
 
     public IPlayer BlackPlayer = new BotPlayer();
 
-    private Thread MoveGetter = new Thread(() => { }); 
+    private Thread MoveGetter = new Thread(() => { });
+
+    public Stopwatch stopwatch = new Stopwatch();
+
+    private Label timeLabel;
 
     public override void LoadContent()
     {
@@ -43,13 +48,24 @@ public class BoardScreen : GameScreen
         MyraEnvironment.Game = Game;
 
         var panel = new Panel();
-        panel.Height = 1200;
-        panel.Width = 800;
+        panel.Height = 800;
+        panel.Width = 1200;
 
         board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
         drawboard = new DrawBoard(board, this);
         panel.Widgets.Add(drawboard.reservegrid);
         panel.Widgets.Add(drawboard.boardgrid);
+
+        var scrollviewer = new ScrollViewer();
+        scrollviewer.Height = 600;
+        scrollviewer.Width = 250;
+        scrollviewer.Left = 950;
+        scrollviewer.Content = drawboard.movehistoryview;
+        panel.Widgets.Add(scrollviewer);
+
+        timeLabel = new Label();
+        timeLabel.Left = 20;
+        panel.Widgets.Add(timeLabel);
 
 
         // Add it to the desktop
@@ -59,26 +75,28 @@ public class BoardScreen : GameScreen
 
     public override void Update(GameTime gameTime)
     {
+        double.Round(stopwatch.Elapsed.TotalSeconds, 2);
+
+        IPlayer Player;
+        if (board.CurrentColor == true)
+        {
+            Player = BlackPlayer;
+            timeLabel.Text = "Black has been considering the move for " + double.Round(stopwatch.Elapsed.TotalSeconds, 1) + "s.";
+        }
+        else
+        {
+            Player = WhitePlayer;
+            timeLabel.Text = "White has been considering the move for " + double.Round(stopwatch.Elapsed.TotalSeconds, 1) + "s.";
+        }
+
         if (MoveGetter.IsAlive == false)
         {
-            if (board.CurrentColor == true)
+            MoveGetter = new Thread(() =>
             {
-                MoveGetter = new Thread(() =>
-                {
-                    Thread.CurrentThread.IsBackground = true;
-                    BlackPlayer.MakeMove(board, this);
-                });
-                MoveGetter.Start();
-            }
-            else
-            {
-                MoveGetter = new Thread(() =>
-                {
-                    Thread.CurrentThread.IsBackground = true;
-                    WhitePlayer.MakeMove(board, this);
-                });
-                MoveGetter.Start();
-            }
+                Thread.CurrentThread.IsBackground = true;
+                Player.MakeMove(board, this);
+            });
+            MoveGetter.Start();
         }
     }
 

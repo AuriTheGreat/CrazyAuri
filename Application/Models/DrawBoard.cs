@@ -8,6 +8,7 @@ using Myra.Graphics2D.UI.Styles;
 using SharpDX.Direct2D1.Effects;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -19,12 +20,14 @@ namespace CrazyAuriApplication.Models
     {
         public Grid boardgrid = new Grid();
         public Grid reservegrid = new Grid();
+        public Grid movehistoryview = new Grid();
+        private VerticalMenu movenumbermenu = new VerticalMenu();
+        private VerticalMenu whitemovemenu = new VerticalMenu();
+        private VerticalMenu blackmovemenu = new VerticalMenu();
         public ImageButton[,] boardTiles = new ImageButton[8, 8];
         private Label[] reserveTileTexts = new Label[10];
         private Board board;
         private BoardScreen screen;
-        private ImageButton clickedSquare = null;
-        private string selectedReservePiece = null;
 
         public DrawBoard(Board board, BoardScreen screen)
         {
@@ -63,6 +66,15 @@ namespace CrazyAuriApplication.Models
                     };
                 }
             }
+
+            movenumbermenu.HorizontalAlignment = HorizontalAlignment.Right;
+            movehistoryview.Widgets.Add(movenumbermenu);
+            whitemovemenu.GridColumn = 1;
+            whitemovemenu.HorizontalAlignment = HorizontalAlignment.Center;
+            movehistoryview.Widgets.Add(whitemovemenu);
+            blackmovemenu.HorizontalAlignment = HorizontalAlignment.Center;
+            blackmovemenu.GridColumn = 2;
+            movehistoryview.Widgets.Add(blackmovemenu);
 
             DrawReservePart(board, screen);
             Update();
@@ -133,6 +145,31 @@ namespace CrazyAuriApplication.Models
 
         public void Update()
         {
+            screen.stopwatch = new Stopwatch();
+            screen.stopwatch.Start();
+
+            if (board.lastmovemade!=null)
+            {
+                if (board.CurrentColor == false)
+                {
+                    var moveButton = new MenuItem();
+                    moveButton.Text = board.lastmovemade.ToString();
+                    blackmovemenu.Items.Add(moveButton);
+                }
+                else
+                {
+                    var moveButton = new MenuItem();
+                    moveButton.Text = (movenumbermenu.Items.Count+1).ToString() +".";
+                    movenumbermenu.Items.Add(moveButton);
+
+                    moveButton = new MenuItem();
+                    moveButton.Text = board.lastmovemade.ToString();
+                    whitemovemenu.Items.Add(moveButton);
+                }
+                    
+                    
+            }
+
             Clear();
 
             for (int i=0; i<8; i++)
@@ -193,6 +230,8 @@ namespace CrazyAuriApplication.Models
             reserveTileTexts[8].Text = board.WhiteCrazyHouseKnights.ToString();
             reserveTileTexts[9].Text = board.WhiteCrazyHousePawns.ToString();
         }
+
+
 
     }
 }

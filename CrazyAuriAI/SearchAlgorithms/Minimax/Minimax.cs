@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CrazyAuriAI.SearchAlgorithms
+namespace CrazyAuriAI.SearchAlgorithms.Minimax
 {
     public class Minimax
     {
@@ -103,7 +103,77 @@ namespace CrazyAuriAI.SearchAlgorithms
                 }
             };
 
+        TranspositionTable transpositionTable;
+        public Minimax()
+        {
+            transpositionTable = new TranspositionTable();
+        }
+
         public (string, double) NegaMax(Board currentboard, int depth, double alpha, double beta, bool color) // Alpha beta minimax
+        {
+            return NegaMaxWithTransposition(currentboard, depth, alpha, beta, color);
+
+        }
+
+        public (string, double) NegaMaxWithTransposition(Board currentboard, int depth, double alpha, double beta, bool color) // Alpha beta minimax
+        {
+            var alphaOrig = alpha;
+            var transpositionentry = transpositionTable.GetEntry(currentboard.GetPositionHash(), depth);
+            if (transpositionentry != null)
+            {
+                if (transpositionentry.flag == "EXACT")
+                    return (transpositionentry.move, transpositionentry.value);
+                else if (transpositionentry.flag == "LOWERBOUND")
+                    alpha = Math.Max(alpha, transpositionentry.value);
+                else if (transpositionentry.flag == "UPPERBOUND")
+                    beta = Math.Min(beta, transpositionentry.value);
+
+                if (alpha >= beta)
+                    return (transpositionentry.move, transpositionentry.value);
+            }
+
+            if (depth == 0 || currentboard.GetWinner() != "0")
+            {
+                return ("", (color == true ? -1 : 1) * EvaluationFunction(currentboard));
+            }
+            var childNodes = currentboard.GetAllMoves();
+            // sort moves here
+            double value = double.MinValue;
+            Move bestmove = null;
+            foreach (var child in childNodes)
+            {
+                var newboard = new Board(currentboard.ToString(), currentboard.FormerPositions);
+                newboard.MakeMove(child);
+                var (returnedmove, newvalue) = NegaMax(newboard, depth - 1, -beta, -alpha, !color);
+                value = double.MaxNumber(value, -newvalue);
+                if (value > alpha)
+                {
+                    alpha = value;
+                    bestmove = child;
+                }
+                if (alpha > beta)
+                {
+                    break;
+                }
+            }
+
+            var bestmovestring = "";
+
+            if (bestmove != null)
+                bestmovestring = bestmove.ToString();
+
+            if (value <= alphaOrig)
+                transpositionTable.AddEntry(currentboard.GetPositionHash(), bestmovestring, value, depth, "UPPERBOUND");
+            else if (value >= beta)
+                transpositionTable.AddEntry(currentboard.GetPositionHash(), bestmovestring, value, depth, "LOWERBOUND");
+            else
+                transpositionTable.AddEntry(currentboard.GetPositionHash(), bestmovestring, value, depth, "EXACT");
+
+            return (bestmovestring, value);
+
+        }
+
+        public (string, double) NegaMaxStandard(Board currentboard, int depth, double alpha, double beta, bool color) // Alpha beta minimax
         {
             if (depth == 0 || currentboard.GetWinner() != "0")
             {
