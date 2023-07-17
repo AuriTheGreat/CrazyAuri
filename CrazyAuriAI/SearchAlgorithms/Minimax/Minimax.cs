@@ -2,6 +2,7 @@
 using CrazyAuriLibrary.Models.Moves.MoveTypes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -103,7 +104,7 @@ namespace CrazyAuriAI.SearchAlgorithms.Minimax
                 }
             };
 
-        TranspositionTable transpositionTable;
+        public TranspositionTable transpositionTable;
         public Minimax()
         {
             transpositionTable = new TranspositionTable();
@@ -112,7 +113,6 @@ namespace CrazyAuriAI.SearchAlgorithms.Minimax
         public (string, double) NegaMax(Board currentboard, int depth, double alpha, double beta, bool color) // Alpha beta minimax
         {
             return NegaMaxWithTransposition(currentboard, depth, alpha, beta, color);
-
         }
 
         public (string, double) NegaMaxWithTransposition(Board currentboard, int depth, double alpha, double beta, bool color) // Alpha beta minimax
@@ -136,8 +136,9 @@ namespace CrazyAuriAI.SearchAlgorithms.Minimax
             {
                 return ("", (color == true ? -1 : 1) * EvaluationFunction(currentboard));
             }
+
             var childNodes = currentboard.GetAllMoves();
-            // sort moves here
+            SortMoves(currentboard, childNodes);
             double value = double.MinValue;
             Move bestmove = null;
             foreach (var child in childNodes)
@@ -207,6 +208,12 @@ namespace CrazyAuriAI.SearchAlgorithms.Minimax
 
             return (bestmovestring, value);
 
+        }
+
+        private void SortMoves(Board board, List<Move> Moves)
+        {
+            var comparer = new MoveComparer(board, transpositionTable, tilepiecevalues);
+            Moves.Sort(comparer);
         }
 
         private double EvaluationFunction(Board board)
