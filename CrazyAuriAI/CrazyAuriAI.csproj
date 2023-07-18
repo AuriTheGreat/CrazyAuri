@@ -8,6 +8,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Library\CrazyAuriLibrary.csproj" />
+	<ContentWithTargetPath Include="Bots\fairy_stockfish.exe">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<TargetPath>%(Filename)%(Extension)</TargetPath>
+    </ContentWithTargetPath>
   </ItemGroup>
+	
+	
 
 </Project>

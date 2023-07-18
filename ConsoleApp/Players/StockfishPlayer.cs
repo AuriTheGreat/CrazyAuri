@@ -9,14 +9,15 @@ using System.Threading.Tasks;
 
 namespace CrazyAuriConsole.Players
 {
-    public class BotPlayer : IPlayer
+    public class StockfishPlayer : IPlayer
     {
-        public MainBot bot = new MainBot();
+        public StockfishBot bot = new StockfishBot();
         public void MakeMove(Board board)
         {
-            if (board.MakeMove(bot.GetMove(board)) == false)
+            string botmove = bot.GetMove(board);
+            if (board.MakeMove(botmove) == false)
             {
-                board.MakeMove(board.GetAllMoves()[0]);
+                throw new InvalidDataException("Illegal move " + botmove + " " + board.ToString());
             }
         }
     }

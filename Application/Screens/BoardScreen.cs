@@ -33,7 +33,7 @@ public class BoardScreen : GameScreen
 
     public IPlayer WhitePlayer = new BotPlayer();
 
-    public IPlayer BlackPlayer = new BotPlayer();
+    public IPlayer BlackPlayer = new StockfishPlayer();
 
     private Thread MoveGetter = new Thread(() => { });
 

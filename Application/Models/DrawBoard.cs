@@ -20,7 +20,7 @@ namespace CrazyAuriApplication.Models
     {
         public Grid boardgrid = new Grid();
         public Grid reservegrid = new Grid();
-        public Grid movehistoryview = new Grid();
+        public HorizontalSplitPane movehistoryview = new HorizontalSplitPane();
         private VerticalMenu movenumbermenu = new VerticalMenu();
         private VerticalMenu whitemovemenu = new VerticalMenu();
         private VerticalMenu blackmovemenu = new VerticalMenu();
@@ -67,7 +67,8 @@ namespace CrazyAuriApplication.Models
                 }
             }
 
-            movenumbermenu.HorizontalAlignment = HorizontalAlignment.Right;
+            //movehistoryview.Background = new Myra.Graphics2D.Brushes.SolidBrush("#155ed4");
+            movenumbermenu.HorizontalAlignment = HorizontalAlignment.Center;
             movehistoryview.Widgets.Add(movenumbermenu);
             whitemovemenu.GridColumn = 1;
             whitemovemenu.HorizontalAlignment = HorizontalAlignment.Center;
@@ -75,6 +76,9 @@ namespace CrazyAuriApplication.Models
             blackmovemenu.HorizontalAlignment = HorizontalAlignment.Center;
             blackmovemenu.GridColumn = 2;
             movehistoryview.Widgets.Add(blackmovemenu);
+            movehistoryview.SetSplitterPosition(0, (float) 0.3);
+            movehistoryview.SetSplitterPosition(1, (float) 0.5);
+            movehistoryview.Enabled = false;
 
             DrawReservePart(board, screen);
             Update();
@@ -82,7 +86,7 @@ namespace CrazyAuriApplication.Models
 
         private void DrawReservePart(Board board, BoardScreen screen)
         {
-            //reservegrid.Background = new TextureRegion(screen.Content.Load<Texture2D>("gfx/Board"));
+            //reservegrid.Background = new Myra.Graphics2D.Brushes.SolidBrush("#FFA500");
             reservegrid.ShowGridLines = true;
             reservegrid.Height = 600;
             reservegrid.Width = 60;

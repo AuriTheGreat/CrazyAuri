@@ -112,11 +112,17 @@ namespace CrazyAuriAI.SearchAlgorithms.Minimax
 
         public (string, double) NegaMax(Board currentboard, int depth, double alpha, double beta, bool color) // Alpha beta minimax
         {
-            return NegaMaxWithTransposition(currentboard, depth, alpha, beta, color);
+            (string, double) result = ("", Double.MinValue);
+            for (int i=0; i<=depth; i++)
+            {
+                result = NegaMaxWithTransposition(currentboard, i, alpha, beta);
+            }
+            return result;
         }
 
-        public (string, double) NegaMaxWithTransposition(Board currentboard, int depth, double alpha, double beta, bool color) // Alpha beta minimax
+        public (string, double) NegaMaxWithTransposition(Board currentboard, int depth, double alpha, double beta) // Alpha beta minimax
         {
+            var color = currentboard.CurrentColor;
             var alphaOrig = alpha;
             var transpositionentry = transpositionTable.GetEntry(currentboard.GetPositionHash(), depth);
             if (transpositionentry != null)
@@ -143,16 +149,16 @@ namespace CrazyAuriAI.SearchAlgorithms.Minimax
             Move bestmove = null;
             foreach (var child in childNodes)
             {
-                var newboard = new Board(currentboard.ToString(), currentboard.FormerPositions);
+                var newboard = currentboard.Copy();
                 newboard.MakeMove(child);
-                var (returnedmove, newvalue) = NegaMax(newboard, depth - 1, -beta, -alpha, !color);
+                var (returnedmove, newvalue) = NegaMaxWithTransposition(newboard, depth - 1, -beta, -alpha);
                 value = double.MaxNumber(value, -newvalue);
                 if (value > alpha)
                 {
                     alpha = value;
                     bestmove = child;
                 }
-                if (alpha > beta)
+                if (alpha >= beta)
                 {
                     break;
                 }
@@ -169,42 +175,6 @@ namespace CrazyAuriAI.SearchAlgorithms.Minimax
                 transpositionTable.AddEntry(currentboard.GetPositionHash(), bestmovestring, value, depth, "LOWERBOUND");
             else
                 transpositionTable.AddEntry(currentboard.GetPositionHash(), bestmovestring, value, depth, "EXACT");
-
-            return (bestmovestring, value);
-
-        }
-
-        public (string, double) NegaMaxStandard(Board currentboard, int depth, double alpha, double beta, bool color) // Alpha beta minimax
-        {
-            if (depth == 0 || currentboard.GetWinner() != "0")
-            {
-                return ("", (color == true ? -1 : 1) * EvaluationFunction(currentboard));
-            }
-            var childNodes = currentboard.GetAllMoves();
-            // sort moves here
-            double value = double.MinValue;
-            Move bestmove = null;
-            foreach (var child in childNodes)
-            {
-                var newboard = new Board(currentboard.ToString(), currentboard.FormerPositions);
-                newboard.MakeMove(child);
-                var (returnedmove, newvalue) = NegaMax(newboard, depth - 1, -beta, -alpha, !color);
-                value = double.MaxNumber(value, -newvalue);
-                if (value > alpha)
-                {
-                    alpha = value;
-                    bestmove = child;
-                }
-                if (alpha > beta)
-                {
-                    break;
-                }
-            }
-
-            var bestmovestring = "";
-
-            if (bestmove != null)
-                bestmovestring = bestmove.ToString();
 
             return (bestmovestring, value);
 

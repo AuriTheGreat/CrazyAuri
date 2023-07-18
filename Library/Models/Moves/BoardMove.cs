@@ -11,13 +11,13 @@ namespace CrazyAuriLibrary.Models.Moves
 {
     public class BoardMove
     {
-        public bool movesHaveBeenChecked=false;
+        private bool movesHaveBeenChecked=false;
 
-        private Board board = new Board();
-  
-        private short[,] attackedSquares = new short[8, 8];
-        private short[,] pinRays = new short[8, 8];
-        private bool[,] checkRays = new bool[8, 8];
+        private Board board;
+
+        private short[,] attackedSquares;
+        private short[,] pinRays;
+        private bool[,] checkRays;
 
         private List <Move> LegalMoves = new List <Move>();
         private Dictionary<string, Move> LegalMovesDictionary = new Dictionary<string, Move>();
@@ -34,6 +34,10 @@ namespace CrazyAuriLibrary.Models.Moves
                 return LegalMoves;
             }
             movesHaveBeenChecked = true;
+
+            attackedSquares = new short[8, 8];
+            pinRays = new short[8, 8];
+            checkRays = new bool[8, 8];
 
             var ourPieces = board.BlackPieces;
             var ourKing = board.BlackKing;
@@ -52,42 +56,6 @@ namespace CrazyAuriLibrary.Models.Moves
             {
                 i.GetAttacks(board, attackedSquares, pinRays, checkRays);
             }
-
-            //for (int i = 0; i < 8; i++)
-            //{
-            //    for (int j = 0; j < 8; j++)
-            //    {
-            //        Console.Write(attackedSquares[i, j]);
-            //        Console.Write(" ");
-            //    }
-            //    Console.WriteLine();
-
-            //}
-
-            //Console.WriteLine();
-
-            //for (int i = 0; i < 8; i++)
-            //{
-            //    for (int j = 0; j < 8; j++)
-            //    {
-            //        Console.Write(pinRays[i, j]);
-            //        Console.Write(" ");
-            //    }
-            //    Console.WriteLine();
-
-            //}
-
-            //Console.WriteLine();
-
-            //for (int i = 0; i < 8; i++)
-            //{
-            //    for (int j = 0; j < 8; j++)
-            //    {
-            //        Console.Write(checkRays[i, j] ? 1 : 0);
-            //        Console.Write(" ");
-            //    }
-            //    Console.WriteLine();
-            //}
 
             if (attackedSquares[ourKing.location.Item1, ourKing.location.Item2]==0)
             {
@@ -250,6 +218,7 @@ namespace CrazyAuriLibrary.Models.Moves
 
             move.MakeMove(board);
 
+            board.movehistory.Add(move.ToString());
             LegalMovesDictionary.Clear();
             LegalMoves.Clear();
             movesHaveBeenChecked = false;
@@ -305,13 +274,6 @@ namespace CrazyAuriLibrary.Models.Moves
                 return true;
             }
 
-            //foreach (var i in board.FormerPositions)
-            //{
-            //    if (board.FormerPositions[i.Key] > 2)
-            //    {
-            //        return true;
-            //    }
-            //}
             return false;
         }
 

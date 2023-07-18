@@ -28,6 +28,7 @@ namespace CrazyAuri.Models
         public ushort HalfMoveClock = 0;
         public ushort FullMoveClock = 1;
         public Dictionary<string,ushort> FormerPositions = new Dictionary<string,ushort>();
+        public List<string> movehistory = new List<string>();
 
         public ushort WhiteCrazyHousePawns = 0;
         public ushort WhiteCrazyHouseKnights = 0;
@@ -61,6 +62,15 @@ namespace CrazyAuri.Models
         {
             InitialiseBoard(FEN);
             foreach (var i in FormerPositions)
+            {
+                this.FormerPositions.Add(i.Key, i.Value);
+            }
+        }
+
+        public Board(Board board)
+        {
+            InitialiseBoard(board.ToString());
+            foreach (var i in board.FormerPositions)
             {
                 this.FormerPositions.Add(i.Key, i.Value);
             }
@@ -236,6 +246,13 @@ namespace CrazyAuri.Models
             HalfMoveClock = ushort.Parse(separatedFEN[4]);
             FullMoveClock = ushort.Parse(separatedFEN[5]);
 
+            boardmove = new BoardMove(this);
+
+        }
+
+        public Board Copy()
+        {
+            return new Board(this);
         }
 
         public override string ToString()
@@ -351,25 +368,16 @@ namespace CrazyAuri.Models
 
         public List<Move> GetAllMoves()
         {
-            boardmove = new BoardMove(this);
             return boardmove.GetAllMoves();
         }
 
         public List<Move> GetAllPieceMoves((int,int) location)
         {
-            if (boardmove == null)
-            {
-                GetAllMoves();
-            }
             return boardmove.GetAllPieceMoves(location);
         }
 
         public bool MakeMove(Move move)
         {
-            if (boardmove == null)
-            {
-                GetAllMoves();
-            }
             if (boardmove.MakeMove(move) == true)
             {
                 boardmove = new BoardMove(this);
@@ -381,10 +389,6 @@ namespace CrazyAuri.Models
 
         public bool MakeMove(string move)
         {
-            if (boardmove == null)
-            {
-                GetAllMoves();
-            }
             if (boardmove.MakeMove(move) == true)
             {
                 boardmove = new BoardMove(this);
@@ -408,10 +412,6 @@ namespace CrazyAuri.Models
 
         public string GetWinner()
         {
-            if (boardmove == null)
-            {
-                GetAllMoves();
-            }
             return boardmove.GetWinner();
         }
 
