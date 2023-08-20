@@ -14,7 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CrazyAuriApplication.Models
+namespace CrazyAuriApplication.Screens.BoardScreenFiles
 {
     public class DrawBoard
     {
@@ -76,8 +76,8 @@ namespace CrazyAuriApplication.Models
             blackmovemenu.HorizontalAlignment = HorizontalAlignment.Center;
             blackmovemenu.GridColumn = 2;
             movehistoryview.Widgets.Add(blackmovemenu);
-            movehistoryview.SetSplitterPosition(0, (float) 0.3);
-            movehistoryview.SetSplitterPosition(1, (float) 0.5);
+            movehistoryview.SetSplitterPosition(0, (float)0.3);
+            movehistoryview.SetSplitterPosition(1, (float)0.5);
             movehistoryview.Enabled = false;
 
             DrawReservePart(board, screen);
@@ -114,7 +114,7 @@ namespace CrazyAuriApplication.Models
             boardTile.OverBackground = null;
             boardTile.PressedBackground = new TextureRegion(screen.Content.Load<Texture2D>("gfx/tilePress"));
             boardTile.OverImage = new TextureRegion(screen.Content.Load<Texture2D>("gfx/hoverDot"));
-            boardTile.GridRow = reservegrid.Widgets.Count()/2;
+            boardTile.GridRow = reservegrid.Widgets.Count() / 2;
             reservegrid.Widgets.Add(boardTile);
             boardTile.TouchDown += (s, a) =>
             {
@@ -152,7 +152,7 @@ namespace CrazyAuriApplication.Models
             screen.stopwatch = new Stopwatch();
             screen.stopwatch.Start();
 
-            if (board.lastmovemade!=null)
+            if (board.lastmovemade != null)
             {
                 if (board.CurrentColor == false)
                 {
@@ -163,22 +163,22 @@ namespace CrazyAuriApplication.Models
                 else
                 {
                     var moveButton = new MenuItem();
-                    moveButton.Text = (movenumbermenu.Items.Count+1).ToString() +".";
+                    moveButton.Text = (movenumbermenu.Items.Count + 1).ToString() + ".";
                     movenumbermenu.Items.Add(moveButton);
 
                     moveButton = new MenuItem();
                     moveButton.Text = board.lastmovemade.ToString();
                     whitemovemenu.Items.Add(moveButton);
                 }
-                    
-                    
+
+
             }
 
             Clear();
 
-            for (int i=0; i<8; i++)
+            for (int i = 0; i < 8; i++)
             {
-                for (int j=0; j<8; j++)
+                for (int j = 0; j < 8; j++)
                 {
                     if (board.array[i, j] == null)
                         continue;

@@ -65,7 +65,12 @@ namespace CrazyAuriAI.Bots
             SendLine(GetMoves(board));
             SendLine("go movetime 3000");
 
-            while (move == ""){}
+            while (move == "")
+            {
+                if (stopwatch.Elapsed.TotalSeconds > 10)
+                    throw new Exception("No move received for more than 10 seconds.");
+            
+            }
 
             var color = "White";
             if (board.CurrentColor == true)

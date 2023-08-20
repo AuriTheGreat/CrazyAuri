@@ -268,7 +268,7 @@ namespace CrazyAuriLibrary.Models.Moves
 
         private bool DrawByRepetitionCheck()
         {
-            string currentposition = board.PrintFEN().Split(" ")[0];
+            string currentposition = board.GetPositionHash();
             if (board.FormerPositions[currentposition] > 2)
             {
                 return true;

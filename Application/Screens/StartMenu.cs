@@ -25,11 +25,10 @@ public class StartMenu : GameScreen
 
         var panel = new Panel();
         var positionedText = new Label();
-        positionedText.Width = 600;
-        positionedText.Height = 400;
-        positionedText.Text = "Positioned Text";
-        positionedText.Left = 50;
-        positionedText.Top = 100;
+        positionedText.HorizontalAlignment = HorizontalAlignment.Center;
+        positionedText.Text = "CrazyAuri";
+        positionedText.Font = ((DynamicSpriteFont)positionedText.Font).FontSystem.GetFont(80);
+        positionedText.Top = 0;
         panel.Widgets.Add(positionedText);
 
         var startButton = new TextButton();
@@ -41,7 +40,7 @@ public class StartMenu : GameScreen
         panel.Widgets.Add(startButton);
         startButton.TouchDown += (s, a) =>
         {
-            Game.LoadBoardScreen();
+            Game.LoadGameSettingsScreen();
             //Exit();
         };
 

@@ -430,7 +430,9 @@ namespace CrazyAuri.Models
 
         public string GetPositionHash()
         {
-            return PrintFEN().Split(" ")[0];
+            var positionFEN = PrintFEN().Split(" ");
+
+            return positionFEN[0] + positionFEN[1] + positionFEN[2] + positionFEN[3];
         }
 
     }

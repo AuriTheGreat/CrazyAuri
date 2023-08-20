@@ -15,10 +15,11 @@ using CrazyAuri.Models;
 using System.Collections.Generic;
 using CrazyAuri.Models.Pieces;
 using System;
-using CrazyAuriApplication.Models;
 using CrazyAuriApplication.Players;
 using System.Threading;
 using System.Diagnostics;
+using CrazyAuriApplication.Screens.BoardScreenFiles;
+using CrazyAuriApplication.Models;
 
 public class BoardScreen : GameScreen
 {
@@ -31,9 +32,9 @@ public class BoardScreen : GameScreen
 
     public DrawBoard drawboard;
 
-    public IPlayer WhitePlayer = new BotPlayer();
+    public IPlayer WhitePlayer = Settings.WhitePlayer;
 
-    public IPlayer BlackPlayer = new StockfishPlayer();
+    public IPlayer BlackPlayer = Settings.BlackPlayer;
 
     private Thread MoveGetter = new Thread(() => { });
 
@@ -51,7 +52,7 @@ public class BoardScreen : GameScreen
         panel.Height = 800;
         panel.Width = 1200;
 
-        board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
+        board = new Board(Settings.StartBoard);
         drawboard = new DrawBoard(board, this);
         panel.Widgets.Add(drawboard.reservegrid);
         panel.Widgets.Add(drawboard.boardgrid);

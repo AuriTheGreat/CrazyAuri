@@ -8,6 +8,7 @@ using System.IO;
 using MonoGame.Extended.Screens;
 using MonoGame.Extended.Screens.Transitions;
 using MonoGame.Extended;
+using CrazyAuriApplication.Screens;
 
 namespace CrazyAuriApplication
 {
@@ -63,6 +64,16 @@ namespace CrazyAuriApplication
         public void LoadStartMenu()
         {
             _screenManager.LoadScreen(new StartMenu(this));
+        }
+
+        public void LoadMainMenu()
+        {
+            _screenManager.LoadScreen(new StartMenu(this), new FadeTransition(GraphicsDevice, Color.Black));
+        }
+
+        public void LoadGameSettingsScreen()
+        {
+            _screenManager.LoadScreen(new GameSettingsScreen(this), new FadeTransition(GraphicsDevice, Color.Black));
         }
 
         public void LoadBoardScreen()

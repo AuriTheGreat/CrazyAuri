@@ -113,7 +113,7 @@ namespace CrazyAuriAI.SearchAlgorithms.Minimax
         public (string, double) NegaMax(Board currentboard, int depth, double alpha, double beta, bool color) // Alpha beta minimax
         {
             (string, double) result = ("", Double.MinValue);
-            for (int i=0; i<=depth; i++)
+            for (int i=2; i<=depth; i++)
             {
                 result = NegaMaxWithTransposition(currentboard, i, alpha, beta);
             }
