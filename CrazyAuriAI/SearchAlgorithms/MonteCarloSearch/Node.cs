@@ -21,6 +21,10 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         public List<Move> childpositionmoves = new List<Move>();
         private IEvaluationFunction evaluationfunction = new MainEvaluationFunction();
 
+        public double scoreratio
+        {
+            get { return score / visits; }
+        }
 
         public Node(Board board)
         {
@@ -50,7 +54,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         public void Update(double result)
         {
             this.visits += 1;
-            this.score = result;
+            this.score += result;
         }
 
         public bool IsLeaf()

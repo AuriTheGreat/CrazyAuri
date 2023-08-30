@@ -1,5 +1,4 @@
 ﻿using CrazyAuri.Models;
-using CrazyAuriAI.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

@@ -1,6 +1,6 @@
 ﻿using CrazyAuri.Models;
 using CrazyAuriAI;
-using CrazyAuriAI.Models;
+using CrazyAuriAI.Bots;
 using Myra.Graphics2D.UI;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace CrazyAuriApplication.Players
 {
     public class BotPlayer : IPlayer
     {
-        public MonteCarloBot bot = new MonteCarloBot();
+        public IBot bot = new MCABBot();
 
         public void MakeMove(Board board, BoardScreen screen)
         {

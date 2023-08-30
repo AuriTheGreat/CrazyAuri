@@ -1,5 +1,5 @@
 ﻿using CrazyAuri.Models;
-using CrazyAuriAI.Models;
+using CrazyAuriAI.Bots;
 
 namespace CrazyAuriAI
 {

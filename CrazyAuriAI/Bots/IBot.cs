@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CrazyAuriAI.Models
+namespace CrazyAuriAI.Bots
 {
     public interface IBot
     {

@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace CrazyAuriAI.Models
+namespace CrazyAuriAI.Bots
 {
     public class MinimaxBot : IBot
     {

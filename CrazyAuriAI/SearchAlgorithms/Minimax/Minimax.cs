@@ -17,6 +17,7 @@ namespace CrazyAuriAI.SearchAlgorithms.Minimax
         public Minimax()
         {
             transpositionTable = new TranspositionTable();
+            evaluationFunction = new MainEvaluationFunction();
         }
 
         public (string, double) NegaMax(Board currentboard, int depth, double alpha, double beta, bool color) // Alpha beta minimax
