@@ -94,7 +94,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         private double Simulate(Board board)
         {
             double localscore = 0;
-            int depth = 1;
+            int depth = 5;
             bool done = false;
             var newboard = new Board(board.ToString(), board.FormerPositions);
             while (done == false && depth > 0)

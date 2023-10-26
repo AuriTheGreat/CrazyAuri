@@ -11,7 +11,7 @@ namespace CrazyAuriConsole.Players
 {
     public class BotPlayer : IPlayer
     {
-        public MainBot bot = new MainBot();
+        public MonteCarloBot bot = new MonteCarloBot();
         public void MakeMove(Board board)
         {
             if (board.MakeMove(bot.GetMove(board)) == false)
