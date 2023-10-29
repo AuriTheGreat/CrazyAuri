@@ -11,6 +11,7 @@ namespace CrazyAuriLibrary.Models.Moves
 {
     public class BoardMove
     {
+        public bool inCheck = false;
         private bool movesHaveBeenChecked=false;
 
         private Board board;
@@ -60,14 +61,17 @@ namespace CrazyAuriLibrary.Models.Moves
             if (attackedSquares[ourKing.location.Item1, ourKing.location.Item2]==0)
             {
                 LegalMoves=GetAllMovesStandard(ourPieces);
+                this.inCheck = false;
             }
             else if (attackedSquares[ourKing.location.Item1, ourKing.location.Item2] == 1)
             {
                 LegalMoves = GetAllMovesInCheck(ourPieces);
+                this.inCheck = true;
             }
             else
             {
                 LegalMoves = GetAllMovesInDoubleCheck(ourKing);
+                this.inCheck = true;
             }
             return LegalMoves;
         }

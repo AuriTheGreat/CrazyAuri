@@ -21,9 +21,10 @@ namespace CrazyAuriAI.Bots
             Stopwatch stopwatch = new Stopwatch();
             MonteCarlo montecarlo = new MonteCarlo();
             stopwatch.Start();
-            string result = montecarlo.MonteCarloSearch(board, 3);
+            (string, double) result = montecarlo.MonteCarloSearch(board, 3);
             stopwatch.Stop();
-            var move = result;
+            var move = result.Item1;
+            var evaluation = result.Item2.ToString();
             //var move = board.GetAllMoves()[0].ToString();
             //if (result != "")
             //    move = result;
@@ -31,7 +32,7 @@ namespace CrazyAuriAI.Bots
             if (board.CurrentColor == true)
                 color = "Black";
 
-            Console.WriteLine(color + " move chosen: " + move + " After " + double.Round(stopwatch.Elapsed.TotalSeconds,2) + "s.");
+            Console.WriteLine(color + " move chosen: " + move + " (" + evaluation + ") After " + double.Round(stopwatch.Elapsed.TotalSeconds,2) + "s.");
             return move;
         }
     }

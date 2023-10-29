@@ -1,11 +1,13 @@
 ﻿using CrazyAuri.Models;
 using CrazyAuriAI.Evaluation.Functions;
+using CrazyAuriLibrary.Models.Moves.MoveTypes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
 {
@@ -13,8 +15,9 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
     {
         private Random random = new Random();
         private IEvaluationFunction evaluationfunction = new MainEvaluationFunction();
+        private MoveEvaluationFunction moveevaluationfunction = new MoveEvaluationFunction();
         private CrazyAuriAI.SearchAlgorithms.Minimax.Minimax minimax = new CrazyAuriAI.SearchAlgorithms.Minimax.Minimax();
-        public string MonteCarloSearch(Board board, double time)
+        public (string, double) MonteCarloSearch(Board board, double time)
         {
             var position = new Node(board);
             position.ExpandNode();
@@ -53,7 +56,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 }
             }
 
-            return bestposition.move.ToString();
+            return (bestposition.move.ToString(), bestratio);
         }
 
         public double getUCBscore(Node node)
@@ -94,14 +97,14 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         private double Simulate(Board board)
         {
             double localscore = 0;
-            int depth = 5;
+            int depth = 3;
             bool done = false;
             var newboard = new Board(board.ToString(), board.FormerPositions);
             while (done == false && depth > 0)
             {
                 depth -= 1;
-                var moves = newboard.GetAllMoves();
-                newboard.MakeMove(moves[random.Next(moves.Count)]);
+                var nextmove = selectNextSimulationMove(newboard);
+                newboard.MakeMove(nextmove);
                 if (newboard.GetWinner() != "0")
                 {
                     if (newboard.GetWinner() == "w")
@@ -112,14 +115,85 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 }
                 else if (depth == 0)
                 {
-                    localscore = Math.Min(3000, Math.Max(-3000, minimax.NegaMaxWithTransposition(newboard, 3, double.MaxValue, double.MinValue).Item2));
+                    var localevaluation = evaluationfunction.GetEvaluation(newboard);
+                    /*
+                    localscore = Math.Min(3000, Math.Max(-3000, localevaluation));
                     if (board.CurrentColor == false)
                         localscore /= 3000;
                     else
                         localscore /= (-1 * 3000);
+                    */
+
+                    if (newboard.CurrentColor == true)
+                        localevaluation *= -1; // Evaluation from the perspective of the playing color
+                    if (localevaluation > 500)
+                        localscore = -1;
+                    else if (localevaluation < -500)
+                        localscore = 1;
+
                 }
             }
             return localscore;
+        }
+
+        private string selectNextSimulationMove(Board board)
+        {
+            var moves = board.GetAllMoves();
+            var evaluationsum = 0.0;
+            var positionevaluations = new List<double>() { 0 };
+            var evaluatedmoves = new List<Move>();
+            foreach (var move in moves)
+            {
+                var newboard = new Board(board.ToString(), board.FormerPositions);
+                newboard.MakeMove(move);
+                var localevaluation = moveevaluationfunction.GetEvaluation(board, newboard, move);
+                if (localevaluation <= -1000)
+                    continue;
+                else if (localevaluation >= 1000)
+                    return move.ToString();
+                evaluationsum += localevaluation;
+                positionevaluations.Add(localevaluation+positionevaluations.Last());
+                evaluatedmoves.Add(move);
+            }
+            /*
+            var result = new Dictionary<string, double>();
+            for (int j = 0; j < 1000; j++)
+            {
+                var correctvalue = evaluationsum * random.NextDouble();
+                var lowerbound = 0.0;
+                var higherbound = 0.0;
+                for (int i = 1; i < positionevaluations.Count; i++)
+                {
+                    lowerbound = positionevaluations[i - 1];
+                    higherbound = positionevaluations[i];
+                    if (lowerbound <= correctvalue && correctvalue <= higherbound)
+                    {
+                        //Console.WriteLine(lowerbound);
+                        //Console.WriteLine(correctvalue);
+                        //Console.WriteLine(higherbound);
+                        if(!result.ContainsKey(evaluatedmoves[i - 1].ToString()))
+                            result[evaluatedmoves[i - 1].ToString()] = 0;
+                        result[evaluatedmoves[i - 1].ToString()] += 1;
+                    }
+                }
+            }
+            foreach (var entry in result.Keys)
+                Console.WriteLine(entry + ": " +result[entry].ToString());
+            throw new Exception("Hello");
+            */
+            var correctvalue = evaluationsum * random.NextDouble();
+                var lowerbound = 0.0;
+                var higherbound = 0.0;
+            for (int i = 1; i < positionevaluations.Count; i++)
+            {
+                lowerbound = positionevaluations[i - 1];
+                higherbound = positionevaluations[i];
+                if (lowerbound <= correctvalue && correctvalue <= higherbound)
+                {
+                    return evaluatedmoves[i - 1].ToString();
+                }
+            }
+            return null;
         }
     }
 }
