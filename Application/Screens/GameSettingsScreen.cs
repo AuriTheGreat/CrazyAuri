@@ -87,11 +87,19 @@ namespace CrazyAuriApplication.Screens
             chooseWhitePlayer.Widgets.Add(newButton);
             newButton.IsPressed = true;
             newButton = new RadioButton();
-            newButton.Text = "AI";
+            newButton.Text = "Minimax AI";
             newButton.Font = MainFontSystem.GetFont(32);
             newButton.TouchDown += (s, a) =>
             {
-                Settings.WhitePlayer = new BotPlayer();
+                Settings.WhitePlayer = new MinimaxPlayer();
+            };
+            chooseWhitePlayer.Widgets.Add(newButton);
+            newButton = new RadioButton();
+            newButton.Text = "Monte-Carlo AI";
+            newButton.Font = MainFontSystem.GetFont(32);
+            newButton.TouchDown += (s, a) =>
+            {
+                Settings.WhitePlayer = new MonteCarloPlayer();
             };
             chooseWhitePlayer.Widgets.Add(newButton);
             newButton = new RadioButton();
@@ -106,7 +114,7 @@ namespace CrazyAuriApplication.Screens
 
             //Black Player Radio
             var chooseBlackPlayer = new VerticalStackPanel();
-            chooseBlackPlayer.Top = 250;
+            chooseBlackPlayer.Top = 300;
             chooseBlackPlayer.Left = 50;
             newButton = new RadioButton();
             newButton.Text = "Human";
@@ -117,14 +125,22 @@ namespace CrazyAuriApplication.Screens
             };
             chooseBlackPlayer.Widgets.Add(newButton);
             newButton = new RadioButton();
-            newButton.Text = "AI";
+            newButton.Text = "Minimax AI";
             newButton.Font = MainFontSystem.GetFont(32);
             newButton.TouchDown += (s, a) =>
             {
-                Settings.BlackPlayer = new BotPlayer();
+                Settings.BlackPlayer = new MinimaxPlayer();
             };
             chooseBlackPlayer.Widgets.Add(newButton);
             newButton.IsPressed = true;
+            newButton = new RadioButton();
+            newButton.Text = "Monte-Carlo AI";
+            newButton.Font = MainFontSystem.GetFont(32);
+            newButton.TouchDown += (s, a) =>
+            {
+                Settings.BlackPlayer = new MonteCarloPlayer();
+            };
+            chooseBlackPlayer.Widgets.Add(newButton);
             newButton = new RadioButton();
             newButton.Text = "Stockfish";
             newButton.Font = MainFontSystem.GetFont(32);
@@ -155,7 +171,7 @@ namespace CrazyAuriApplication.Screens
             positionedText = new Label();
             positionedText.Text = "Choose the Black Player:";
             positionedText.Font = ((DynamicSpriteFont)positionedText.Font).FontSystem.GetFont(32);
-            positionedText.Top = 210;
+            positionedText.Top = 260;
             positionedText.Left = 50;
             panel.Widgets.Add(positionedText);
 

@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace CrazyAuriApplication.Players
 {
-    public class BotPlayer : IPlayer
+    public class MonteCarloPlayer : IPlayer
     {
-        public IBot bot = new MCABBot();
+        public IBot bot = new MonteCarloBot();
 
         public void MakeMove(Board board, BoardScreen screen)
         {

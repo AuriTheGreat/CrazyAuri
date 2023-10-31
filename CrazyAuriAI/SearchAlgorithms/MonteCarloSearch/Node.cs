@@ -21,6 +21,11 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         public List<Move> childpositionmoves = new List<Move>();
         private IEvaluationFunction evaluationfunction = new MainEvaluationFunction();
 
+        public override string ToString()
+        {
+            return (move.ToString() ?? "")  + " " + Math.Round(scoreratio,2).ToString() + " " + visits.ToString();
+        }
+
         public double scoreratio
         {
             get { return score / visits; }

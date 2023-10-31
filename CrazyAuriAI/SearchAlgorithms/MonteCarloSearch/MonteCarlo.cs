@@ -17,9 +17,44 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         private IEvaluationFunction evaluationfunction = new MainEvaluationFunction();
         private MoveEvaluationFunction moveevaluationfunction = new MoveEvaluationFunction();
         private CrazyAuriAI.SearchAlgorithms.Minimax.Minimax minimax = new CrazyAuriAI.SearchAlgorithms.Minimax.Minimax();
-        public (string, double) MonteCarloSearch(Board board, double time)
+        private Node position;
+        public MonteCarlo (Board board)
         {
-            var position = new Node(board);
+            position = new Node(board);
+        }
+
+        public void UpdateParent(string move)
+        {
+            if (position.childpositions.Count > 0)
+            {
+                foreach (var i in position.childpositions)
+                {
+                    if (i.board.lastmovemade.ToString() == move)
+                    {
+                        position = i;
+                        position.parent = null;
+                        return;
+                    }
+                }
+                throw new Exception("No child position found.");
+            }
+
+        }
+
+        public void UpdateParent(Board board)
+        {
+            try
+            {
+                UpdateParent(board.lastmovemade.ToString());
+            }
+            catch (Exception e)
+            {
+                position = new Node(board);
+            }
+        }
+
+        public (string, double) MonteCarloSearch(double time)
+        {
             position.ExpandNode();
 
             Stopwatch stopwatch = new Stopwatch();
@@ -34,7 +69,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 }
                 currentposition.ExpandNode();
                 currentposition = SelectLeaf(currentposition);
-                var result = Simulate(board);
+                var result = Simulate(position.board);
                 while (currentposition.HasParent())
                 {
                     currentposition.Update(result);
@@ -45,39 +80,47 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
             stopwatch.Stop();
 
             double bestratio = double.MinValue;
+            double bestvisits = 0;
             var bestposition = position;
 
             foreach (var i in position.childpositions)
             {
-                if (i.scoreratio > bestratio)
+                if (i.visits > bestvisits)
                 {
                     bestratio = i.scoreratio;
+                    bestvisits = i.visits;
                     bestposition = i;
                 }
+                else if (i.visits == bestvisits)
+                    if (i.scoreratio > bestratio)
+                    {
+                        bestratio = i.scoreratio;
+                        bestposition = i;
+                    }
             }
 
-            return (bestposition.move.ToString(), bestratio);
+            return (bestposition.move.ToString(), position.scoreratio);
         }
 
         public double getUCBscore(Node node)
         {
+            double localevaluation = 0;
             if (node.visits == 0)
                 return Double.MaxValue;
             var parentnode = node;
             if (parentnode.parent != null)
+            {
                 parentnode = node.parent;
+                localevaluation = moveevaluationfunction.GetEvaluation(parentnode.board, node.board, node.move);
+            }
             var parentvisits = parentnode.visits;
 
-            var c1 = 0.2; 
-            var c2 = 3;
+            var c1 = 4; 
+            var c2 = 0.01;
 
-            return (node.scoreratio) + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits); // default MCTS
+            //return (node.scoreratio) + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits); // default MCTS
 
-            var localevaluation = evaluationfunction.GetEvaluation(node.board);
-            if (node.board.CurrentColor == true)
-                localevaluation *= -1; // UCL formula needs evaluation from the perspective of the playing color
-
-            return (node.score / node.visits) + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits) + c2 * (localevaluation/Double.MaxValue); // MCTS with heuristic evaluation
+            return (node.score / node.visits) + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits) + c2 * (localevaluation); // MCTS with heuristic evaluation
         }
 
         private Node SelectLeaf(Node node)
@@ -97,7 +140,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         private double Simulate(Board board)
         {
             double localscore = 0;
-            int depth = 3;
+            int depth = 6;
             bool done = false;
             var newboard = new Board(board.ToString(), board.FormerPositions);
             while (done == false && depth > 0)
@@ -181,6 +224,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 Console.WriteLine(entry + ": " +result[entry].ToString());
             throw new Exception("Hello");
             */
+
             var correctvalue = evaluationsum * random.NextDouble();
                 var lowerbound = 0.0;
                 var higherbound = 0.0;

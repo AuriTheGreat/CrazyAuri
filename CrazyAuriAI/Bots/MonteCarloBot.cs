@@ -16,14 +16,23 @@ namespace CrazyAuriAI.Bots
 {
     public class MonteCarloBot : IBot
     {
+        MonteCarlo position;
         public string GetMove(Board board)
         {
+            if (position == null)
+            {
+                position = new MonteCarlo(board);
+            }
+            else
+            {
+                position.UpdateParent(board);
+            }
             Stopwatch stopwatch = new Stopwatch();
-            MonteCarlo montecarlo = new MonteCarlo();
             stopwatch.Start();
-            (string, double) result = montecarlo.MonteCarloSearch(board, 3);
+            (string, double) result = position.MonteCarloSearch(3);
             stopwatch.Stop();
             var move = result.Item1;
+            position.UpdateParent(move);
             var evaluation = result.Item2.ToString();
             //var move = board.GetAllMoves()[0].ToString();
             //if (result != "")

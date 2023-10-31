@@ -110,10 +110,22 @@ namespace CrazyAuriAI.Evaluation.Functions
             if (newboard.inCheck())
                 result += 50;
 
-            if (!(move is CrazyhouseMove))
+            if (move is not CrazyhouseMove)
             {
                 result += Math.Max(GetPieceSquareValue(move.piece.acronym, move.endsquare, oldboard.CurrentColor)
                     - GetPieceSquareValue(move.piece.acronym, move.startsquare, oldboard.CurrentColor), 0);
+            }
+
+            if (move is CaptureMove && move is not CrazyhouseMove && move is not PromotionMove)
+            {
+                result += 20 + GetPieceValue(oldboard.GetPieceOnSquare(move.endsquare).acronym) / 10;
+            }
+
+            if (move is PromotionMove)
+            {
+                result += 50;
+                if (move is PromotionCaptureMove)
+                    result += 50;
             }
 
             return result;

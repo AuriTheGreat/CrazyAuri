@@ -11,7 +11,7 @@ namespace CrazyAuriApplication.Models
     {
         public static IPlayer WhitePlayer = new HumanPlayer();
 
-        public static IPlayer BlackPlayer = new BotPlayer();
+        public static IPlayer BlackPlayer = new MinimaxPlayer();
 
         public static string StartBoard = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1";
 
