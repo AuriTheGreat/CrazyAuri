@@ -1,4 +1,5 @@
 ﻿using CrazyAuri.Models;
+using CrazyAuriAI.Evaluation.PieceEvaluationSets;
 using CrazyAuriLibrary.Models.Moves.MoveTypes;
 using System;
 using System.Collections.Generic;
@@ -10,98 +11,9 @@ namespace CrazyAuriAI.Evaluation.Functions
 {
     public class MoveEvaluationFunction
     {
-        public readonly Dictionary<string, double> piecevalues = new Dictionary<string, double>()
-        {
-            { "p", 134 },
-            { "n", 235 },
-            { "b", 300 },
-            { "r", 314 },
-            { "q", 604 },
-        };
-
-        public readonly Dictionary<string, double> reservepiecevalues = new Dictionary<string, double>()
-        {
-            { "p", 149 },
-            { "n", 296 },
-            { "b", 281 },
-            { "r", 353 },
-            { "q", 563 },
-        };
-
-        public readonly Dictionary<string, double[,]> tilepiecevalues = new Dictionary<string, double[,]>() {
-                { "p", new double[8, 8]
-                    {
-                        { 0,  0,   0,   0,   0,   0,  0,  0},
-                        {50, 50,  50,  50,  50,  50, 50, 50},
-                        {10, 10,  20,  30,  30,  20, 10, 10},
-                        { 5,  5,  10,  25,  25,  10,  5,  5},
-                        { 0,  0,   0,  20,  20,   0,  0,  0},
-                        { 5, -5, -10,   0,   0, -10, -5,  0},
-                        { 5, 10,  10, -20, -20,  10, 10,  5},
-                        { 0,  0,  0,    0,   0,   0,  0,  0}
-                    }
-                },
-                { "n", new double[8, 8]
-                    {
-                        {-50, -40, -30, -30, -30, -30, -40, -50},
-                        {-40, -20,   0,   0,   0,   0, -20, -40},
-                        {-30,   0,  10,  15,  15,  10,   0, -30},
-                        {-30,   5,  15,  20,  20,  15,   5, -30},
-                        {-30,   0,  15,  20,  20,  15,   0, -30},
-                        {-30,   5,  10,  15,  15,  10,   5, -30},
-                        {-40, -20,   0,   5,   5,   0, -20, -40},
-                        {-50, -40, -30, -30, -30, -30, -40, -50}
-                    }
-                },
-                { "b", new double[8, 8]
-                    {
-                        {-20, -10, -10, -10, -10, -10, -10, -20} ,
-                        {-10,   0,   0,   0,   0,   0,   0, -10},
-                        {-10,   0,   5,  10,  10,   5,   0, -10},
-                        {-10,   5,   5,  10,  10,   5,   5, -10},
-                        {-10,   0,  10,  10,  10,  10,   0, -10},
-                        {-10,  10,  10,  10,  10,  10,  10, -10},
-                        {-10,   5,   0,   0,   0,   0,   5, -10},
-                        {-20, -10, -10, -10, -10, -10, -10, -20}
-                    }
-                },
-                { "r", new double[8, 8]
-                    {
-                        { 0,  0,  0,  0,  0,  0,  0,  0},
-                        { 5, 10, 10, 10, 10, 10, 10,  5},
-                        {-5,  0,  0,  0,  0,  0,  0, -5},
-                        {-5,  0,  0,  0,  0,  0,  0, -5},
-                        {-5,  0,  0,  0,  0,  0,  0, -5},
-                        {-5,  0,  0,  0,  0,  0,  0, -5},
-                        {-5,  0,  0,  0,  0,  0,  0, -5},
-                        { 0,  0,  0,  5,  5,  0,  0,  0}
-                    }
-                },
-                { "q", new double[8, 8]
-                    {
-                        {-20, -10, -10,  -5,  -5, -10, -10, -20} ,
-                        {-10,   0,   0,   0,   0,   0,   0, -10},
-                        {-10,   0,   5,   5,   5,   5,   0, -10},
-                        { -5,   0,   5,   5,   5,   5,   0,  -5},
-                        {  0,   0,   5,   5,   5,   5,   0,  -5},
-                        {-10,   5,   5,   5,   5,   5,   0, -10},
-                        {-10,   0,   5,   0,   0,   0,   0, -10},
-                        {-20, -10, -10,  -5,  -5, -10, -10, -20}
-                    }
-                },
-                { "k", new double[8, 8]
-                    {
-                        {-30, -40, -40, -50, -50, -40, -40, -30},
-                        {-30, -40, -40, -50, -50, -40, -40, -30},
-                        {-30, -40, -40, -50, -50, -40, -40, -30},
-                        {-30, -40, -40, -50, -50, -40, -40, -30},
-                        {-20, -30, -30, -40, -40, -30, -30, -20},
-                        {-10, -20, -20, -20, -20, -20, -20, -10},
-                        { 20,  20,   0,   0,   0,   0,  20,  20},
-                        { 20,  30,  10,   0,   0,  10,  30,  20},
-                    }
-                }
-            };
+        public readonly Dictionary<string, double> piecevalues = PieceEvaluationSet.piecevalues;
+        public readonly Dictionary<string, double> reservepiecevalues = PieceEvaluationSet.reservepiecevalues;
+        public readonly Dictionary<string, double[,]> tilepiecevalues = PieceEvaluationSet.tilepiecevalues;
 
         public double GetEvaluation(Board oldboard, Board newboard, Move move)
         {
@@ -112,13 +24,23 @@ namespace CrazyAuriAI.Evaluation.Functions
 
             if (move is not CrazyhouseMove)
             {
-                result += Math.Max(GetPieceSquareValue(move.piece.acronym, move.endsquare, oldboard.CurrentColor)
-                    - GetPieceSquareValue(move.piece.acronym, move.startsquare, oldboard.CurrentColor), 0);
+                result += GetPieceSquareValue(move.piece.acronym, move.endsquare, oldboard.CurrentColor)
+                    - GetPieceSquareValue(move.piece.acronym, move.startsquare, oldboard.CurrentColor) * 2;
             }
 
             if (move is CaptureMove && move is not CrazyhouseMove && move is not PromotionMove)
             {
-                result += 20 + GetPieceValue(oldboard.GetPieceOnSquare(move.endsquare).acronym) / 10;
+                result += 20 -
+                    GetPieceValue(oldboard.GetPieceOnSquare(move.startsquare).acronym) / 30 +
+                    GetPieceValue(oldboard.GetPieceOnSquare(move.endsquare).acronym) / 5;
+            }
+
+            if (move is CrazyhouseMove)
+            {
+                result += GetPieceSquareValue(((CrazyhouseMove) move).placedPiece, move.endsquare, oldboard.CurrentColor)/20;
+                var reserveevaluation = reservepiecevalues[((CrazyhouseMove)move).placedPiece];
+                var mainevaluation = piecevalues[((CrazyhouseMove)move).placedPiece];
+                result += (mainevaluation - reserveevaluation)/20;
             }
 
             if (move is PromotionMove)
@@ -128,7 +50,7 @@ namespace CrazyAuriAI.Evaluation.Functions
                     result += 50;
             }
 
-            return result;
+            return Math.Max(result,0);
         }
 
         private double GetPieceValue(string piece)
@@ -150,24 +72,5 @@ namespace CrazyAuriAI.Evaluation.Functions
             }
             return 0;
         }
-
-        private double GetReservePieceEvaluation(Board board)
-        {
-            double evaluation = 0;
-
-            evaluation += board.WhiteCrazyHousePawns * reservepiecevalues["p"];
-            evaluation += board.WhiteCrazyHouseKnights * reservepiecevalues["n"];
-            evaluation += board.WhiteCrazyHouseBishops * reservepiecevalues["b"];
-            evaluation += board.WhiteCrazyHouseRooks * reservepiecevalues["r"];
-            evaluation += board.WhiteCrazyHouseQueens * reservepiecevalues["q"];
-            evaluation -= board.BlackCrazyHousePawns * reservepiecevalues["p"];
-            evaluation -= board.BlackCrazyHouseKnights * reservepiecevalues["n"];
-            evaluation -= board.BlackCrazyHouseBishops * reservepiecevalues["b"];
-            evaluation -= board.BlackCrazyHouseRooks * reservepiecevalues["r"];
-            evaluation -= board.BlackCrazyHouseQueens * reservepiecevalues["q"];
-
-            return evaluation;
-        }
-
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CrazyAuri.Models;
+using CrazyAuriAI.Evaluation.PieceEvaluationSets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,98 +10,9 @@ namespace CrazyAuriAI.Evaluation.Functions
 {
     public class MainEvaluationFunction : IEvaluationFunction
     {
-        public readonly Dictionary<string, double> piecevalues = new Dictionary<string, double>()
-        {
-            { "p", 134 },
-            { "n", 235 },
-            { "b", 300 },
-            { "r", 314 },
-            { "q", 604 },
-        };
-
-        public readonly Dictionary<string, double> reservepiecevalues = new Dictionary<string, double>()
-        {
-            { "p", 149 },
-            { "n", 296 },
-            { "b", 281 },
-            { "r", 353 },
-            { "q", 563 },
-        };
-
-        public readonly Dictionary<string, double[,]> tilepiecevalues = new Dictionary<string, double[,]>() {
-                { "p", new double[8, 8]
-                    {
-                        { 0,  0,   0,   0,   0,   0,  0,  0},
-                        {50, 50,  50,  50,  50,  50, 50, 50},
-                        {10, 10,  20,  30,  30,  20, 10, 10},
-                        { 5,  5,  10,  25,  25,  10,  5,  5},
-                        { 0,  0,   0,  20,  20,   0,  0,  0},
-                        { 5, -5, -10,   0,   0, -10, -5,  0},
-                        { 5, 10,  10, -20, -20,  10, 10,  5},
-                        { 0,  0,  0,    0,   0,   0,  0,  0}
-                    }
-                },
-                { "n", new double[8, 8]
-                    {
-                        {-50, -40, -30, -30, -30, -30, -40, -50},
-                        {-40, -20,   0,   0,   0,   0, -20, -40},
-                        {-30,   0,  10,  15,  15,  10,   0, -30},
-                        {-30,   5,  15,  20,  20,  15,   5, -30},
-                        {-30,   0,  15,  20,  20,  15,   0, -30},
-                        {-30,   5,  10,  15,  15,  10,   5, -30},
-                        {-40, -20,   0,   5,   5,   0, -20, -40},
-                        {-50, -40, -30, -30, -30, -30, -40, -50}
-                    }
-                },
-                { "b", new double[8, 8]
-                    {
-                        {-20, -10, -10, -10, -10, -10, -10, -20} ,
-                        {-10,   0,   0,   0,   0,   0,   0, -10},
-                        {-10,   0,   5,  10,  10,   5,   0, -10},
-                        {-10,   5,   5,  10,  10,   5,   5, -10},
-                        {-10,   0,  10,  10,  10,  10,   0, -10},
-                        {-10,  10,  10,  10,  10,  10,  10, -10},
-                        {-10,   5,   0,   0,   0,   0,   5, -10},
-                        {-20, -10, -10, -10, -10, -10, -10, -20}
-                    }
-                },
-                { "r", new double[8, 8]
-                    {
-                        { 0,  0,  0,  0,  0,  0,  0,  0},
-                        { 5, 10, 10, 10, 10, 10, 10,  5},
-                        {-5,  0,  0,  0,  0,  0,  0, -5},
-                        {-5,  0,  0,  0,  0,  0,  0, -5},
-                        {-5,  0,  0,  0,  0,  0,  0, -5},
-                        {-5,  0,  0,  0,  0,  0,  0, -5},
-                        {-5,  0,  0,  0,  0,  0,  0, -5},
-                        { 0,  0,  0,  5,  5,  0,  0,  0}
-                    }
-                },
-                { "q", new double[8, 8]
-                    {
-                        {-20, -10, -10,  -5,  -5, -10, -10, -20} ,
-                        {-10,   0,   0,   0,   0,   0,   0, -10},
-                        {-10,   0,   5,   5,   5,   5,   0, -10},
-                        { -5,   0,   5,   5,   5,   5,   0,  -5},
-                        {  0,   0,   5,   5,   5,   5,   0,  -5},
-                        {-10,   5,   5,   5,   5,   5,   0, -10},
-                        {-10,   0,   5,   0,   0,   0,   0, -10},
-                        {-20, -10, -10,  -5,  -5, -10, -10, -20}
-                    }
-                },
-                { "k", new double[8, 8]
-                    {
-                        {-30, -40, -40, -50, -50, -40, -40, -30},
-                        {-30, -40, -40, -50, -50, -40, -40, -30},
-                        {-30, -40, -40, -50, -50, -40, -40, -30},
-                        {-30, -40, -40, -50, -50, -40, -40, -30},
-                        {-20, -30, -30, -40, -40, -30, -30, -20},
-                        {-10, -20, -20, -20, -20, -20, -20, -10},
-                        { 20,  20,   0,   0,   0,   0,  20,  20},
-                        { 20,  30,  10,   0,   0,  10,  30,  20},
-                    }
-                }
-            };
+        public readonly Dictionary<string, double> piecevalues = PieceEvaluationSet.piecevalues;
+        public readonly Dictionary<string, double> reservepiecevalues = PieceEvaluationSet.reservepiecevalues;
+        public readonly Dictionary<string, double[,]> tilepiecevalues = PieceEvaluationSet.tilepiecevalues;
 
         public double GetEvaluation(Board board)
         {

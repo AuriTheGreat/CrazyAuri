@@ -1,12 +1,17 @@
 ﻿using CrazyAuri.Models;
 using CrazyAuriAI.Evaluation.Functions;
+using CrazyAuriAI.Evaluation.PieceEvaluationSets;
+using CrazyAuriAI.SearchAlgorithms.Minimax;
 using CrazyAuriLibrary.Models.Moves.MoveTypes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Xml.Linq;
 
 namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
@@ -18,9 +23,12 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         private MoveEvaluationFunction moveevaluationfunction = new MoveEvaluationFunction();
         private CrazyAuriAI.SearchAlgorithms.Minimax.Minimax minimax = new CrazyAuriAI.SearchAlgorithms.Minimax.Minimax();
         private Node position;
+
+        private Object nodeChildPositionsLock = new Object();
         public MonteCarlo (Board board)
         {
             position = new Node(board);
+            position.ExpandNode();
         }
 
         public void UpdateParent(string move)
@@ -55,19 +63,35 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
 
         public (string, double) MonteCarloSearch(double time)
         {
-            position.ExpandNode();
-
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
+            var threadcount = 7;
+            Parallel.For(0, threadcount, i =>
+            {
+                runSearchOnThread(position, stopwatch, time);
+            });
+            while (continueRunningCheck(position, stopwatch, time)) { }
+            position.childpositions.Sort((p, q) => p.visits.CompareTo(q.visits)); //debugging purposes
+            position.childpositions.Reverse();
+            stopwatch.Stop();
 
-            while (stopwatch.Elapsed.TotalSeconds < time)
+            return (position.mostvisitedchild.move.ToString(), position.mostvisitedchild.evaluationscoreratio);
+        }
+
+        public void runSearchOnThread(Node position, Stopwatch stopwatch, double time)
+        {
+            while (continueRunningCheck(position, stopwatch, time))
             {
                 var currentposition = position;
                 while (!currentposition.IsLeaf())
                 {
-                    currentposition=SelectLeaf(currentposition);
+                    currentposition = SelectLeaf(currentposition);
                 }
-                currentposition.ExpandNode();
+                if (currentposition.IsLeaf())
+                {
+                    lock (nodeChildPositionsLock)
+                        currentposition.ExpandNode();
+                }
                 currentposition = SelectLeaf(currentposition);
                 var result = Simulate(position.board);
                 while (currentposition.HasParent())
@@ -77,29 +101,19 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 }
                 currentposition.Update(result);
             }
-            stopwatch.Stop();
+        }
 
-            double bestratio = double.MinValue;
-            double bestvisits = 0;
-            var bestposition = position;
-
-            foreach (var i in position.childpositions)
-            {
-                if (i.visits > bestvisits)
-                {
-                    bestratio = i.scoreratio;
-                    bestvisits = i.visits;
-                    bestposition = i;
-                }
-                else if (i.visits == bestvisits)
-                    if (i.scoreratio > bestratio)
-                    {
-                        bestratio = i.scoreratio;
-                        bestposition = i;
-                    }
-            }
-
-            return (bestposition.move.ToString(), position.scoreratio);
+        public bool continueRunningCheck(Node position, Stopwatch stopwatch, double time)
+        {
+            if (stopwatch.Elapsed.TotalSeconds < time)
+                return true;
+            if (position.visits < 1200)
+                return true;
+            //if (stopwatch.Elapsed.TotalSeconds > 20)
+            //    return false;
+            //if (position.MostVisitedChildEqualsMostEvaluated())
+            //    return false;
+            return false;
         }
 
         public double getUCBscore(Node node)
@@ -120,29 +134,43 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
 
             //return (node.scoreratio) + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits); // default MCTS
 
-            return (node.score / node.visits) + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits) + c2 * (localevaluation); // MCTS with heuristic evaluation
+            // MCTS with heuristic evaluation
+            return node.evaluationscoreratio + node.matingscoreratio 
+                + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits) 
+                + c2 * (localevaluation);
         }
 
         private Node SelectLeaf(Node node)
         {
             double maxU = -1;
-            foreach (var i in node.childpositions)
+            lock (nodeChildPositionsLock)
             {
-                if (getUCBscore(i) > maxU)
+                foreach (var i in node.childpositions)
                 {
-                    maxU = getUCBscore(i);
-                    node = i;
+                    if (getUCBscore(i) > maxU)
+                    {
+                        maxU = getUCBscore(i);
+                        node = i;
+                    }
                 }
             }
             return node;
         }
 
-        private double Simulate(Board board)
+        private Object boardLock = new Object();
+
+        private SimulationResult Simulate(Board board)
         {
-            double localscore = 0;
+            double evaluationscore = 0;
+            int matingscore = 0;
+            bool isdraw = false;
             int depth = 6;
             bool done = false;
-            var newboard = new Board(board.ToString(), board.FormerPositions);
+            Board newboard;
+            lock (boardLock)
+            {
+                newboard = new Board(board.ToString(), board.FormerPositions);
+            }
             while (done == false && depth > 0)
             {
                 depth -= 1;
@@ -151,9 +179,11 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 if (newboard.GetWinner() != "0")
                 {
                     if (newboard.GetWinner() == "w")
-                        localscore = 1;
+                        matingscore = 1;
                     else if (newboard.GetWinner() == "b")
-                        localscore = -1;
+                        matingscore = -1;
+                    else
+                        isdraw = true;
                     done = true;
                 }
                 else if (depth == 0)
@@ -170,13 +200,13 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                     if (newboard.CurrentColor == true)
                         localevaluation *= -1; // Evaluation from the perspective of the playing color
                     if (localevaluation > 500)
-                        localscore = -1;
+                        evaluationscore = -1;
                     else if (localevaluation < -500)
-                        localscore = 1;
+                        evaluationscore = 1;
 
                 }
             }
-            return localscore;
+            return new SimulationResult(matingscore, evaluationscore, isdraw);
         }
 
         private string selectNextSimulationMove(Board board)
