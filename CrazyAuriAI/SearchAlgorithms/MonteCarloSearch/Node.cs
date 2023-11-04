@@ -56,14 +56,17 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
 
         public void ExpandNode()
         {
-            if (board.GetWinner() == "0")
+            if (IsLeaf())
+            {
+                if (board.GetWinner() == "0")
                 {
-                foreach (var i in board.GetAllMoves())
-                {
-                    var newboard = new Board(board.ToString(), board.FormerPositions);
-                    newboard.MakeMove(i);
-                    lock (nodeChildPositionsLock)
-                        this.childpositions.Add(new Node(newboard, i, this));
+                    foreach (var i in board.GetAllMoves())
+                    {
+                        var newboard = new Board(board.ToString(), board.FormerPositions);
+                        newboard.MakeMove(i);
+                        lock (nodeChildPositionsLock)
+                            this.childpositions.Add(new Node(newboard, i, this));
+                    }
                 }
             }
         }

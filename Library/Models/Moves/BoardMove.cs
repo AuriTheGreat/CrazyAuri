@@ -16,6 +16,7 @@ namespace CrazyAuriLibrary.Models.Moves
 
         private Board board;
 
+        private short[,] squareAttackerDefenderCounts;
         private short[,] attackedSquares;
         private short[,] pinRays;
         private bool[,] checkRays;
@@ -36,6 +37,7 @@ namespace CrazyAuriLibrary.Models.Moves
             }
             movesHaveBeenChecked = true;
 
+            squareAttackerDefenderCounts = new short[8, 8];
             attackedSquares = new short[8, 8];
             pinRays = new short[8, 8];
             checkRays = new bool[8, 8];
@@ -55,7 +57,7 @@ namespace CrazyAuriLibrary.Models.Moves
 
             foreach (var i in enemyPieces)
             {
-                i.GetAttacks(board, attackedSquares, pinRays, checkRays);
+                i.GetAttacks(board, squareAttackerDefenderCounts, attackedSquares, pinRays, checkRays);
             }
 
             if (attackedSquares[ourKing.location.Item1, ourKing.location.Item2]==0)
@@ -82,7 +84,7 @@ namespace CrazyAuriLibrary.Models.Moves
 
             foreach (var i in pieces)
             {
-                foreach (var j in i.GetMoves(board, attackedSquares, pinRays))
+                foreach (var j in i.GetMoves(board, squareAttackerDefenderCounts, attackedSquares, pinRays))
                 {
                     LegalMovesDictionary.Add(j.ToString(), j);
                     result.Add(j);
@@ -100,7 +102,7 @@ namespace CrazyAuriLibrary.Models.Moves
 
             foreach (var i in pieces)
             {
-                foreach (var j in i.GetCheckMoves(board, attackedSquares, pinRays, checkRays))
+                foreach (var j in i.GetCheckMoves(board, squareAttackerDefenderCounts, attackedSquares, pinRays, checkRays))
                 {
                     LegalMovesDictionary.Add(j.ToString(), j);
                     result.Add(j);
@@ -114,7 +116,7 @@ namespace CrazyAuriLibrary.Models.Moves
 
         private List<Move> GetAllMovesInDoubleCheck(Piece king)
         {
-            var result = king.GetMoves(board, attackedSquares, pinRays);
+            var result = king.GetMoves(board, squareAttackerDefenderCounts, attackedSquares, pinRays);
 
             foreach (var j in result)
             {
@@ -295,6 +297,13 @@ namespace CrazyAuriLibrary.Models.Moves
             }
 
             return result;
+        }
+
+        public short GetAttackingPieceDifferenceOnSquare((int, int) location)
+        {
+            int x = location.Item1;
+            int y = location.Item2;
+            return squareAttackerDefenderCounts[x, y];
         }
 
     }

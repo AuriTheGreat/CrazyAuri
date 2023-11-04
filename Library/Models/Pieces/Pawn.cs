@@ -18,7 +18,7 @@ namespace CrazyAuri.Models.Pieces
             acronym = "p";
         }
 
-        public override List<Move> GetMoves(Board board, short[,] attackedSquares, short[,] pinRays)
+        public override List<Move> GetMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays)
         {
             int x = location.Item1;
             int y = location.Item2;
@@ -62,6 +62,7 @@ namespace CrazyAuri.Models.Pieces
             if (y < 7)
             {
                 checkedsquare = (x + colorint * 1, y + 1);
+                squareAttackerDefenderCounts[checkedsquare.Item1, checkedsquare.Item2] += 1;
                 if ((isPinned > 0 && pinRays[checkedsquare.Item1, checkedsquare.Item2] == isPinned) || isPinned == 0)
                 {
                     piece = board.GetPieceOnSquare(checkedsquare);
@@ -85,6 +86,7 @@ namespace CrazyAuri.Models.Pieces
             if (y > 0)
             {
                 checkedsquare = (x + colorint * 1, y - 1);
+                squareAttackerDefenderCounts[checkedsquare.Item1, checkedsquare.Item2] += 1;
                 if ((isPinned > 0 && pinRays[checkedsquare.Item1, checkedsquare.Item2] == isPinned) || isPinned == 0)
                 {
                     piece = board.GetPieceOnSquare(checkedsquare);
@@ -107,17 +109,17 @@ namespace CrazyAuri.Models.Pieces
 
             if(board.EnPassantSquare!=(-1, -1))
             {
-                result.AddRange(GetEnPassantMoves(board, pinRays));
+                result.AddRange(GetEnPassantMoves(board, squareAttackerDefenderCounts, pinRays));
             }
 
             return result;
 
         }
 
-        public override List<Move> GetCheckMoves(Board board, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
+        public override List<Move> GetCheckMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
         {
             List<Move> result = new List<Move>();
-            foreach (var i in GetMoves(board, attackedSquares, pinRays))
+            foreach (var i in GetMoves(board, attackedSquares, squareAttackerDefenderCounts, pinRays))
             {
                 if (checkRays[i.endsquare.Item1, i.endsquare.Item2] == true)
                 {
@@ -127,7 +129,7 @@ namespace CrazyAuri.Models.Pieces
             return result;
         }
 
-        private List<Move> GetEnPassantMoves(Board board, short[,] pinRays)
+        private List<Move> GetEnPassantMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] pinRays)
         {
             int x = location.Item1;
             int y = location.Item2;
@@ -167,7 +169,7 @@ namespace CrazyAuri.Models.Pieces
             board.HalfMoveClock = 0;
         }
 
-        public override void GetAttacks(Board board, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
+        public override void GetAttacks(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
         {
             int x = location.Item1;
             int y = location.Item2;
@@ -176,6 +178,7 @@ namespace CrazyAuri.Models.Pieces
             if (y < 7)
             {
                 attackedSquares[x + colorint * 1, y + 1] += 1;
+                squareAttackerDefenderCounts[x + colorint * 1, y + 1] -= 1;
                 var piece = board.GetPieceOnSquare((x + colorint * 1, y + 1));
                 if (piece != null)
                 {
@@ -189,6 +192,7 @@ namespace CrazyAuri.Models.Pieces
             if (y > 0)
             {
                 attackedSquares[x + colorint * 1, y - 1] += 1;
+                squareAttackerDefenderCounts[x + colorint * 1, y - 1] -= 1;
                 var piece = board.GetPieceOnSquare((x + colorint * 1, y - 1));
                 if (piece != null)
                 {

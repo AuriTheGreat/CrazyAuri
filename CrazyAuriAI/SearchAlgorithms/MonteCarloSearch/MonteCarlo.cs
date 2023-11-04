@@ -87,11 +87,8 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 {
                     currentposition = SelectLeaf(currentposition);
                 }
-                if (currentposition.IsLeaf())
-                {
-                    lock (nodeChildPositionsLock)
-                        currentposition.ExpandNode();
-                }
+                lock (nodeChildPositionsLock)
+                    currentposition.ExpandNode();
                 currentposition = SelectLeaf(currentposition);
                 var result = Simulate(position.board);
                 while (currentposition.HasParent())

@@ -18,25 +18,48 @@ namespace CrazyAuriAI.Evaluation.Functions
         public double GetEvaluation(Board oldboard, Board newboard, Move move)
         {
             double result = 0;
+            bool isCheck = newboard.inCheck();
+            int squareAttackerDifference = oldboard.GetAttackingPieceDifferenceOnSquare(move.endsquare)-1;
 
-            if (newboard.inCheck())
+            if (isCheck)
                 result += 50;
 
             if (move is not CrazyhouseMove)
             {
+                // Moves hanging pieces away from threat.
+                if (oldboard.GetAttackingPieceDifferenceOnSquare(move.startsquare) < 0)
+                    if (squareAttackerDifference >= 0)
+                        result += 80;
+
+                // Tries to place pieces on better squares
                 result += GetPieceSquareValue(move.piece.acronym, move.endsquare, oldboard.CurrentColor)
                     - GetPieceSquareValue(move.piece.acronym, move.startsquare, oldboard.CurrentColor) * 2;
             }
 
             if (move is CaptureMove && move is not CrazyhouseMove && move is not PromotionMove)
             {
-                result += 20 -
-                    GetPieceValue(oldboard.GetPieceOnSquare(move.startsquare).acronym) / 30 +
-                    GetPieceValue(oldboard.GetPieceOnSquare(move.endsquare).acronym) / 5;
+                // Capture bonus
+                result += 20;
+
+                // Tries to capture if there are too few defenders.
+                var startSquarePieceValue = GetPieceValue(oldboard.GetPieceOnSquare(move.startsquare).acronym);
+                var endSquarePieceValue = GetPieceValue(oldboard.GetPieceOnSquare(move.endsquare).acronym);
+
+                if (squareAttackerDifference >= 0)
+                    result += 100;
+                else if (endSquarePieceValue > startSquarePieceValue) // Captures if enemy piece has higher value than ours
+                    result += 80;
+                else
+                    result += overProtectedSquarePenalty(squareAttackerDifference, isCheck);
+            }
+            else
+            {
+                result += overProtectedSquarePenalty(squareAttackerDifference, isCheck);
             }
 
             if (move is CrazyhouseMove)
             {
+                // Tries to place pieces from rseserve on good squares
                 result += GetPieceSquareValue(((CrazyhouseMove) move).placedPiece, move.endsquare, oldboard.CurrentColor)/20;
                 var reserveevaluation = reservepiecevalues[((CrazyhouseMove)move).placedPiece];
                 var mainevaluation = piecevalues[((CrazyhouseMove)move).placedPiece];
@@ -45,12 +68,26 @@ namespace CrazyAuriAI.Evaluation.Functions
 
             if (move is PromotionMove)
             {
+                // Encourages promotion moves
                 result += 50;
                 if (move is PromotionCaptureMove)
                     result += 50;
             }
 
             return Math.Max(result,0);
+        }
+
+        private double overProtectedSquarePenalty(int squareAttackerDifference, bool isCheck)
+        {
+            // Avoids squares, where piece would be instantly captured by an opponent
+            if (squareAttackerDifference < 0)
+            {
+                if (isCheck)
+                    return -80;
+                else
+                    return -200;
+            }
+            return 0;
         }
 
         private double GetPieceValue(string piece)

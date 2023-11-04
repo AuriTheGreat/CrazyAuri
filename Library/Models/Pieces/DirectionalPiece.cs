@@ -15,10 +15,10 @@ namespace CrazyAuriLibrary.Models.Pieces
         {
         }
 
-        protected List<Move> CheckDirectionIfCheck(Board board, (short, short) direction, short[,] pinRays, bool[,] checkRays)
+        protected List<Move> CheckDirectionIfCheck(Board board, (short, short) direction, short[,] squareAttackerDefenderCounts, short[,] pinRays, bool[,] checkRays)
         {
             List<Move> result = new List<Move>();
-            foreach(var i in CheckDirection(board, direction, pinRays))
+            foreach(var i in CheckDirection(board, direction, squareAttackerDefenderCounts, pinRays))
             {
                 if (checkRays[i.endsquare.Item1, i.endsquare.Item2] == true)
                 {
@@ -28,7 +28,7 @@ namespace CrazyAuriLibrary.Models.Pieces
             return result;
         }
 
-        protected List<Move> CheckDirection(Board board, (short, short) direction, short[,] pinRays)
+        protected List<Move> CheckDirection(Board board, (short, short) direction, short[,] squareAttackerDefenderCounts, short[,] pinRays)
         {
             List<Move> result = new List<Move>();
             int x = location.Item1;
@@ -48,6 +48,7 @@ namespace CrazyAuriLibrary.Models.Pieces
                 newy += directiony;
                 if (newx == 8 || newy == 8 || newx == -1 || newy == -1)
                     break;
+                squareAttackerDefenderCounts[newx, newy] += 1;
                 if (isPinned > 0)
                 {
                     if (pinRays[newx, newy] != isPinned)
@@ -70,7 +71,7 @@ namespace CrazyAuriLibrary.Models.Pieces
             return result;
         }
 
-        protected void CheckAttackDirection(Board board, (short, short) direction, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
+        protected void CheckAttackDirection(Board board, (short, short) direction, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
         {
             int x = location.Item1;
             int y = location.Item2;
@@ -92,6 +93,7 @@ namespace CrazyAuriLibrary.Models.Pieces
                 if (checkingAttacks == true)
                 {
                     attackedSquares[newx, newy] += 1;
+                    squareAttackerDefenderCounts[newx, newy] -= 1;
                     var piece = board.GetPieceOnSquare((newx, newy));
                     if (piece != null)
                     {

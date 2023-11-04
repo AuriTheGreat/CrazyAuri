@@ -17,18 +17,18 @@ namespace CrazyAuri.Models.Pieces
             acronym = "k";
         }
 
-        public override List<Move> GetMoves(Board board, short[,] attackedSquares, short[,] pinRays)
+        public override List<Move> GetMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays)
         {
             List<Move> result = new List<Move>();
 
-            CheckMove(board, result, attackedSquares, (1, 1));
-            CheckMove(board, result, attackedSquares, (1, 0));
-            CheckMove(board, result, attackedSquares, (1, -1));
-            CheckMove(board, result, attackedSquares, (0, 1));
-            CheckMove(board, result, attackedSquares, (0, -1));
-            CheckMove(board, result, attackedSquares, (-1, 1));
-            CheckMove(board, result, attackedSquares, (-1, 0));
-            CheckMove(board, result, attackedSquares, (-1, -1));
+            CheckMove(board, result, squareAttackerDefenderCounts, attackedSquares, (1, 1));
+            CheckMove(board, result, squareAttackerDefenderCounts, attackedSquares, (1, 0));
+            CheckMove(board, result, squareAttackerDefenderCounts, attackedSquares, (1, -1));
+            CheckMove(board, result, squareAttackerDefenderCounts, attackedSquares, (0, 1));
+            CheckMove(board, result, squareAttackerDefenderCounts, attackedSquares, (0, -1));
+            CheckMove(board, result, squareAttackerDefenderCounts, attackedSquares, (-1, 1));
+            CheckMove(board, result, squareAttackerDefenderCounts, attackedSquares, (-1, 0));
+            CheckMove(board, result, squareAttackerDefenderCounts, attackedSquares, (-1, -1));
 
             result.AddRange(GetCastlingMoves(board, attackedSquares));
 
@@ -36,18 +36,20 @@ namespace CrazyAuri.Models.Pieces
             return result;
         }
 
-        public override List<Move> GetCheckMoves(Board board, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
+        public override List<Move> GetCheckMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
         {
-            return GetMoves(board, attackedSquares, pinRays);
+            return GetMoves(board, squareAttackerDefenderCounts, attackedSquares, pinRays);
         }
 
-        private void CheckMove(Board board, List<Move> result, short[,] attackedSquares, (short, short) direction)
+        private void CheckMove(Board board, List<Move> result, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, (short, short) direction)
         {
             int x = location.Item1 + direction.Item1;
             int y = location.Item2 + direction.Item2;
 
             if (x == 8 || y == 8 || x == -1 || y == -1)
                 return;
+
+            squareAttackerDefenderCounts[x, y] += 1;
 
             if (attackedSquares[x, y] == 0)
             {
@@ -132,19 +134,19 @@ namespace CrazyAuri.Models.Pieces
             }
         }
 
-        public override void GetAttacks(Board board, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
+        public override void GetAttacks(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
         {
-            CheckAttackDirection((1, 1), attackedSquares);
-            CheckAttackDirection((1, 0), attackedSquares);
-            CheckAttackDirection((1, -1), attackedSquares);
-            CheckAttackDirection((0, 1), attackedSquares);
-            CheckAttackDirection((0, -1), attackedSquares);
-            CheckAttackDirection((-1, 1), attackedSquares);
-            CheckAttackDirection((-1, 0), attackedSquares);
-            CheckAttackDirection((-1, -1), attackedSquares);
+            CheckAttackDirection((1, 1), squareAttackerDefenderCounts, attackedSquares);
+            CheckAttackDirection((1, 0), squareAttackerDefenderCounts, attackedSquares);
+            CheckAttackDirection((1, -1), squareAttackerDefenderCounts, attackedSquares);
+            CheckAttackDirection((0, 1), squareAttackerDefenderCounts, attackedSquares);
+            CheckAttackDirection((0, -1), squareAttackerDefenderCounts, attackedSquares);
+            CheckAttackDirection((-1, 1), squareAttackerDefenderCounts, attackedSquares);
+            CheckAttackDirection((-1, 0), squareAttackerDefenderCounts, attackedSquares);
+            CheckAttackDirection((-1, -1), squareAttackerDefenderCounts, attackedSquares);
         }
 
-        private void CheckAttackDirection((short, short) direction, short[,] attackedSquares)
+        private void CheckAttackDirection((short, short) direction, short[,] squareAttackerDefenderCounts, short[,] attackedSquares)
         {
             int x = location.Item1 + direction.Item1;
             int y = location.Item2 + direction.Item2;
@@ -152,6 +154,7 @@ namespace CrazyAuri.Models.Pieces
             if (x == 8 || y == 8 || x == -1 || y == -1)
                 return;
             attackedSquares[x, y] += 1;
+            squareAttackerDefenderCounts[x, y] -= 1;
         }
     }
 }

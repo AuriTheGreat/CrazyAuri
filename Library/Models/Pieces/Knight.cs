@@ -17,39 +17,39 @@ namespace CrazyAuri.Models.Pieces
             acronym = "n";
         }
 
-        public override List<Move> GetMoves(Board board, short[,] attackedSquares, short[,] pinRays)
+        public override List<Move> GetMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays)
         {
             List<Move> result = new List<Move>();
 
-            CheckMove(board, result, (1, 2), pinRays);
-            CheckMove(board, result, (1, -2), pinRays);
-            CheckMove(board, result, (-1, 2), pinRays);
-            CheckMove(board, result, (-1, -2), pinRays);
-            CheckMove(board, result, (2, 1), pinRays);
-            CheckMove(board, result, (2, -1), pinRays);
-            CheckMove(board, result, (-2, 1), pinRays);
-            CheckMove(board, result, (-2, -1), pinRays);
+            CheckMove(board, result, (1, 2), squareAttackerDefenderCounts, pinRays);
+            CheckMove(board, result, (1, -2), squareAttackerDefenderCounts, pinRays);
+            CheckMove(board, result, (-1, 2), squareAttackerDefenderCounts, pinRays);
+            CheckMove(board, result, (-1, -2), squareAttackerDefenderCounts, pinRays);
+            CheckMove(board, result, (2, 1), squareAttackerDefenderCounts, pinRays);
+            CheckMove(board, result, (2, -1), squareAttackerDefenderCounts, pinRays);
+            CheckMove(board, result, (-2, 1), squareAttackerDefenderCounts, pinRays);
+            CheckMove(board, result, (-2, -1), squareAttackerDefenderCounts, pinRays);
 
             return result;
         }
 
-        public override List<Move> GetCheckMoves(Board board, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
+        public override List<Move> GetCheckMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
         {
             List<Move> result = new List<Move>();
 
-            CheckMoveIfCheck(board, result, (1, 2), pinRays, checkRays);
-            CheckMoveIfCheck(board, result, (1, -2), pinRays, checkRays);
-            CheckMoveIfCheck(board, result, (-1, 2), pinRays, checkRays);
-            CheckMoveIfCheck(board, result, (-1, -2), pinRays, checkRays);
-            CheckMoveIfCheck(board, result, (2, 1), pinRays, checkRays);
-            CheckMoveIfCheck(board, result, (2, -1), pinRays, checkRays);
-            CheckMoveIfCheck(board, result, (-2, 1), pinRays, checkRays);
-            CheckMoveIfCheck(board, result, (-2, -1), pinRays, checkRays);
+            CheckMoveIfCheck(board, result, (1, 2), squareAttackerDefenderCounts,  pinRays, checkRays);
+            CheckMoveIfCheck(board, result, (1, -2), squareAttackerDefenderCounts, pinRays, checkRays);
+            CheckMoveIfCheck(board, result, (-1, 2), squareAttackerDefenderCounts, pinRays, checkRays);
+            CheckMoveIfCheck(board, result, (-1, -2), squareAttackerDefenderCounts, pinRays, checkRays);
+            CheckMoveIfCheck(board, result, (2, 1), squareAttackerDefenderCounts, pinRays, checkRays);
+            CheckMoveIfCheck(board, result, (2, -1), squareAttackerDefenderCounts, pinRays, checkRays);
+            CheckMoveIfCheck(board, result, (-2, 1), squareAttackerDefenderCounts, pinRays, checkRays);
+            CheckMoveIfCheck(board, result, (-2, -1), squareAttackerDefenderCounts, pinRays, checkRays);
 
             return result;
         }
 
-        private void CheckMoveIfCheck(Board board, List<Move> result, (short, short) direction, short[,] pinRays, bool[,] checkRays)
+        private void CheckMoveIfCheck(Board board, List<Move> result, (short, short) direction, short[,] squareAttackerDefenderCounts, short[,] pinRays, bool[,] checkRays)
         {
             int x = location.Item1 + direction.Item1;
             int y = location.Item2 + direction.Item2;
@@ -57,14 +57,16 @@ namespace CrazyAuri.Models.Pieces
             if (x >= 8 || y >= 8 || x <= -1 || y <= -1)
                 return;
 
+            squareAttackerDefenderCounts[x, y] += 1;
+
             if (checkRays[x, y] == true)
             {
-                CheckMove(board, result, direction, pinRays);
+                CheckMove(board, result, direction, squareAttackerDefenderCounts, pinRays);
             }
 
         }
 
-        private void CheckMove(Board board, List<Move> result, (short, short) direction, short[,] pinRays)
+        private void CheckMove(Board board, List<Move> result, (short, short) direction, short[,] squareAttackerDefenderCounts, short[,] pinRays)
         {
             int x = location.Item1 + direction.Item1;
             int y = location.Item2 + direction.Item2;
@@ -73,6 +75,8 @@ namespace CrazyAuri.Models.Pieces
 
             if (x >= 8 || y >= 8 || x <= -1 || y <= -1)
                 return;
+
+            squareAttackerDefenderCounts[x, y] += 1;
 
             if (isPinned > 0)
             {
@@ -99,19 +103,19 @@ namespace CrazyAuri.Models.Pieces
             
         }
 
-        public override void GetAttacks(Board board, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
+        public override void GetAttacks(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
         {
-            CheckAttackDirection(board, (1, 2), attackedSquares, checkRays);
-            CheckAttackDirection(board, (1, -2), attackedSquares, checkRays);
-            CheckAttackDirection(board, (-1, 2), attackedSquares, checkRays);
-            CheckAttackDirection(board, (-1, -2), attackedSquares, checkRays);
-            CheckAttackDirection(board, (2, 1), attackedSquares, checkRays);
-            CheckAttackDirection(board, (2, -1), attackedSquares, checkRays);
-            CheckAttackDirection(board, (-2, 1), attackedSquares, checkRays);
-            CheckAttackDirection(board, (-2, -1), attackedSquares, checkRays);
+            CheckAttackDirection(board, (1, 2), squareAttackerDefenderCounts, attackedSquares, checkRays);
+            CheckAttackDirection(board, (1, -2), squareAttackerDefenderCounts, attackedSquares, checkRays);
+            CheckAttackDirection(board, (-1, 2), squareAttackerDefenderCounts, attackedSquares, checkRays);
+            CheckAttackDirection(board, (-1, -2), squareAttackerDefenderCounts, attackedSquares, checkRays);
+            CheckAttackDirection(board, (2, 1), squareAttackerDefenderCounts, attackedSquares, checkRays);
+            CheckAttackDirection(board, (2, -1), squareAttackerDefenderCounts, attackedSquares, checkRays);
+            CheckAttackDirection(board, (-2, 1), squareAttackerDefenderCounts, attackedSquares, checkRays);
+            CheckAttackDirection(board, (-2, -1), squareAttackerDefenderCounts, attackedSquares, checkRays);
         }
 
-        private void CheckAttackDirection(Board board, (short, short) direction, short[,] attackedSquares, bool[,] checkRays)
+        private void CheckAttackDirection(Board board, (short, short) direction, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, bool[,] checkRays)
         {
             int x = location.Item1 + direction.Item1;
             int y = location.Item2 + direction.Item2;
@@ -119,6 +123,7 @@ namespace CrazyAuri.Models.Pieces
             if (x >= 8 || y >= 8 || x <= -1 || y <= -1)
                 return;
             attackedSquares[x, y] += 1;
+            squareAttackerDefenderCounts[x, y] -= 1;
             var piece = board.GetPieceOnSquare((x, y));
             if (piece != null)
             {

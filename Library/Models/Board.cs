@@ -366,6 +366,11 @@ namespace CrazyAuri.Models
             return null;
         }
 
+        public short GetAttackingPieceDifferenceOnSquare((int, int) location)
+        {
+            return boardmove.GetAttackingPieceDifferenceOnSquare(location);
+        }
+
         public List<Move> GetAllMoves()
         {
             return boardmove.GetAllMoves();

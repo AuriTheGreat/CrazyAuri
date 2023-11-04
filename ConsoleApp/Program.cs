@@ -19,7 +19,7 @@ namespace CrazyAuri
             //Board board = new Board("rnbk1b1r/pp3ppp/2p5/4q1B1/4n3/8/PPP2PPP/2KR1BNR b - - 1 10"); // double check test
 
             IPlayer WhitePlayer = new BotPlayer();
-            IPlayer BlackPlayer = new BotPlayer();
+            IPlayer BlackPlayer = new StockfishPlayer();
 
             while (true)
             {
