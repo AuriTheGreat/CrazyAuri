@@ -31,12 +31,19 @@ namespace CrazyAuriAI.Bots
             stopwatch.Start();
             (string, double) result = position.MonteCarloSearch(3);
             stopwatch.Stop();
-            var move = result.Item1;
-            position.UpdateParent(move);
+            var move = board.GetAllMoves()[0].ToString();
             var evaluation = result.Item2.ToString();
-            //var move = board.GetAllMoves()[0].ToString();
-            //if (result != "")
-            //    move = result;
+            if (result.Item1 != "")
+            {
+                move = result.Item1;
+                if (result.Item2 > 100000000)
+                    evaluation = "Winning";
+                else if (result.Item2 < -100000000)
+                    evaluation = "Hopeless";
+            }
+            else
+                evaluation = "Random";
+            position.UpdateParent(move);
             var color = "White";
             if (board.CurrentColor == true)
                 color = "Black";

@@ -79,25 +79,46 @@ public class BoardScreen : GameScreen
         double.Round(stopwatch.Elapsed.TotalSeconds, 2);
 
         IPlayer Player;
-        if (board.CurrentColor == true)
+        if (board.GetWinner() == "0")
         {
-            Player = BlackPlayer;
-            timeLabel.Text = "Black has been considering the move for " + double.Round(stopwatch.Elapsed.TotalSeconds, 1) + "s.";
+            if (board.CurrentColor == true)
+            {
+                Player = BlackPlayer;
+                timeLabel.Text = "Black has been considering the move for " + double.Round(stopwatch.Elapsed.TotalSeconds, 1) + "s.";
+            }
+            else
+            {
+                Player = WhitePlayer;
+                timeLabel.Text = "White has been considering the move for " + double.Round(stopwatch.Elapsed.TotalSeconds, 1) + "s.";
+            }
+
+            if (MoveGetter.IsAlive == false)
+            {
+                MoveGetter = new Thread(() =>
+                {
+                    Thread.CurrentThread.IsBackground = true;
+                    if (board.GetWinner() == "0")
+                    {
+                        Player.MakeMove(board, this);
+                    }
+                });
+                MoveGetter.Start();
+            }
         }
         else
         {
-            Player = WhitePlayer;
-            timeLabel.Text = "White has been considering the move for " + double.Round(stopwatch.Elapsed.TotalSeconds, 1) + "s.";
-        }
-
-        if (MoveGetter.IsAlive == false)
-        {
-            MoveGetter = new Thread(() =>
-            {
-                Thread.CurrentThread.IsBackground = true;
-                Player.MakeMove(board, this);
-            });
-            MoveGetter.Start();
+            if (board.GetWinner()=="w")
+                timeLabel.Text = "White wins!";
+            else if (board.GetWinner() == "b")
+                timeLabel.Text = "Black wins!";
+            else if (board.GetWinner() == "s")
+                timeLabel.Text = "Stalemate!";
+            else if (board.GetWinner() == "50")
+                timeLabel.Text = "Draw by 50 move rule!";
+            else if (board.GetWinner() == "r")
+                timeLabel.Text = "Draw by repetition!";
+            else
+                timeLabel.Text = "Game is over!";
         }
     }
 

@@ -23,13 +23,17 @@ namespace CrazyAuriAI.Bots
             (string, double) result = negamax.NegaMax(board, 4, double.MinValue, double.MaxValue, board.CurrentColor);
             stopwatch.Stop();
             var move = board.GetAllMoves()[0].ToString();
-            if (result.Item1 != "")
-                move = result.Item1;
             var evaluation = result.Item2.ToString();
-            if (result.Item2 > 100000000)
-                evaluation = "Winning";
-            else if (result.Item2 < -100000000)
-                evaluation = "Hopeless";
+            if (result.Item1 != "")
+            {
+                move = result.Item1;
+                if (result.Item2 > 100000000)
+                    evaluation = "Winning";
+                else if (result.Item2 < -100000000)
+                    evaluation = "Hopeless";
+            }
+            else
+                evaluation = "Random";
             var color = "White";
             if (board.CurrentColor == true)
                 color = "Black";

@@ -1,7 +1,6 @@
 ﻿using CrazyAuri.Models;
 using CrazyAuriAI.Evaluation.Functions;
 using CrazyAuriAI.Evaluation.PieceEvaluationSets;
-using CrazyAuriAI.SearchAlgorithms.Minimax;
 using CrazyAuriLibrary.Models.Moves.MoveTypes;
 using System;
 using System.Collections.Generic;
@@ -21,13 +20,15 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         private Random random = new Random();
         private IEvaluationFunction evaluationfunction = new MainEvaluationFunction();
         private MoveEvaluationFunction moveevaluationfunction = new MoveEvaluationFunction();
-        private CrazyAuriAI.SearchAlgorithms.Minimax.Minimax minimax = new CrazyAuriAI.SearchAlgorithms.Minimax.Minimax();
+        private CheckmateFinder checkmatefinder;
         private Node position;
+
 
         private Object nodeChildPositionsLock = new Object();
         public MonteCarlo (Board board)
         {
             position = new Node(board);
+            checkmatefinder = new CheckmateFinder();
             position.ExpandNode();
         }
 
@@ -41,6 +42,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                     {
                         position = i;
                         position.parent = null;
+                        position.ExpandNode();
                         return;
                     }
                 }
@@ -65,6 +67,9 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
+            (string, double) result = checkmatefinder.runSearch(position.board, 3);
+            if (result.Item2!=0)
+                return (result.Item1, result.Item2);
             var threadcount = 7;
             Parallel.For(0, threadcount, i =>
             {
