@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
@@ -67,15 +68,16 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            (string, double) result = checkmatefinder.runSearch(position.board, 3);
+            (string, double) result = checkmatefinder.runSearch(position.board, 4);
             if (result.Item2!=0)
                 return (result.Item1, result.Item2);
-            var threadcount = 7;
+            var threadcount = 1;
             Parallel.For(0, threadcount, i =>
             {
                 runSearchOnThread(position, stopwatch, time);
             });
-            while (continueRunningCheck(position, stopwatch, time)) { }
+            while (continueRunningCheck(position, stopwatch, time)) {
+            }
             position.childpositions.Sort((p, q) => p.visits.CompareTo(q.visits)); //debugging purposes
             position.childpositions.Reverse();
             stopwatch.Stop();
@@ -107,6 +109,10 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
 
         public bool continueRunningCheck(Node position, Stopwatch stopwatch, double time)
         {
+            if (position.visits % 100 == 0)
+            {
+                Console.Write("");
+            }
             if (stopwatch.Elapsed.TotalSeconds < time)
                 return true;
             if (position.visits < 1200)
@@ -131,15 +137,22 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
             }
             var parentvisits = parentnode.visits;
 
-            var c1 = 4; 
-            var c2 = 0.01;
+            var c1 = 0.2; 
+            var c2 = 0.015;
 
-            //return (node.scoreratio) + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits); // default MCTS
+            //return (node.evaluationscoreratio) + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits); // default MCTS
+
+            // MCTS with shifting from heuristic evaluation to selection policy evaluation
+            return node.evaluationscoreratio
+                + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits)
+                + (c2 * (localevaluation)) / node.visits;
+
 
             // MCTS with heuristic evaluation
-            return node.evaluationscoreratio + node.matingscoreratio 
-                + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits) 
-                + c2 * (localevaluation);
+            return node.evaluationscoreratio + node.matingscore
+                + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits)
+                + c2 * localevaluation;
+
         }
 
         private Node SelectLeaf(Node node)
@@ -173,6 +186,8 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
             {
                 newboard = new Board(board.ToString(), board.FormerPositions);
             }
+            var startevaluation = evaluationfunction.GetEvaluation(newboard);
+            var startingcolor = newboard.CurrentColor;
             while (done == false && depth > 0)
             {
                 depth -= 1;
@@ -191,21 +206,17 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 else if (depth == 0)
                 {
                     var localevaluation = evaluationfunction.GetEvaluation(newboard);
-                    /*
-                    localscore = Math.Min(3000, Math.Max(-3000, localevaluation));
-                    if (board.CurrentColor == false)
-                        localscore /= 3000;
-                    else
-                        localscore /= (-1 * 3000);
-                    */
-
-                    if (newboard.CurrentColor == true)
+                    if (startingcolor == true)
+                    {
                         localevaluation *= -1; // Evaluation from the perspective of the playing color
-                    if (localevaluation > 500)
-                        evaluationscore = -1;
-                    else if (localevaluation < -500)
-                        evaluationscore = 1;
+                        startevaluation *= -1;
+                    }
+                    // Attempt with difference between starting evaluation and new evaluation
+                    evaluationscore = Math.Min(1000, Math.Max(-1000, localevaluation - startevaluation))/1000;
 
+                    //evaluationscore = Math.Min(3000, Math.Max(-3000, localevaluation));
+                    //evaluationscore /= 3000;
+                    //evaluationscore = evaluationscore / (1 + Math.Abs(evaluationscore)); // sigmoid
                 }
             }
             return new SimulationResult(matingscore, evaluationscore, isdraw);
