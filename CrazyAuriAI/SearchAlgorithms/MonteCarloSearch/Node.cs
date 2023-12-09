@@ -14,11 +14,15 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         public Board board;
         public Move? move;
         public Node? parent=null;
+        public bool originalColor=false;
 
         private Object updateLock = new Object();
         public double evaluationscore = 0;
         public int matingscore = 0;
         public int visits = 0;
+
+        public int searchedMinimaxDepth = 0;
+        public double minimaxValue = 0;
 
         public Node mostvisitedchild;
         public Node mostevaluatedchild;
@@ -35,7 +39,11 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
 
         public double evaluationscoreratio
         {
-            get { return evaluationscore / visits; }
+            get {
+                if (Math.Abs(minimaxValue) > 1000)
+                    return minimaxValue;
+                return evaluationscore / visits; 
+            }
         }
 
         public double matingscoreratio
@@ -46,12 +54,14 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         public Node(Board board)
         {
             this.board = board;
+            this.originalColor = board.CurrentColor;
         }
         public Node(Board board, Move move, Node parent)
         {
             this.board = board;
             this.move = move;
             this.parent = parent;
+            this.originalColor = parent.originalColor;
         }
 
         public void ExpandNode()

@@ -1,5 +1,5 @@
 ﻿using CrazyAuri.Models;
-using CrazyAuriAI.SearchAlgorithms.Minimax;
+using CrazyAuriAI.SearchAlgorithms.MinimaxSearch;
 using CrazyAuriLibrary.Models.Moves.MoveTypes;
 using CrazyAuriLibrary.Models.Pieces;
 using System;

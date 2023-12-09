@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CrazyAuriAI.SearchAlgorithms.Minimax
+namespace CrazyAuriAI.SearchAlgorithms.MinimaxSearch
 {
     public class TranspositionTable
     {

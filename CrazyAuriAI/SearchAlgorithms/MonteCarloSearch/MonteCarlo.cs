@@ -1,12 +1,12 @@
 ﻿using CrazyAuri.Models;
 using CrazyAuriAI.Evaluation.Functions;
 using CrazyAuriAI.Evaluation.PieceEvaluationSets;
+using CrazyAuriAI.SearchAlgorithms.MinimaxSearch;
 using CrazyAuriLibrary.Models.Moves.MoveTypes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
@@ -22,7 +22,10 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         private IEvaluationFunction evaluationfunction = new MainEvaluationFunction();
         private MoveEvaluationFunction moveevaluationfunction = new MoveEvaluationFunction();
         private CheckmateFinder checkmatefinder;
+        private Minimax minimax = new Minimax();
         private Node position;
+
+        private short p = 0; // probability Minimax will be chosen over Monte Carlo
 
 
         private Object nodeChildPositionsLock = new Object();
@@ -68,16 +71,13 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            (string, double) result = checkmatefinder.runSearch(position.board, 4);
-            if (result.Item2!=0)
-                return (result.Item1, result.Item2);
-            var threadcount = 1;
+            (string, double) result = checkmatefinder.runSearch(position, 2); // checks if any of nodes end with checkmate
+            var threadcount = 7;
             Parallel.For(0, threadcount, i =>
             {
                 runSearchOnThread(position, stopwatch, time);
             });
-            while (continueRunningCheck(position, stopwatch, time)) {
-            }
+            while (continueRunningCheck(position, stopwatch, time)) { }
             position.childpositions.Sort((p, q) => p.visits.CompareTo(q.visits)); //debugging purposes
             position.childpositions.Reverse();
             stopwatch.Stop();
@@ -96,32 +96,43 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 }
                 lock (nodeChildPositionsLock)
                     currentposition.ExpandNode();
-                currentposition = SelectLeaf(currentposition);
-                var result = Simulate(position.board);
-                while (currentposition.HasParent())
+                if (random.NextDouble() < p)
                 {
-                    currentposition.Update(result);
-                    currentposition = currentposition.parent;
+                    if (position.searchedMinimaxDepth < 2)
+                    {
+                        checkmatefinder.runSearch(position, 2);
+                    }
                 }
-                currentposition.Update(result);
+                else
+                {
+                    currentposition = SelectLeaf(currentposition);
+                    var result = Simulate(position.board);
+                    while (currentposition.HasParent())
+                    {
+                        currentposition.Update(result);
+                        currentposition = currentposition.parent;
+                    }
+                    currentposition.Update(result);
+                }
             }
         }
 
         public bool continueRunningCheck(Node position, Stopwatch stopwatch, double time)
         {
-            if (position.visits % 100 == 0)
+            if (stopwatch.Elapsed.TotalSeconds < 60)
             {
-                Console.Write("");
+                if (stopwatch.Elapsed.TotalSeconds < time)
+                    return true;
+                if (position.visits < 1200)
+                    return true;
+                return false;
             }
-            if (stopwatch.Elapsed.TotalSeconds < time)
-                return true;
-            if (position.visits < 1200)
-                return true;
-            //if (stopwatch.Elapsed.TotalSeconds > 20)
-            //    return false;
+            else
+            {
+                return false;
+            }
             //if (position.MostVisitedChildEqualsMostEvaluated())
             //    return false;
-            return false;
         }
 
         public double getUCBscore(Node node)
@@ -137,22 +148,15 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
             }
             var parentvisits = parentnode.visits;
 
-            var c1 = 0.2; 
-            var c2 = 0.015;
+            var c1 = 4; 
+            var c2 = 0.1;
 
-            //return (node.evaluationscoreratio) + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits); // default MCTS
-
-            // MCTS with shifting from heuristic evaluation to selection policy evaluation
-            return node.evaluationscoreratio
-                + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits)
-                + (c2 * (localevaluation)) / node.visits;
-
+            //return (node.scoreratio) + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits); // default MCTS
 
             // MCTS with heuristic evaluation
-            return node.evaluationscoreratio + node.matingscore
-                + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits)
-                + c2 * localevaluation;
-
+            return node.evaluationscoreratio + node.matingscoreratio 
+                + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits) 
+                + c2 * ((localevaluation) / node.visits);
         }
 
         private Node SelectLeaf(Node node)
@@ -206,17 +210,23 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 else if (depth == 0)
                 {
                     var localevaluation = evaluationfunction.GetEvaluation(newboard);
-                    if (startingcolor == true)
-                    {
-                        localevaluation *= -1; // Evaluation from the perspective of the playing color
-                        startevaluation *= -1;
-                    }
-                    // Attempt with difference between starting evaluation and new evaluation
-                    evaluationscore = Math.Min(1000, Math.Max(-1000, localevaluation - startevaluation))/1000;
+                    /*
+                    localscore = Math.Min(3000, Math.Max(-3000, localevaluation));
+                    if (board.CurrentColor == false)
+                        localscore /= 3000;
+                    else
+                        localscore /= (-1 * 3000);
+                    */
 
-                    //evaluationscore = Math.Min(3000, Math.Max(-3000, localevaluation));
-                    //evaluationscore /= 3000;
-                    //evaluationscore = evaluationscore / (1 + Math.Abs(evaluationscore)); // sigmoid
+                    localevaluation = localevaluation - startevaluation; // uses difference between current and starting
+
+                    if (startingcolor == false)
+                       localevaluation *= -1; // Evaluation from the perspective of the playing color
+                    if (localevaluation > 300)
+                        evaluationscore = 1;
+                    else if (localevaluation < -300)
+                        evaluationscore = -1;
+
                 }
             }
             return new SimulationResult(matingscore, evaluationscore, isdraw);

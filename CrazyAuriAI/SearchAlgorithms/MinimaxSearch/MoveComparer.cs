@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
-namespace CrazyAuriAI.SearchAlgorithms.Minimax
+namespace CrazyAuriAI.SearchAlgorithms.MinimaxSearch
 {
     public class MoveComparer : IComparer<Move>
     {
