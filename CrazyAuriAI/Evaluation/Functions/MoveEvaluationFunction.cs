@@ -22,7 +22,7 @@ namespace CrazyAuriAI.Evaluation.Functions
             int squareAttackerDifference = oldboard.GetAttackingPieceDifferenceOnSquare(move.endsquare)-1;
 
             if (isCheck)
-                result += 50;
+                result += 60;
 
             if (move is not CrazyhouseMove)
             {
@@ -46,9 +46,9 @@ namespace CrazyAuriAI.Evaluation.Functions
                 var endSquarePieceValue = GetPieceValue(oldboard.GetPieceOnSquare(move.endsquare).acronym);
 
                 if (squareAttackerDifference >= 0)
-                    result += 100;
+                    result += endSquarePieceValue*3;
                 else if (endSquarePieceValue > startSquarePieceValue) // Captures if enemy piece has higher value than ours
-                    result += 80;
+                    result += (endSquarePieceValue - startSquarePieceValue)*5;
                 else
                     result += overProtectedSquarePenalty(squareAttackerDifference, isCheck);
             }
@@ -59,11 +59,13 @@ namespace CrazyAuriAI.Evaluation.Functions
 
             if (move is CrazyhouseMove)
             {
-                // Tries to place pieces from rseserve on good squares
+                // Tries to place pieces from reserve on good squares
                 result += GetPieceSquareValue(((CrazyhouseMove) move).placedPiece, move.endsquare, oldboard.CurrentColor)/20;
                 var reserveevaluation = reservepiecevalues[((CrazyhouseMove)move).placedPiece];
                 var mainevaluation = piecevalues[((CrazyhouseMove)move).placedPiece];
-                result += (mainevaluation - reserveevaluation)/20;
+                result += (mainevaluation - reserveevaluation)/18;
+                if (isCheck)
+                    result+= 10;
             }
 
             if (move is PromotionMove)
@@ -71,7 +73,7 @@ namespace CrazyAuriAI.Evaluation.Functions
                 // Encourages promotion moves
                 result += 50;
                 if (move is PromotionCaptureMove)
-                    result += 50;
+                    result += 150;
             }
 
             return Math.Max(result,0);
@@ -85,7 +87,7 @@ namespace CrazyAuriAI.Evaluation.Functions
                 if (isCheck)
                     return -80;
                 else
-                    return -200;
+                    return -550;
             }
             return 0;
         }

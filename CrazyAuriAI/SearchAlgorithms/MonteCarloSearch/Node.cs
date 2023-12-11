@@ -30,7 +30,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         private Object nodeChildPositionsLock = new Object();
         public List<Node> childpositions = new List<Node>();
 
-        private IEvaluationFunction evaluationfunction = new MainEvaluationFunction();
+        public KillerHeuristic killerHeuristic=new KillerHeuristic();
 
         public override string ToString()
         {
@@ -100,17 +100,27 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                                 parent.mostevaluatedchild = this;
                         }
                         if (parent.mostvisitedchild.visits < this.visits)
+                        {
+                            if (hasGreatParent()) // killer heuristic
+                                parent.parent.parent.killerHeuristic.addNewMove(parent.mostvisitedchild.move.ToString(), this.move.ToString());
                             parent.mostvisitedchild = this;
+                        }
                         else if (parent.mostvisitedchild.visits == this.visits)
                         {
-                            if (parent.mostevaluatedchild.evaluationscoreratio < this.evaluationscoreratio)
+                            if (parent.mostvisitedchild.visits < this.visits)
+                            {
+                                if (hasGreatParent()) // killer heuristic
+                                    parent.parent.parent.killerHeuristic.addNewMove(parent.mostvisitedchild.move.ToString(), this.move.ToString());
                                 parent.mostvisitedchild = this;
+                            }
                         }
                     }
                     else
                     {
                         parent.mostevaluatedchild = this;
                         parent.mostvisitedchild = this;
+                        if(hasGreatParent()) // killer heuristic
+                            parent.parent.parent.killerHeuristic.addNewMove(move.ToString());
                     }
                 }
             }
@@ -126,6 +136,11 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         public bool HasParent()
         {
             return parent != null;
+        }
+
+        public bool hasGreatParent()
+        {
+            return HasParent() && parent.parent != null && parent.parent.parent!=null;
         }
 
         public bool MostVisitedChildEqualsMostEvaluated()

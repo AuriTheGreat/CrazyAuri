@@ -25,7 +25,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         private Minimax minimax = new Minimax();
         private Node position;
 
-        private short p = 0; // probability Minimax will be chosen over Monte Carlo
+        private short p = -1; // probability Minimax will be chosen over Monte Carlo
 
 
         private Object nodeChildPositionsLock = new Object();
@@ -71,8 +71,8 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            (string, double) result = checkmatefinder.runSearch(position, 2); // checks if any of nodes end with checkmate
-            var threadcount = 7;
+            (string, double) result = checkmatefinder.runSearch(position, 1); // checks if any of nodes end with checkmate
+            var threadcount = 1;
             Parallel.For(0, threadcount, i =>
             {
                 runSearchOnThread(position, stopwatch, time);
@@ -81,7 +81,6 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
             position.childpositions.Sort((p, q) => p.visits.CompareTo(q.visits)); //debugging purposes
             position.childpositions.Reverse();
             stopwatch.Stop();
-
             return (position.mostvisitedchild.move.ToString(), position.mostvisitedchild.evaluationscoreratio);
         }
 
@@ -151,6 +150,9 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
             var c1 = 4; 
             var c2 = 0.1;
 
+            if (node.killerHeuristic.bestMove==node.move.ToString())
+                c1 *=2;
+
             //return (node.scoreratio) + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits); // default MCTS
 
             // MCTS with heuristic evaluation
@@ -162,6 +164,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         private Node SelectLeaf(Node node)
         {
             double maxU = -1;
+            Node returnedNode = node.childpositions.Count==0 ? node : node.childpositions[0];
             lock (nodeChildPositionsLock)
             {
                 foreach (var i in node.childpositions)
@@ -169,11 +172,11 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                     if (getUCBscore(i) > maxU)
                     {
                         maxU = getUCBscore(i);
-                        node = i;
+                        returnedNode = i;
                     }
                 }
             }
-            return node;
+            return returnedNode;
         }
 
         private Object boardLock = new Object();
