@@ -72,12 +72,12 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
 
             if (Math.Abs(value) > 1000)
             {
-                if (value < 1000 && node.originalColor == true)
-                    node.minimaxValue = double.MinValue;
-                else if (value > 1000 && node.originalColor == false)
-                    node.minimaxValue = double.MinValue;
-                else
+                if (value < -1000 && node.originalColor == true)
                     node.minimaxValue = double.MaxValue;
+                else if (value > 1000 && node.originalColor == false)
+                    node.minimaxValue = double.MaxValue;
+                else
+                    node.minimaxValue = double.MinValue;
             }
             node.searchedMinimaxDepth = depth;
 

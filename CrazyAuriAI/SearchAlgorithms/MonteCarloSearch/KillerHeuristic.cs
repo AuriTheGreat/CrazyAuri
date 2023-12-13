@@ -23,18 +23,24 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         }
         public void addNewMove(string oldmove, string newmove)
         {
-            if (moveFrequencyAmongKillerMoves.ContainsKey(oldmove))
+            lock (this.killerHeuristicLock)
             {
-                moveFrequencyAmongKillerMoves[oldmove] -= 1;
-                if (oldmove == bestMove)
-                    bestMoveCount -= 1;
-                newMoveAdder(newmove);
+                if (moveFrequencyAmongKillerMoves.ContainsKey(oldmove))
+                {
+                    moveFrequencyAmongKillerMoves[oldmove] -= 1;
+                    if (oldmove == bestMove)
+                        bestMoveCount -= 1;
+                    newMoveAdder(newmove);
+                }
             }
         }
 
         public void addNewMove(string newmove)
         {
-            newMoveAdder(newmove);
+            lock (this.killerHeuristicLock) 
+            { 
+                newMoveAdder(newmove);
+            }
         }
 
         private void newMoveAdder(string newmove)

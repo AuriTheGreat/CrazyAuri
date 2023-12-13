@@ -14,48 +14,77 @@ namespace CrazyAuri
     {
         static public void Main(string[] args)
         {
-            Board board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
-            IPlayer WhitePlayer = new BotPlayer();
-            IPlayer BlackPlayer = new StockfishPlayer();
+            int numberOfGamesToPlay = 10;
+            double whitePlayerResult = 0;
+            double blackPlayerResult = 0;
 
-            while (true)
+            for (int i = 0; i < numberOfGamesToPlay; i++)
             {
-                Console.WriteLine(board);
-                board.PrintBoard();
-                var winner = board.GetWinner();
-                if (winner != "0")
+                Board board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
+                IPlayer WhitePlayer = new BotPlayer();
+                IPlayer BlackPlayer = new RandomPlayer();
+                if (WhitePlayer is HumanPlayer || BlackPlayer is HumanPlayer)
+                    numberOfGamesToPlay = 1;
+                if ((i + 1) % 2 == 0)
+                    (WhitePlayer, BlackPlayer) = (BlackPlayer, WhitePlayer);
+                while (true)
                 {
-                    if (winner == "w")
+                    Console.WriteLine(board);
+                    board.PrintBoard();
+                    var winner = board.GetWinner();
+                    if (winner != "0")
                     {
-                        Console.WriteLine("White has won the game!");
+                        double matchWinner = 0.5;
+                        if (winner == "w")
+                        {
+                            Console.WriteLine("White has won the game!");
+                            matchWinner = 1;
+                        }
+                        else if (winner == "b")
+                        {
+                            Console.WriteLine("Black has won the game!");
+                            matchWinner = 0;
+                        }
+                        else if (winner == "s")
+                        {
+                            Console.WriteLine("Stalemate!");
+                        }
+                        else if (winner == "r")
+                        {
+                            Console.WriteLine("Draw due to repetition!");
+                        }
+                        else if (winner == "50")
+                        {
+                            Console.WriteLine("Draw due to 50 move rule!");
+                        }
+                        if ((i + 1) % 2 != 0)
+                        {
+                            whitePlayerResult += matchWinner;
+                            blackPlayerResult += 1-matchWinner;
+                        }
+                        else
+                        {
+                            blackPlayerResult += matchWinner;
+                            whitePlayerResult += 1 - matchWinner;
+                        }
+                        File.AppendAllText("result.txt", DateTime.Today + " " +
+                            String.Join(", ", board.movehistory) + " "  + matchWinner + "-" + 
+                            (1-matchWinner).ToString() + '\n');
+                        break;
                     }
-                    else if (winner == "b")
+
+                    if (board.CurrentColor == true)
                     {
-                        Console.WriteLine("Black has won the game!");
+                        BlackPlayer.MakeMove(board);
                     }
-                    else if (winner == "s")
+                    else
                     {
-                        Console.WriteLine("Stalemate!");
+                        WhitePlayer.MakeMove(board);
                     }
-                    else if (winner == "r")
-                    {
-                        Console.WriteLine("Draw due to repetition!");
-                    }
-                    else if (winner == "50")
-                    {
-                        Console.WriteLine("Draw due to 50 move rule!");
-                    }
-                    break;
                 }
 
-                if (board.CurrentColor == true)
-                {
-                    BlackPlayer.MakeMove(board);
-                }
-                else
-                {
-                    WhitePlayer.MakeMove(board);
-                }
+                Console.WriteLine("Result: " + whitePlayerResult + "-" + blackPlayerResult);
+
             }
         }
     }

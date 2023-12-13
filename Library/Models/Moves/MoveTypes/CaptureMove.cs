@@ -38,11 +38,11 @@ namespace CrazyAuriLibrary.Models.Moves.MoveTypes
 
             if (endpiece.acronym.ToLower() == "r")
             {
-                if (endpiece.location == (0, 2))
+                if (endpiece.location == (0, 0))
                     board.CanBlackCastleQueenside = false;
                 if (endpiece.location == (0, 7))
                     board.CanBlackCastleKingside = false;
-                if (endpiece.location == (7, 2))
+                if (endpiece.location == (7, 0))
                     board.CanWhiteCastleQueenside = false;
                 if (endpiece.location == (7, 7))
                     board.CanWhiteCastleKingside = false;

@@ -156,8 +156,8 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
             //return (node.scoreratio) + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits); // default MCTS
 
             // MCTS with heuristic evaluation
-            return node.evaluationscoreratio + node.matingscoreratio 
-                + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits) 
+            return node.evaluationscoreratio
+                + c1 * Math.Sqrt(Math.Log(parentvisits + node.matingscoreratio) / (2*node.visits)) 
                 + c2 * ((localevaluation) / node.visits);
         }
 
