@@ -22,7 +22,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         private IEvaluationFunction evaluationfunction = new MainEvaluationFunction();
         private MoveEvaluationFunction moveevaluationfunction = new MoveEvaluationFunction();
         private CheckmateFinder checkmatefinder;
-        private Minimax minimax = new Minimax();
+        private MCMinimax minimax = new MCMinimax();
         private Node position;
 
         private short p = -1; // probability Minimax will be chosen over Monte Carlo
@@ -71,7 +71,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            (string, double) result = checkmatefinder.runSearch(position, 1); // checks if any of nodes end with checkmate
+            minimax.runSearch(position, 2); // checks if any of nodes end with checkmate
             var threadcount = 1;
             Parallel.For(0, threadcount, i =>
             {
@@ -147,18 +147,20 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
             }
             var parentvisits = parentnode.visits;
 
-            var c1 = 4; 
-            var c2 = 0.1;
+            var c1 = 0.4; 
+            var c2 = 100;
 
             if (node.killerHeuristic.bestMove==node.move.ToString())
                 c1 *=2;
 
             //return (node.scoreratio) + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits); // default MCTS
 
+            var minimaxEvaluationWeight =  (Math.Min(Math.Max(node.minimaxValue - node.parent.minimaxValue, -300),300)+300)/600;
+
             // MCTS with heuristic evaluation
             return node.evaluationscoreratio
-                + c1 * Math.Sqrt(Math.Log(parentvisits + node.matingscoreratio) / (2*node.visits)) 
-                + c2 * ((localevaluation) / node.visits);
+                + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits) 
+                + c2 * minimaxEvaluationWeight / node.visits;
         }
 
         private Node SelectLeaf(Node node)
@@ -203,9 +205,9 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 if (newboard.GetWinner() != "0")
                 {
                     if (newboard.GetWinner() == "w")
-                        matingscore = 1;
-                    else if (newboard.GetWinner() == "b")
                         matingscore = -1;
+                    else if (newboard.GetWinner() == "b")
+                        matingscore = 1;
                     else
                         isdraw = true;
                     done = true;
@@ -224,7 +226,9 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                     localevaluation = localevaluation - startevaluation; // uses difference between current and starting
 
                     if (startingcolor == false)
-                       localevaluation *= -1; // Evaluation from the perspective of the playing color
+                    {
+                        localevaluation *= -1; // Evaluation from the perspective of the playing color
+                    }
                     if (localevaluation > 300)
                         evaluationscore = 1;
                     else if (localevaluation < -300)

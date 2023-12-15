@@ -20,9 +20,9 @@ namespace CrazyAuri
 
             for (int i = 0; i < numberOfGamesToPlay; i++)
             {
-                Board board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
+                Board board = new Board("r1br2k1/ppppqpp1/3bpn2/7p/2BN3P/2N1P3/PPPBQPPp/3RR1K1/N w - - 0 14");
                 IPlayer WhitePlayer = new BotPlayer();
-                IPlayer BlackPlayer = new RandomPlayer();
+                IPlayer BlackPlayer = new MinimaxPlayer();
                 if (WhitePlayer is HumanPlayer || BlackPlayer is HumanPlayer)
                     numberOfGamesToPlay = 1;
                 if ((i + 1) % 2 == 0)
@@ -67,7 +67,7 @@ namespace CrazyAuri
                             blackPlayerResult += matchWinner;
                             whitePlayerResult += 1 - matchWinner;
                         }
-                        File.AppendAllText("result.txt", DateTime.Today + " " +
+                        File.AppendAllText("result.txt", DateTime.Now + " " +
                             String.Join(", ", board.movehistory) + " "  + matchWinner + "-" + 
                             (1-matchWinner).ToString() + '\n');
                         break;

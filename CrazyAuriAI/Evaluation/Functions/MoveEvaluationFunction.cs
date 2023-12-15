@@ -71,7 +71,7 @@ namespace CrazyAuriAI.Evaluation.Functions
             if (move is PromotionMove)
             {
                 // Encourages promotion moves
-                result += 50;
+                result += 130;
                 if (move is PromotionCaptureMove)
                     result += 150;
             }

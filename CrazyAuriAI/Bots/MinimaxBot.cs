@@ -20,7 +20,7 @@ namespace CrazyAuriAI.Bots
             Stopwatch stopwatch = new Stopwatch();
             Minimax negamax = new Minimax();
             stopwatch.Start();
-            (string, double) result = negamax.NegaMax(board, 4, double.MinValue, double.MaxValue, board.CurrentColor);
+            (string, double) result = negamax.NegaMax(board, 2, double.MinValue, double.MaxValue, board.CurrentColor);
             stopwatch.Stop();
             var move = board.GetAllMoves()[0].ToString();
             var evaluation = result.Item2.ToString();
