@@ -26,6 +26,27 @@ namespace CrazyAuriAI.Evaluation.Functions
 
             if (move is not CrazyhouseMove)
             {
+                if (move.piece.acronym == "k")
+                    result -= 30;
+                if (move is CastlingMove)
+                    result += 80;
+
+                // Moves pieces that are attacked by higher pieces
+                string squareLowestAttackerPiece = oldboard.GetSquareLowestAttackerPiece(move.startsquare);
+                if (squareLowestAttackerPiece != null)
+                {
+                    result += Math.Max(GetPieceValue(oldboard.GetPieceOnSquare(move.startsquare).acronym)
+                    - GetPieceValue(squareLowestAttackerPiece), 0);
+                }
+
+                // Does not place pieces where lower piece can capture them
+                squareLowestAttackerPiece = oldboard.GetSquareLowestAttackerPiece(move.endsquare);
+                if (squareLowestAttackerPiece != null)
+                {
+                    result -= Math.Max(GetPieceValue(oldboard.GetPieceOnSquare(move.startsquare).acronym)
+                    - GetPieceValue(squareLowestAttackerPiece), 0);
+                }
+
                 // Moves hanging pieces away from threat.
                 if (oldboard.GetAttackingPieceDifferenceOnSquare(move.startsquare) < 0)
                     if (squareAttackerDifference >= 0)
@@ -63,7 +84,7 @@ namespace CrazyAuriAI.Evaluation.Functions
                 result += GetPieceSquareValue(((CrazyhouseMove) move).placedPiece, move.endsquare, oldboard.CurrentColor)/20;
                 var reserveevaluation = reservepiecevalues[((CrazyhouseMove)move).placedPiece];
                 var mainevaluation = piecevalues[((CrazyhouseMove)move).placedPiece];
-                result += (mainevaluation - reserveevaluation)/18;
+                result += (mainevaluation - reserveevaluation)/12;
                 if (isCheck)
                     result+= 10;
             }
@@ -76,7 +97,7 @@ namespace CrazyAuriAI.Evaluation.Functions
                     result += 150;
             }
 
-            return Math.Max(result,0);
+            return result;
         }
 
         private double overProtectedSquarePenalty(int squareAttackerDifference, bool isCheck)
@@ -85,7 +106,7 @@ namespace CrazyAuriAI.Evaluation.Functions
             if (squareAttackerDifference < 0)
             {
                 if (isCheck)
-                    return -80;
+                    return -250;
                 else
                     return -550;
             }

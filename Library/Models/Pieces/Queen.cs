@@ -1,5 +1,6 @@
 ﻿using CrazyAuriLibrary.Models.Moves.MoveTypes;
 using CrazyAuriLibrary.Models.Pieces;
+using CrazyAuriLibrary.Models.Util;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -17,31 +18,31 @@ namespace CrazyAuri.Models.Pieces
             acronym = "q";
         }
 
-        public override List<Move> GetMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays)
+        public override List<Move> GetMoves(Board board, BoardTableSet boardTableSet)
         {
             List<Move> result = new List<Move>();
-            result.AddRange(CheckDirection(board, (1, 1), squareAttackerDefenderCounts, pinRays));
-            result.AddRange(CheckDirection(board, (1, -1), squareAttackerDefenderCounts, pinRays));
-            result.AddRange(CheckDirection(board, (-1, 1), squareAttackerDefenderCounts, pinRays));
-            result.AddRange(CheckDirection(board, (-1, -1), squareAttackerDefenderCounts, pinRays));
-            result.AddRange(CheckDirection(board, (1, 0), squareAttackerDefenderCounts, pinRays));
-            result.AddRange(CheckDirection(board, (-1, 0), squareAttackerDefenderCounts, pinRays));
-            result.AddRange(CheckDirection(board, (0, 1), squareAttackerDefenderCounts, pinRays));
-            result.AddRange(CheckDirection(board, (0, -1), squareAttackerDefenderCounts, pinRays));
+            result.AddRange(CheckDirection(board, (1, 1), boardTableSet));
+            result.AddRange(CheckDirection(board, (1, -1), boardTableSet));
+            result.AddRange(CheckDirection(board, (-1, 1), boardTableSet));
+            result.AddRange(CheckDirection(board, (-1, -1), boardTableSet));
+            result.AddRange(CheckDirection(board, (1, 0), boardTableSet));
+            result.AddRange(CheckDirection(board, (-1, 0), boardTableSet));
+            result.AddRange(CheckDirection(board, (0, 1), boardTableSet));
+            result.AddRange(CheckDirection(board, (0, -1), boardTableSet));
             return result;
         }
 
-        public override List<Move> GetCheckMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
+        public override List<Move> GetCheckMoves(Board board, BoardTableSet boardTableSet)
         {
             List<Move> result = new List<Move>();
-            result.AddRange(CheckDirectionIfCheck(board, (1, 1), squareAttackerDefenderCounts, pinRays, checkRays));
-            result.AddRange(CheckDirectionIfCheck(board, (1, -1), squareAttackerDefenderCounts, pinRays, checkRays));
-            result.AddRange(CheckDirectionIfCheck(board, (-1, 1), squareAttackerDefenderCounts, pinRays, checkRays));
-            result.AddRange(CheckDirectionIfCheck(board, (-1, -1), squareAttackerDefenderCounts, pinRays, checkRays));
-            result.AddRange(CheckDirectionIfCheck(board, (1, 0), squareAttackerDefenderCounts, pinRays, checkRays));
-            result.AddRange(CheckDirectionIfCheck(board, (-1, 0), squareAttackerDefenderCounts, pinRays, checkRays));
-            result.AddRange(CheckDirectionIfCheck(board, (0, 1), squareAttackerDefenderCounts, pinRays, checkRays));
-            result.AddRange(CheckDirectionIfCheck(board, (0, -1), squareAttackerDefenderCounts, pinRays, checkRays));
+            result.AddRange(CheckDirectionIfCheck(board, (1, 1), boardTableSet));
+            result.AddRange(CheckDirectionIfCheck(board, (1, -1), boardTableSet));
+            result.AddRange(CheckDirectionIfCheck(board, (-1, 1), boardTableSet));
+            result.AddRange(CheckDirectionIfCheck(board, (-1, -1), boardTableSet));
+            result.AddRange(CheckDirectionIfCheck(board, (1, 0), boardTableSet));
+            result.AddRange(CheckDirectionIfCheck(board, (-1, 0), boardTableSet));
+            result.AddRange(CheckDirectionIfCheck(board, (0, 1), boardTableSet));
+            result.AddRange(CheckDirectionIfCheck(board, (0, -1), boardTableSet));
             return result;
         }
 
@@ -50,16 +51,16 @@ namespace CrazyAuri.Models.Pieces
             
         }
 
-        public override void GetAttacks(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
+        public override void GetAttacks(Board board, BoardTableSet boardTableSet)
         {
-            CheckAttackDirection(board, (1, 1), squareAttackerDefenderCounts, attackedSquares, pinRays, checkRays);
-            CheckAttackDirection(board, (1, -1), squareAttackerDefenderCounts, attackedSquares, pinRays, checkRays);
-            CheckAttackDirection(board, (-1, 1), squareAttackerDefenderCounts, attackedSquares, pinRays, checkRays);
-            CheckAttackDirection(board, (-1, -1), squareAttackerDefenderCounts, attackedSquares, pinRays, checkRays);
-            CheckAttackDirection(board, (1, 0), squareAttackerDefenderCounts, attackedSquares, pinRays, checkRays);
-            CheckAttackDirection(board, (-1, 0), squareAttackerDefenderCounts, attackedSquares, pinRays, checkRays);
-            CheckAttackDirection(board, (0, 1), squareAttackerDefenderCounts, attackedSquares, pinRays, checkRays);
-            CheckAttackDirection(board, (0, -1), squareAttackerDefenderCounts, attackedSquares, pinRays, checkRays);
+            CheckAttackDirection(board, (1, 1), boardTableSet);
+            CheckAttackDirection(board, (1, -1), boardTableSet);
+            CheckAttackDirection(board, (-1, 1), boardTableSet);
+            CheckAttackDirection(board, (-1, -1), boardTableSet);
+            CheckAttackDirection(board, (1, 0), boardTableSet);
+            CheckAttackDirection(board, (-1, 0), boardTableSet);
+            CheckAttackDirection(board, (0, 1), boardTableSet);
+            CheckAttackDirection(board, (0, -1), boardTableSet);
         }
 
     }

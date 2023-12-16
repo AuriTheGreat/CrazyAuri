@@ -371,6 +371,11 @@ namespace CrazyAuri.Models
             return boardmove.GetAttackingPieceDifferenceOnSquare(location);
         }
 
+        public string GetSquareLowestAttackerPiece((int, int) location)
+        {
+            return boardmove.GetSquareLowestAttackerPiece(location);
+        }
+
         public List<Move> GetAllMoves()
         {
             return boardmove.GetAllMoves();

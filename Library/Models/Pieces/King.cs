@@ -1,5 +1,6 @@
 ﻿using CrazyAuriLibrary.Models.Moves.MoveTypes;
 using CrazyAuriLibrary.Models.Pieces;
+using CrazyAuriLibrary.Models.Util;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -17,37 +18,42 @@ namespace CrazyAuri.Models.Pieces
             acronym = "k";
         }
 
-        public override List<Move> GetMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays)
+        public override List<Move> GetMoves(Board board, BoardTableSet boardTableSet)
         {
             List<Move> result = new List<Move>();
 
-            CheckMove(board, result, squareAttackerDefenderCounts, attackedSquares, (1, 1));
-            CheckMove(board, result, squareAttackerDefenderCounts, attackedSquares, (1, 0));
-            CheckMove(board, result, squareAttackerDefenderCounts, attackedSquares, (1, -1));
-            CheckMove(board, result, squareAttackerDefenderCounts, attackedSquares, (0, 1));
-            CheckMove(board, result, squareAttackerDefenderCounts, attackedSquares, (0, -1));
-            CheckMove(board, result, squareAttackerDefenderCounts, attackedSquares, (-1, 1));
-            CheckMove(board, result, squareAttackerDefenderCounts, attackedSquares, (-1, 0));
-            CheckMove(board, result, squareAttackerDefenderCounts, attackedSquares, (-1, -1));
+            CheckMove(board, result, boardTableSet, (1, 1));
+            CheckMove(board, result, boardTableSet, (1, 0));
+            CheckMove(board, result, boardTableSet, (1, -1));
+            CheckMove(board, result, boardTableSet, (0, 1));
+            CheckMove(board, result, boardTableSet, (0, -1));
+            CheckMove(board, result, boardTableSet, (-1, 1));
+            CheckMove(board, result, boardTableSet, (-1, 0));
+            CheckMove(board, result, boardTableSet, (-1, -1));
 
-            result.AddRange(GetCastlingMoves(board, attackedSquares));
+            result.AddRange(GetCastlingMoves(board, boardTableSet));
 
 
             return result;
         }
 
-        public override List<Move> GetCheckMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
+        public override List<Move> GetCheckMoves(Board board, BoardTableSet boardTableSet)
         {
-            return GetMoves(board, squareAttackerDefenderCounts, attackedSquares, pinRays);
+            return GetMoves(board, boardTableSet);
         }
 
-        private void CheckMove(Board board, List<Move> result, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, (short, short) direction)
+        private void CheckMove(Board board, List<Move> result, BoardTableSet boardTableSet, (short, short) direction)
         {
             int x = location.Item1 + direction.Item1;
             int y = location.Item2 + direction.Item2;
 
             if (x == 8 || y == 8 || x == -1 || y == -1)
                 return;
+
+            var pinRays = boardTableSet.pinRays;
+            var attackedSquares = boardTableSet.attackedSquares;
+            var checkRays = boardTableSet.checkRays;
+            var squareAttackerDefenderCounts = boardTableSet.squareAttackerDefenderCounts;
 
             squareAttackerDefenderCounts[x, y] += 1;
 
@@ -68,9 +74,11 @@ namespace CrazyAuri.Models.Pieces
             }
         }
 
-        private List<Move> GetCastlingMoves(Board board, short[,] attackedSquares)
+        private List<Move> GetCastlingMoves(Board board, BoardTableSet boardTableSet)
         {
             List<Move> result = new List<Move>();
+
+            var attackedSquares = boardTableSet.attackedSquares;
 
             if (attackedSquares[location.Item1, location.Item2] > 0)
                 return result;
@@ -79,12 +87,12 @@ namespace CrazyAuri.Models.Pieces
             {
                 //e1g1
                 var neededsquares = new List<(int, int)>() { (7, 5), (7,6) };
-                if (board.CanWhiteCastleKingside==true && CheckIfPossibleToCastle(board, attackedSquares, neededsquares) == true)
+                if (board.CanWhiteCastleKingside==true && CheckIfPossibleToCastle(board, boardTableSet, neededsquares) == true)
                 {
                     result.Add(new CastlingMove(this, location, (7, 6)));
                 }
                 neededsquares= new List<(int, int)>() { (7, 2), (7, 3) };
-                if (board.CanWhiteCastleQueenside == true && board.GetPieceOnSquare((7, 1)) == null && CheckIfPossibleToCastle(board, attackedSquares, neededsquares) == true)
+                if (board.CanWhiteCastleQueenside == true && board.GetPieceOnSquare((7, 1)) == null && CheckIfPossibleToCastle(board, boardTableSet, neededsquares) == true)
                 {
                     result.Add(new CastlingMove(this, location, (7, 2)));
                 }
@@ -93,12 +101,12 @@ namespace CrazyAuri.Models.Pieces
             else
             {
                 var neededsquares = new List<(int, int)>() { (0, 5), (0, 6) };
-                if (board.CanBlackCastleKingside == true && CheckIfPossibleToCastle(board, attackedSquares, neededsquares) == true)
+                if (board.CanBlackCastleKingside == true && CheckIfPossibleToCastle(board, boardTableSet, neededsquares) == true)
                 {
                     result.Add(new CastlingMove(this, location, (0, 6)));
                 }
                 neededsquares = new List<(int, int)>() { (0, 2), (0, 3) };
-                if (board.CanBlackCastleQueenside == true && board.GetPieceOnSquare((0,1)) == null && CheckIfPossibleToCastle(board, attackedSquares, neededsquares) == true)
+                if (board.CanBlackCastleQueenside == true && board.GetPieceOnSquare((0,1)) == null && CheckIfPossibleToCastle(board, boardTableSet, neededsquares) == true)
                 {
                     result.Add(new CastlingMove(this, location, (0, 2)));
                 }
@@ -108,8 +116,9 @@ namespace CrazyAuri.Models.Pieces
 
         }
 
-        private Boolean CheckIfPossibleToCastle(Board board, short[,] attackedSquares, List<(int, int)> neededSquares)
+        private Boolean CheckIfPossibleToCastle(Board board, BoardTableSet boardTableSet, List<(int, int)> neededSquares)
         {
+            var attackedSquares = boardTableSet.attackedSquares;
             foreach (var square in neededSquares)
             {
                 if (board.GetPieceOnSquare(square)!=null || attackedSquares[square.Item1, square.Item2] > 0)
@@ -134,27 +143,31 @@ namespace CrazyAuri.Models.Pieces
             }
         }
 
-        public override void GetAttacks(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
+        public override void GetAttacks(Board board, BoardTableSet boardTableSet)
         {
-            CheckAttackDirection((1, 1), squareAttackerDefenderCounts, attackedSquares);
-            CheckAttackDirection((1, 0), squareAttackerDefenderCounts, attackedSquares);
-            CheckAttackDirection((1, -1), squareAttackerDefenderCounts, attackedSquares);
-            CheckAttackDirection((0, 1), squareAttackerDefenderCounts, attackedSquares);
-            CheckAttackDirection((0, -1), squareAttackerDefenderCounts, attackedSquares);
-            CheckAttackDirection((-1, 1), squareAttackerDefenderCounts, attackedSquares);
-            CheckAttackDirection((-1, 0), squareAttackerDefenderCounts, attackedSquares);
-            CheckAttackDirection((-1, -1), squareAttackerDefenderCounts, attackedSquares);
+            CheckAttackDirection((1, 1), boardTableSet);
+            CheckAttackDirection((1, 0), boardTableSet);
+            CheckAttackDirection((1, -1), boardTableSet);
+            CheckAttackDirection((0, 1), boardTableSet);
+            CheckAttackDirection((0, -1), boardTableSet);
+            CheckAttackDirection((-1, 1), boardTableSet);
+            CheckAttackDirection((-1, 0), boardTableSet);
+            CheckAttackDirection((-1, -1), boardTableSet);
         }
 
-        private void CheckAttackDirection((short, short) direction, short[,] squareAttackerDefenderCounts, short[,] attackedSquares)
+        private void CheckAttackDirection((short, short) direction, BoardTableSet boardTableSet)
         {
             int x = location.Item1 + direction.Item1;
             int y = location.Item2 + direction.Item2;
+
+            var attackedSquares = boardTableSet.attackedSquares;
+            var squareAttackerDefenderCounts = boardTableSet.squareAttackerDefenderCounts;
 
             if (x == 8 || y == 8 || x == -1 || y == -1)
                 return;
             attackedSquares[x, y] += 1;
             squareAttackerDefenderCounts[x, y] -= 1;
+            boardTableSet.replaceSquareLowestAttackerPiece((x, y), this.ToString());
         }
     }
 }

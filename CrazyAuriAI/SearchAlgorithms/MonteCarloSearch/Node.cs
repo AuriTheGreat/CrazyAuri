@@ -24,8 +24,12 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         public int searchedMinimaxDepth = 0;
         public double minimaxValue = 0;
 
+        public double localevaluation = 0;
+        public bool evaluated = false;
+
         public Node mostvisitedchild;
         public Node mostevaluatedchild;
+        public double lowestchildlocalevaluation = double.MaxValue;
 
         private Object nodeChildPositionsLock = new Object();
         public List<Node> childpositions = new List<Node>();

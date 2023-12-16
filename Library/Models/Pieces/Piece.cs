@@ -1,6 +1,7 @@
 ﻿using CrazyAuri.Models;
 using CrazyAuri.Models.Pieces;
 using CrazyAuriLibrary.Models.Moves.MoveTypes;
+using CrazyAuriLibrary.Models.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,9 +32,9 @@ namespace CrazyAuriLibrary.Models.Pieces
                 return acronym.ToUpper();
             }
         }
-        public abstract List<Move> GetMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays);
-        public abstract List<Move> GetCheckMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays);
+        public abstract List<Move> GetMoves(Board board, BoardTableSet boardTableSet);
+        public abstract List<Move> GetCheckMoves(Board board, BoardTableSet boardTableSet);
         public abstract void MakeMove(Board board, Move move);
-        public abstract void GetAttacks(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays);
+        public abstract void GetAttacks(Board board, BoardTableSet boardTableSet);
     }
 }

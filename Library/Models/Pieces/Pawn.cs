@@ -1,5 +1,6 @@
 ﻿using CrazyAuriLibrary.Models.Moves.MoveTypes;
 using CrazyAuriLibrary.Models.Pieces;
+using CrazyAuriLibrary.Models.Util;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -18,13 +19,16 @@ namespace CrazyAuri.Models.Pieces
             acronym = "p";
         }
 
-        public override List<Move> GetMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays)
+        public override List<Move> GetMoves(Board board, BoardTableSet boardTableSet)
         {
             int x = location.Item1;
             int y = location.Item2;
 
             int colorint = color == true ? 1 : -1; // determines which direction to move the pawns in
             List<Move> result = new List<Move>();
+
+            var pinRays = boardTableSet.pinRays;
+            var squareAttackerDefenderCounts = boardTableSet.squareAttackerDefenderCounts;
 
             short isPinned = pinRays[x, y];
 
@@ -109,17 +113,18 @@ namespace CrazyAuri.Models.Pieces
 
             if(board.EnPassantSquare!=(-1, -1))
             {
-                result.AddRange(GetEnPassantMoves(board, squareAttackerDefenderCounts, pinRays));
+                result.AddRange(GetEnPassantMoves(board, boardTableSet));
             }
 
             return result;
 
         }
 
-        public override List<Move> GetCheckMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
+        public override List<Move> GetCheckMoves(Board board, BoardTableSet boardTableSet)
         {
             List<Move> result = new List<Move>();
-            foreach (var i in GetMoves(board, attackedSquares, squareAttackerDefenderCounts, pinRays))
+            var checkRays = boardTableSet.checkRays;
+            foreach (var i in GetMoves(board, boardTableSet))
             {
                 if (checkRays[i.endsquare.Item1, i.endsquare.Item2] == true)
                 {
@@ -129,11 +134,12 @@ namespace CrazyAuri.Models.Pieces
             return result;
         }
 
-        private List<Move> GetEnPassantMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] pinRays)
+        private List<Move> GetEnPassantMoves(Board board, BoardTableSet boardTableSet)
         {
             int x = location.Item1;
             int y = location.Item2;
             int colorint = color == true ? 1 : -1; // determines which direction to move the pawns in
+            var pinRays = boardTableSet.pinRays;
             short isPinned = pinRays[x, y];
             List<Move> result = new List<Move>();
             if (board.EnPassantSquare == (x + colorint, y + 1))
@@ -169,16 +175,21 @@ namespace CrazyAuri.Models.Pieces
             board.HalfMoveClock = 0;
         }
 
-        public override void GetAttacks(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
+        public override void GetAttacks(Board board, BoardTableSet boardTableSet)
         {
             int x = location.Item1;
             int y = location.Item2;
             int colorint = color == true ? 1 : -1; // determines which direction to move the pawns in
 
+            var attackedSquares = boardTableSet.attackedSquares;
+            var checkRays = boardTableSet.checkRays;
+            var squareAttackerDefenderCounts = boardTableSet.squareAttackerDefenderCounts;
+
             if (y < 7)
             {
                 attackedSquares[x + colorint * 1, y + 1] += 1;
                 squareAttackerDefenderCounts[x + colorint * 1, y + 1] -= 1;
+                boardTableSet.replaceSquareLowestAttackerPiece((x + colorint * 1, y + 1), this.ToString());
                 var piece = board.GetPieceOnSquare((x + colorint * 1, y + 1));
                 if (piece != null)
                 {
@@ -193,6 +204,7 @@ namespace CrazyAuri.Models.Pieces
             {
                 attackedSquares[x + colorint * 1, y - 1] += 1;
                 squareAttackerDefenderCounts[x + colorint * 1, y - 1] -= 1;
+                boardTableSet.replaceSquareLowestAttackerPiece((x + colorint * 1, y - 1), this.ToString());
                 var piece = board.GetPieceOnSquare((x + colorint * 1, y - 1));
                 if (piece != null)
                 {

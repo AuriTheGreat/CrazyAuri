@@ -1,6 +1,7 @@
 ﻿using CrazyAuri.Models;
 using CrazyAuri.Models.Pieces;
 using CrazyAuriLibrary.Models.Moves.MoveTypes;
+using CrazyAuriLibrary.Models.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +16,11 @@ namespace CrazyAuriLibrary.Models.Pieces
         {
         }
 
-        protected List<Move> CheckDirectionIfCheck(Board board, (short, short) direction, short[,] squareAttackerDefenderCounts, short[,] pinRays, bool[,] checkRays)
+        protected List<Move> CheckDirectionIfCheck(Board board, (short, short) direction, BoardTableSet boardTableSet)
         {
             List<Move> result = new List<Move>();
-            foreach(var i in CheckDirection(board, direction, squareAttackerDefenderCounts, pinRays))
+            var checkRays = boardTableSet.checkRays;
+            foreach (var i in CheckDirection(board, direction, boardTableSet))
             {
                 if (checkRays[i.endsquare.Item1, i.endsquare.Item2] == true)
                 {
@@ -28,7 +30,7 @@ namespace CrazyAuriLibrary.Models.Pieces
             return result;
         }
 
-        protected List<Move> CheckDirection(Board board, (short, short) direction, short[,] squareAttackerDefenderCounts, short[,] pinRays)
+        protected List<Move> CheckDirection(Board board, (short, short) direction, BoardTableSet boardTableSet)
         {
             List<Move> result = new List<Move>();
             int x = location.Item1;
@@ -39,6 +41,9 @@ namespace CrazyAuriLibrary.Models.Pieces
 
             short directionx = direction.Item1;
             short directiony = direction.Item2;
+
+            var pinRays = boardTableSet.pinRays;
+            var squareAttackerDefenderCounts = boardTableSet.squareAttackerDefenderCounts;
 
             short isPinned = pinRays[x, y];
 
@@ -71,7 +76,7 @@ namespace CrazyAuriLibrary.Models.Pieces
             return result;
         }
 
-        protected void CheckAttackDirection(Board board, (short, short) direction, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays)
+        protected void CheckAttackDirection(Board board, (short, short) direction, BoardTableSet boardTableSet)
         {
             int x = location.Item1;
             int y = location.Item2;
@@ -81,6 +86,11 @@ namespace CrazyAuriLibrary.Models.Pieces
 
             short directionx = direction.Item1;
             short directiony = direction.Item2;
+
+            var pinRays = boardTableSet.pinRays;
+            var attackedSquares = boardTableSet.attackedSquares;
+            var checkRays = boardTableSet.checkRays;
+            var squareAttackerDefenderCounts = boardTableSet.squareAttackerDefenderCounts;
 
             bool checkingAttacks = true;
 
@@ -94,6 +104,7 @@ namespace CrazyAuriLibrary.Models.Pieces
                 {
                     attackedSquares[newx, newy] += 1;
                     squareAttackerDefenderCounts[newx, newy] -= 1;
+                    boardTableSet.replaceSquareLowestAttackerPiece((newx, newy), this.ToString());
                     var piece = board.GetPieceOnSquare((newx, newy));
                     if (piece != null)
                     {

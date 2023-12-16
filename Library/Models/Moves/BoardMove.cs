@@ -1,6 +1,7 @@
 ﻿using CrazyAuri.Models;
 using CrazyAuriLibrary.Models.Moves.MoveTypes;
 using CrazyAuriLibrary.Models.Pieces;
+using CrazyAuriLibrary.Models.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,10 +17,7 @@ namespace CrazyAuriLibrary.Models.Moves
 
         private Board board;
 
-        private short[,] squareAttackerDefenderCounts;
-        private short[,] attackedSquares;
-        private short[,] pinRays;
-        private bool[,] checkRays;
+        private BoardTableSet boardTableSet;
 
         private List <Move> LegalMoves = new List <Move>();
         private Dictionary<string, Move> LegalMovesDictionary = new Dictionary<string, Move>();
@@ -37,10 +35,8 @@ namespace CrazyAuriLibrary.Models.Moves
             }
             movesHaveBeenChecked = true;
 
-            squareAttackerDefenderCounts = new short[8, 8];
-            attackedSquares = new short[8, 8];
-            pinRays = new short[8, 8];
-            checkRays = new bool[8, 8];
+            this.boardTableSet = new BoardTableSet();
+            var attackedSquares = boardTableSet.attackedSquares;
 
             var ourPieces = board.BlackPieces;
             var ourKing = board.BlackKing;
@@ -57,7 +53,7 @@ namespace CrazyAuriLibrary.Models.Moves
 
             foreach (var i in enemyPieces)
             {
-                i.GetAttacks(board, squareAttackerDefenderCounts, attackedSquares, pinRays, checkRays);
+                i.GetAttacks(board, boardTableSet);
             }
 
             if (attackedSquares[ourKing.location.Item1, ourKing.location.Item2]==0)
@@ -84,7 +80,7 @@ namespace CrazyAuriLibrary.Models.Moves
 
             foreach (var i in pieces)
             {
-                foreach (var j in i.GetMoves(board, squareAttackerDefenderCounts, attackedSquares, pinRays))
+                foreach (var j in i.GetMoves(board, boardTableSet))
                 {
                     LegalMovesDictionary.Add(j.ToString(), j);
                     result.Add(j);
@@ -99,10 +95,11 @@ namespace CrazyAuriLibrary.Models.Moves
         private List<Move> GetAllMovesInCheck(List<Piece> pieces)
         {
             var result = new List<Move>();
+            var checkRays = boardTableSet.checkRays;
 
             foreach (var i in pieces)
             {
-                foreach (var j in i.GetCheckMoves(board, squareAttackerDefenderCounts, attackedSquares, pinRays, checkRays))
+                foreach (var j in i.GetCheckMoves(board, boardTableSet))
                 {
                     LegalMovesDictionary.Add(j.ToString(), j);
                     result.Add(j);
@@ -116,7 +113,7 @@ namespace CrazyAuriLibrary.Models.Moves
 
         private List<Move> GetAllMovesInDoubleCheck(Piece king)
         {
-            var result = king.GetMoves(board, squareAttackerDefenderCounts, attackedSquares, pinRays);
+            var result = king.GetMoves(board, boardTableSet);
 
             foreach (var j in result)
             {
@@ -248,11 +245,11 @@ namespace CrazyAuriLibrary.Models.Moves
             string result = "0";
             if (GetAllMoves().Count == 0)
             {
-                if (board.CurrentColor == false && attackedSquares[board.WhiteKing.location.Item1, board.WhiteKing.location.Item2] > 0)
+                if (board.CurrentColor == false && boardTableSet.attackedSquares[board.WhiteKing.location.Item1, board.WhiteKing.location.Item2] > 0)
                 {
                     return "b";
                 }
-                else if (board.CurrentColor == true && attackedSquares[board.BlackKing.location.Item1, board.BlackKing.location.Item2] > 0)
+                else if (board.CurrentColor == true && boardTableSet.attackedSquares[board.BlackKing.location.Item1, board.BlackKing.location.Item2] > 0)
                 {
                     return "w";
                 }
@@ -303,7 +300,16 @@ namespace CrazyAuriLibrary.Models.Moves
         {
             int x = location.Item1;
             int y = location.Item2;
+            var squareAttackerDefenderCounts = boardTableSet.squareAttackerDefenderCounts;
             return squareAttackerDefenderCounts[x, y];
+        }
+
+        public string GetSquareLowestAttackerPiece((int, int) location)
+        {
+            int x = location.Item1;
+            int y = location.Item2;
+            var squareLowestAttackerPiece = boardTableSet.squareLowestAttackerPiece;
+            return squareLowestAttackerPiece[x, y];
         }
 
     }

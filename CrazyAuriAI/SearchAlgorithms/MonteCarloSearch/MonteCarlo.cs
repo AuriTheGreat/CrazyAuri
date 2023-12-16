@@ -71,7 +71,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            minimax.runSearch(position, 2); // checks if any of nodes end with checkmate
+            checkmatefinder.runSearch(position, 1); // checks if any of nodes end with checkmate
             var threadcount = 1;
             Parallel.For(0, threadcount, i =>
             {
@@ -136,44 +136,62 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
 
         public double getUCBscore(Node node)
         {
-            double localevaluation = 0;
             if (node.visits == 0)
                 return Double.MaxValue;
+            if (Math.Abs(node.minimaxValue) > 10000)
+                return node.minimaxValue;
+            double localevaluation = 0;
             var parentnode = node;
-            if (parentnode.parent != null)
+            if (node.parent != null)
             {
                 parentnode = node.parent;
-                localevaluation = moveevaluationfunction.GetEvaluation(parentnode.board, node.board, node.move);
+                if (!node.evaluated)
+                {
+                    foreach(var i in parentnode.childpositions)
+                    {
+                        if (Math.Abs(node.minimaxValue) > 10000)
+                            continue;
+                        localevaluation =moveevaluationfunction.GetEvaluation(parentnode.board, i.board, i.move);
+                        i.localevaluation = localevaluation;
+                        i.evaluated = true;
+                        if(i.localevaluation<parentnode.lowestchildlocalevaluation)
+                            parentnode.lowestchildlocalevaluation = localevaluation;
+                    }
+                }
+                localevaluation = (parentnode.lowestchildlocalevaluation/4)+node.localevaluation;
             }
+
             var parentvisits = parentnode.visits;
 
-            var c1 = 0.4; 
-            var c2 = 100;
+            var c1 = 0.7;
+            var c2 = 0.01;
 
             if (node.killerHeuristic.bestMove==node.move.ToString())
                 c1 *=2;
 
             //return (node.scoreratio) + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits); // default MCTS
 
-            var minimaxEvaluationWeight =  (Math.Min(Math.Max(node.minimaxValue - node.parent.minimaxValue, -300),300)+300)/600;
+            // Minimax usage
+            //var minimaxEvaluationWeight =  (Math.Min(Math.Max(node.minimaxValue - node.parent.minimaxValue, -300),300)+300)/600;
 
             // MCTS with heuristic evaluation
             return node.evaluationscoreratio
-                + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits) 
-                + c2 * minimaxEvaluationWeight / node.visits;
+                + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits)
+                + c2 * localevaluation / node.visits;
         }
 
         private Node SelectLeaf(Node node)
         {
-            double maxU = -1;
+            double maxU = Double.MinValue;
             Node returnedNode = node.childpositions.Count==0 ? node : node.childpositions[0];
             lock (nodeChildPositionsLock)
             {
                 foreach (var i in node.childpositions)
                 {
-                    if (getUCBscore(i) > maxU)
+                    var UCBscore = getUCBscore(i);
+                    if (UCBscore > maxU)
                     {
-                        maxU = getUCBscore(i);
+                        maxU = UCBscore;
                         returnedNode = i;
                     }
                 }
@@ -205,9 +223,9 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 if (newboard.GetWinner() != "0")
                 {
                     if (newboard.GetWinner() == "w")
-                        matingscore = -1;
-                    else if (newboard.GetWinner() == "b")
                         matingscore = 1;
+                    else if (newboard.GetWinner() == "b")
+                        matingscore = -1;
                     else
                         isdraw = true;
                     done = true;
@@ -215,24 +233,13 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 else if (depth == 0)
                 {
                     var localevaluation = evaluationfunction.GetEvaluation(newboard);
-                    /*
-                    localscore = Math.Min(3000, Math.Max(-3000, localevaluation));
+                    var localscore = Math.Min(10000, Math.Max(-10000, localevaluation));
                     if (board.CurrentColor == false)
-                        localscore /= 3000;
+                        localscore /= 10000;
                     else
-                        localscore /= (-1 * 3000);
-                    */
+                        localscore /= (-1 * 10000);
 
-                    localevaluation = localevaluation - startevaluation; // uses difference between current and starting
-
-                    if (startingcolor == false)
-                    {
-                        localevaluation *= -1; // Evaluation from the perspective of the playing color
-                    }
-                    if (localevaluation > 300)
-                        evaluationscore = 1;
-                    else if (localevaluation < -300)
-                        evaluationscore = -1;
+                    evaluationscore = localscore;
 
                 }
             }
@@ -249,7 +256,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
             {
                 var newboard = new Board(board.ToString(), board.FormerPositions);
                 newboard.MakeMove(move);
-                var localevaluation = moveevaluationfunction.GetEvaluation(board, newboard, move);
+                var localevaluation = Math.Max(0,moveevaluationfunction.GetEvaluation(board, newboard, move));
                 if (localevaluation <= -1000)
                     continue;
                 else if (localevaluation >= 1000)

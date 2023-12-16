@@ -1,4 +1,5 @@
 ﻿using CrazyAuriLibrary.Models.Moves.MoveTypes;
+using CrazyAuriLibrary.Models.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +12,10 @@ namespace CrazyAuri.Models.Pieces
     {
         bool color { get; set; } // white is false, black is true
 
-        public List<Move> GetMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays);
-        public List<Move> GetCheckMoves(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays);
+        public List<Move> GetMoves(Board board, BoardTableSet boardTableSet);
+        public List<Move> GetCheckMoves(Board board, BoardTableSet boardTableSet);
         public void MakeMove(Board board, Move move);
-        public void GetAttacks(Board board, short[,] squareAttackerDefenderCounts, short[,] attackedSquares, short[,] pinRays, bool[,] checkRays);
+        public void GetAttacks(Board board, BoardTableSet boardTableSet);
 
     }
 }
