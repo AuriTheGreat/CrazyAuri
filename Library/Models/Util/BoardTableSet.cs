@@ -25,7 +25,8 @@ namespace CrazyAuriLibrary.Models.Util
 
         public void replaceSquareLowestAttackerPiece((int, int) square, string piece)
         {
-            List<string> pieceFromLowest = new List<string>{ "p", "n", "b", "r", "q", "k"};
+            piece = piece.ToLower();
+            List<string> pieceFromLowest = new List<string>{"p", "n", "b", "r", "q", "k"};
             var currentPiece = squareLowestAttackerPiece[square.Item1, square.Item2];
             foreach (var i in pieceFromLowest)
             {

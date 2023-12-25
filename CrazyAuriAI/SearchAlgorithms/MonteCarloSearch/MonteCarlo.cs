@@ -75,7 +75,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
             var threadcount = 1;
             Parallel.For(0, threadcount, i =>
             {
-                runSearchOnThread(position, stopwatch, time);
+            runSearchOnThread(position, stopwatch, time);
             });
             while (continueRunningCheck(position, stopwatch, time)) { }
             position.childpositions.Sort((p, q) => p.visits.CompareTo(q.visits)); //debugging purposes
@@ -136,10 +136,10 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
 
         public double getUCBscore(Node node)
         {
-            if (node.visits == 0)
-                return Double.MaxValue;
             if (Math.Abs(node.minimaxValue) > 10000)
                 return node.minimaxValue;
+            if (node.visits == 0)
+                return Double.MaxValue;
             double localevaluation = 0;
             var parentnode = node;
             if (node.parent != null)
@@ -249,26 +249,51 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         private string selectNextSimulationMove(Board board)
         {
             var moves = board.GetAllMoves();
-            var evaluationsum = 0.0;
-            var positionevaluations = new List<double>() { 0 };
-            var evaluatedmoves = new List<Move>();
-            foreach (var move in moves)
+            try
             {
-                var newboard = new Board(board.ToString(), board.FormerPositions);
-                newboard.MakeMove(move);
-                var localevaluation = Math.Max(0,moveevaluationfunction.GetEvaluation(board, newboard, move));
-                if (localevaluation <= -1000)
-                    continue;
-                else if (localevaluation >= 1000)
-                    return move.ToString();
-                evaluationsum += localevaluation;
-                positionevaluations.Add(localevaluation+positionevaluations.Last());
-                evaluatedmoves.Add(move);
-            }
-            /*
-            var result = new Dictionary<string, double>();
-            for (int j = 0; j < 1000; j++)
-            {
+                var evaluationsum = 0.0;
+                var positionevaluations = new List<double>() { 0 };
+                var evaluatedmoves = new List<Move>();
+                foreach (var move in moves)
+                {
+                    var newboard = new Board(board.ToString(), board.FormerPositions);
+                    newboard.MakeMove(move);
+                    var localevaluation = Math.Max(0, moveevaluationfunction.GetEvaluation(board, newboard, move));
+                    if (localevaluation <= -1000)
+                        continue;
+                    else if (localevaluation >= 1000)
+                        return move.ToString();
+                    evaluationsum += localevaluation;
+                    positionevaluations.Add(localevaluation + positionevaluations.Last());
+                    evaluatedmoves.Add(move);
+                }
+                /*
+                var result = new Dictionary<string, double>();
+                for (int j = 0; j < 1000; j++)
+                {
+                    var correctvalue = evaluationsum * random.NextDouble();
+                    var lowerbound = 0.0;
+                    var higherbound = 0.0;
+                    for (int i = 1; i < positionevaluations.Count; i++)
+                    {
+                        lowerbound = positionevaluations[i - 1];
+                        higherbound = positionevaluations[i];
+                        if (lowerbound <= correctvalue && correctvalue <= higherbound)
+                        {
+                            //Console.WriteLine(lowerbound);
+                            //Console.WriteLine(correctvalue);
+                            //Console.WriteLine(higherbound);
+                            if(!result.ContainsKey(evaluatedmoves[i - 1].ToString()))
+                                result[evaluatedmoves[i - 1].ToString()] = 0;
+                            result[evaluatedmoves[i - 1].ToString()] += 1;
+                        }
+                    }
+                }
+                foreach (var entry in result.Keys)
+                    Console.WriteLine(entry + ": " +result[entry].ToString());
+                throw new Exception("Hello");
+                */
+
                 var correctvalue = evaluationsum * random.NextDouble();
                 var lowerbound = 0.0;
                 var higherbound = 0.0;
@@ -278,33 +303,12 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                     higherbound = positionevaluations[i];
                     if (lowerbound <= correctvalue && correctvalue <= higherbound)
                     {
-                        //Console.WriteLine(lowerbound);
-                        //Console.WriteLine(correctvalue);
-                        //Console.WriteLine(higherbound);
-                        if(!result.ContainsKey(evaluatedmoves[i - 1].ToString()))
-                            result[evaluatedmoves[i - 1].ToString()] = 0;
-                        result[evaluatedmoves[i - 1].ToString()] += 1;
+                        return evaluatedmoves[i - 1].ToString();
                     }
                 }
             }
-            foreach (var entry in result.Keys)
-                Console.WriteLine(entry + ": " +result[entry].ToString());
-            throw new Exception("Hello");
-            */
-
-            var correctvalue = evaluationsum * random.NextDouble();
-                var lowerbound = 0.0;
-                var higherbound = 0.0;
-            for (int i = 1; i < positionevaluations.Count; i++)
-            {
-                lowerbound = positionevaluations[i - 1];
-                higherbound = positionevaluations[i];
-                if (lowerbound <= correctvalue && correctvalue <= higherbound)
-                {
-                    return evaluatedmoves[i - 1].ToString();
-                }
-            }
-            return null;
+            catch { }
+            return moves[random.Next(moves.Count)].ToString(); // chooses random move if none was chosen for some reason
         }
     }
 }

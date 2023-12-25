@@ -57,6 +57,10 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 {
                     value = double.MinValue;
                 }
+                if (node.originalColor == false)
+                    node.minimaxValue = value;
+                else
+                    node.minimaxValue = -value;
             }
             else
             {
@@ -66,20 +70,11 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 foreach (var child in node.childpositions)
                 {
                     value = Math.Max(value, -runRecursiveSearch(child, depth - 1));
+                    if (Math.Abs(child.minimaxValue) > 1000)
+                        node.minimaxValue = child.minimaxValue;
                 }
             }
 
-            if (Math.Abs(value) > 1000)
-            {
-                if (value < -1000 && node.originalColor == true && node.board.CurrentColor==node.originalColor)
-                    node.minimaxValue = double.MaxValue;
-                else if (value < -1000 && node.originalColor == true && node.board.CurrentColor != node.originalColor)
-                    node.minimaxValue = double.MinValue;
-                else if (value > 1000 && node.originalColor == false && node.board.CurrentColor == node.originalColor)
-                    node.minimaxValue = double.MaxValue;
-                else if (value > 1000 && node.originalColor == false && node.board.CurrentColor != node.originalColor)
-                    node.minimaxValue = double.MinValue;
-            }
             node.searchedMinimaxDepth = depth;
 
             return value;

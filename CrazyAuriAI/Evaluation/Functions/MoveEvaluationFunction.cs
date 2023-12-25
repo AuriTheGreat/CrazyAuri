@@ -18,20 +18,19 @@ namespace CrazyAuriAI.Evaluation.Functions
         public double GetEvaluation(Board oldboard, Board newboard, Move move)
         {
             double result = 0;
-            bool isCheck = newboard.inCheck();
             int squareAttackerDifference = oldboard.GetAttackingPieceDifferenceOnSquare(move.endsquare)-1;
-
-            if (isCheck)
-                result += 60;
 
             if (move is not CrazyhouseMove)
             {
+                if (newboard.inCheck())
+                    result += 60;
+
                 if (move.piece.acronym == "k")
                     result -= 30;
                 if (move is CastlingMove)
                     result += 80;
 
-                // Moves pieces that are attacked by higher pieces
+                // Moves pieces that are attacked by lower pieces
                 string squareLowestAttackerPiece = oldboard.GetSquareLowestAttackerPiece(move.startsquare);
                 if (squareLowestAttackerPiece != null)
                 {
@@ -55,46 +54,66 @@ namespace CrazyAuriAI.Evaluation.Functions
                 // Tries to place pieces on better squares
                 result += GetPieceSquareValue(move.piece.acronym, move.endsquare, oldboard.CurrentColor)
                     - GetPieceSquareValue(move.piece.acronym, move.startsquare, oldboard.CurrentColor) * 2;
-            }
 
-            if (move is CaptureMove && move is not CrazyhouseMove && move is not PromotionMove)
-            {
-                // Capture bonus
-                result += 20;
+                if ((move is CaptureMove && move is not PromotionMove) || move is PromotionCaptureMove)
+                {
+                    // Capture bonus
+                    result += 20;
 
-                // Tries to capture if there are too few defenders.
-                var startSquarePieceValue = GetPieceValue(oldboard.GetPieceOnSquare(move.startsquare).acronym);
-                var endSquarePieceValue = GetPieceValue(oldboard.GetPieceOnSquare(move.endsquare).acronym);
+                    // Tries to capture if there are too few defenders.
+                    var startSquarePieceValue = GetPieceValue(oldboard.GetPieceOnSquare(move.startsquare).acronym);
+                    var endSquarePieceValue = GetPieceValue(oldboard.GetPieceOnSquare(move.endsquare).acronym);
 
-                if (squareAttackerDifference >= 0)
-                    result += endSquarePieceValue*3;
-                else if (endSquarePieceValue > startSquarePieceValue) // Captures if enemy piece has higher value than ours
-                    result += (endSquarePieceValue - startSquarePieceValue)*5;
+                    if (squareAttackerDifference >= 0)
+                        result += endSquarePieceValue * 3;
+                    else if (endSquarePieceValue > startSquarePieceValue) // Captures if enemy piece has higher value than ours
+                        result += (endSquarePieceValue - startSquarePieceValue) * 5;
+                    else
+                        result += overProtectedSquarePenalty(squareAttackerDifference, newboard.inCheck());
+                }
                 else
-                    result += overProtectedSquarePenalty(squareAttackerDifference, isCheck);
+                {
+                    result += overProtectedSquarePenalty(squareAttackerDifference, newboard.inCheck());
+                }
+
+                if (move is PromotionMove)
+                {
+                    // Encourages promotion moves
+                    result += 130;
+                    if (move is PromotionCaptureMove)
+                        result += 150;
+                }
             }
             else
             {
-                result += overProtectedSquarePenalty(squareAttackerDifference, isCheck);
-            }
+                squareAttackerDifference += 1;
+                CrazyhouseMove crazyhouseMove = (CrazyhouseMove)move;
+                // Tries to block checks
+                if (oldboard.inCheck())
+                    result += 30;
 
-            if (move is CrazyhouseMove)
-            {
                 // Tries to place pieces from reserve on good squares
-                result += GetPieceSquareValue(((CrazyhouseMove) move).placedPiece, move.endsquare, oldboard.CurrentColor)/20;
-                var reserveevaluation = reservepiecevalues[((CrazyhouseMove)move).placedPiece];
-                var mainevaluation = piecevalues[((CrazyhouseMove)move).placedPiece];
-                result += (mainevaluation - reserveevaluation)/12;
-                if (isCheck)
-                    result+= 10;
-            }
+                result += GetPieceSquareValue(crazyhouseMove.placedPiece, move.endsquare, oldboard.CurrentColor);
+                var reserveevaluation = reservepiecevalues[crazyhouseMove.placedPiece];
+                var mainevaluation = piecevalues[crazyhouseMove.placedPiece];
+                result += (mainevaluation - reserveevaluation);
 
-            if (move is PromotionMove)
-            {
-                // Encourages promotion moves
-                result += 130;
-                if (move is PromotionCaptureMove)
-                    result += 150;
+                // Does not place pieces on overprotected squares
+                result += overProtectedSquarePenalty(squareAttackerDifference, newboard.inCheck());
+
+                // Does not place pieces where lower piece can capture them
+                string squareLowestAttackerPiece = oldboard.GetSquareLowestAttackerPiece(move.endsquare);
+                if (squareLowestAttackerPiece != null)
+                {
+                    result -= Math.Max(GetPieceValue(crazyhouseMove.placedPiece)
+                    - GetPieceValue(squareLowestAttackerPiece), 0);
+                }
+
+                // Encourages to place pieces where it's a safe check
+                if (squareAttackerDifference > 0 && newboard.inCheck())
+                    result += 600;
+                else if (newboard.inCheck())
+                    result += 30;
             }
 
             return result;

@@ -44,7 +44,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         public double evaluationscoreratio
         {
             get {
-                if (Math.Abs(minimaxValue) > 10000 || visits==0)
+                if (Math.Abs(minimaxValue) > 10000)
                     return minimaxValue;
                 return evaluationscore / visits; 
             }
