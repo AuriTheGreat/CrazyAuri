@@ -30,11 +30,13 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         public Node mostvisitedchild;
         public Node mostevaluatedchild;
         public double lowestchildlocalevaluation = double.MaxValue;
+        public double highestchildlocalevaluation = double.MinValue;
 
         private Object nodeChildPositionsLock = new Object();
         public List<Node> childpositions = new List<Node>();
 
-        public KillerHeuristic killerHeuristic=new KillerHeuristic();
+        public KillerHeuristic killerHeuristic= new KillerHeuristic();
+        public HistoryHeuristic historyHeuristic = new HistoryHeuristic();
 
         public override string ToString()
         {

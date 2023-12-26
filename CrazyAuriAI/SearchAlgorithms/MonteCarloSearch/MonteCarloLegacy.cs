@@ -16,7 +16,7 @@ using System.Xml.Linq;
 
 namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
 {
-    public class MonteCarlo
+    public class MonteCarloLegacy
     {
         private Random random = new Random();
         private IEvaluationFunction evaluationfunction = new MainEvaluationFunction();
@@ -29,7 +29,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
 
 
         private Object nodeChildPositionsLock = new Object();
-        public MonteCarlo(Board board)
+        public MonteCarloLegacy (Board board)
         {
             position = new Node(board);
             checkmatefinder = new CheckmateFinder();
@@ -75,7 +75,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
             var threadcount = 1;
             Parallel.For(0, threadcount, i =>
             {
-                runSearchOnThread(position, stopwatch, time);
+            runSearchOnThread(position, stopwatch, time);
             });
             while (continueRunningCheck(position, stopwatch, time)) { }
             position.childpositions.Sort((p, q) => p.visits.CompareTo(q.visits)); //debugging purposes
@@ -138,38 +138,44 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         {
             if (Math.Abs(node.minimaxValue) > 10000)
                 return node.minimaxValue;
-            double localevaluation = 0;
-            var parentnode = node.parent;
-            if (!node.evaluated)
-            {
-                foreach (var i in parentnode.childpositions)
-                {
-                    if (Math.Abs(node.minimaxValue) > 10000)
-                        continue;
-                    localevaluation = moveevaluationfunction.GetEvaluation(parentnode.board, i.board, i.move);
-                    i.localevaluation = localevaluation;
-                    i.evaluated = true;
-                    if (i.localevaluation < parentnode.lowestchildlocalevaluation)
-                        parentnode.lowestchildlocalevaluation = localevaluation;
-                    if (i.localevaluation > parentnode.highestchildlocalevaluation)
-                        parentnode.highestchildlocalevaluation = localevaluation;
-                }
-            }
-            localevaluation = (1 + (parentnode.lowestchildlocalevaluation + Math.Abs(parentnode.lowestchildlocalevaluation)+node.localevaluation)
-                / (parentnode.lowestchildlocalevaluation + Math.Abs(parentnode.lowestchildlocalevaluation)+parentnode.highestchildlocalevaluation))/2;
             if (node.visits == 0)
+                return Double.MaxValue;
+            double localevaluation = 0;
+            var parentnode = node;
+            if (node.parent != null)
             {
-                return 5 * localevaluation + 0.8 * Math.Sqrt((2 * Math.Log(parentnode.visits) / 10));
+                parentnode = node.parent;
+                if (!node.evaluated)
+                {
+                    foreach(var i in parentnode.childpositions)
+                    {
+                        if (Math.Abs(node.minimaxValue) > 10000)
+                            continue;
+                        localevaluation =moveevaluationfunction.GetEvaluation(parentnode.board, i.board, i.move);
+                        i.localevaluation = localevaluation;
+                        i.evaluated = true;
+                        if(i.localevaluation<parentnode.lowestchildlocalevaluation)
+                            parentnode.lowestchildlocalevaluation = localevaluation;
+                    }
+                }
+                localevaluation = (parentnode.lowestchildlocalevaluation/4)+node.localevaluation;
             }
-            else
-            {
-                double c = 0;
-                if (parentnode.historyHeuristic.getKillerHeuristic() == node.move.ToString())
-                    c = 1.2;
-                else
-                    c = 1 + Math.Max(0, parentnode.historyHeuristic.getHistoryHeuristicRatio(node.move.ToString()));
-                return 2*localevaluation/parentnode.visits + node.evaluationscoreratio + c * Math.Sqrt((2 * Math.Log(parentnode.visits) / node.visits));
-            }
+
+            var parentvisits = parentnode.visits;
+
+            var c1 = 0.7;
+            var c2 = 0.01;
+
+            if (node.killerHeuristic.bestMove==node.move.ToString())
+                c1 *=2;
+
+            //return (node.scoreratio) + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits); // default MCTS
+
+            // Minimax usage
+            //var minimaxEvaluationWeight =  (Math.Min(Math.Max(node.minimaxValue - node.parent.minimaxValue, -300),300)+300)/600;
+
+            // MCTS with heuristic evaluation
+            return localevaluation / node.visits;
         }
 
         private Node SelectLeaf(Node node)
@@ -188,8 +194,6 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                     }
                 }
             }
-            if (node.HasParent() && node.parent.parent != null) // history heuristic
-                node.parent.parent.historyHeuristic.updateMove(returnedNode.move.ToString());
             return returnedNode;
         }
 

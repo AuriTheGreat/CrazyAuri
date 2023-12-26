@@ -14,12 +14,12 @@ using System.Xml;
 
 namespace CrazyAuriAI.Bots
 {
-    public class MonteCarloBot : IBot
+    public class MonteCarloLegacyBot : IBot
     {
-        MonteCarlo position;
+        MonteCarloLegacy position;
         public string GetMove(Board board)
         {
-            position = new MonteCarlo(board);
+            position = new MonteCarloLegacy(board);
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             (string, double) result = position.MonteCarloSearch(3);

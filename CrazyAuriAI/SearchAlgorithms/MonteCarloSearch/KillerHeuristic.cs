@@ -10,17 +10,19 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
     public class KillerHeuristic
     {
         private Dictionary<string, int> moveFrequencyAmongKillerMoves = new Dictionary<string, int>();
+        public int totalNodeCount = 0;
         private object killerHeuristicLock = new Object();
 
         public string bestMove="";
         private int bestMoveCount=0;
 
-        public bool isMoveInList(string move)
+        public double isBestMoveRatio(string move)
         {
-            if (this.moveFrequencyAmongKillerMoves.ContainsKey(move) && this.moveFrequencyAmongKillerMoves[move] > 0)
-                return true;
-            return false;
+            if (this.moveFrequencyAmongKillerMoves.ContainsKey(move) && totalNodeCount > 0)
+                return moveFrequencyAmongKillerMoves[move]/totalNodeCount;
+            return 0;
         }
+
         public void addNewMove(string oldmove, string newmove)
         {
             lock (this.killerHeuristicLock)

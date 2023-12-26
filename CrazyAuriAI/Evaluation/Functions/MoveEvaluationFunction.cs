@@ -18,7 +18,7 @@ namespace CrazyAuriAI.Evaluation.Functions
         public double GetEvaluation(Board oldboard, Board newboard, Move move)
         {
             double result = 0;
-            int squareAttackerDifference = oldboard.GetAttackingPieceDifferenceOnSquare(move.endsquare)-1;
+            int squareAttackerDifference = oldboard.GetAttackingPieceDifferenceOnSquare(move.endsquare);
 
             if (move is not CrazyhouseMove)
             {
@@ -57,19 +57,23 @@ namespace CrazyAuriAI.Evaluation.Functions
 
                 if ((move is CaptureMove && move is not PromotionMove) || move is PromotionCaptureMove)
                 {
+                    squareAttackerDifference -= 1;
                     // Capture bonus
                     result += 20;
 
-                    // Tries to capture if there are too few defenders.
                     var startSquarePieceValue = GetPieceValue(oldboard.GetPieceOnSquare(move.startsquare).acronym);
                     var endSquarePieceValue = GetPieceValue(oldboard.GetPieceOnSquare(move.endsquare).acronym);
 
                     if (squareAttackerDifference >= 0)
+                        // Tries to capture if there are too few defenders.
                         result += endSquarePieceValue * 3;
-                    else if (endSquarePieceValue > startSquarePieceValue) // Captures if enemy piece has higher value than ours
-                        result += (endSquarePieceValue - startSquarePieceValue) * 5;
                     else
-                        result += overProtectedSquarePenalty(squareAttackerDifference, newboard.inCheck());
+                        // Does not consider capture if piece has too many protectors
+                        if (endSquarePieceValue >= startSquarePieceValue)
+                            // Captures if enemy piece has higher value than ours
+                            result += (endSquarePieceValue - startSquarePieceValue) * 3;
+                        else
+                            result += overProtectedSquarePenalty(squareAttackerDifference, newboard.inCheck());
                 }
                 else
                 {
@@ -86,7 +90,6 @@ namespace CrazyAuriAI.Evaluation.Functions
             }
             else
             {
-                squareAttackerDifference += 1;
                 CrazyhouseMove crazyhouseMove = (CrazyhouseMove)move;
                 // Tries to block checks
                 if (oldboard.inCheck())

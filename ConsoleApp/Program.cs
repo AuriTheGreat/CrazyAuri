@@ -21,7 +21,7 @@ namespace CrazyAuri
             for (int i = 0; i < numberOfGamesToPlay; i++)
             {
                 Board board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1");
-                IPlayer WhitePlayer = new BotPlayer();
+                IPlayer WhitePlayer = new MonteCarloPlayer();
                 IPlayer BlackPlayer = new MinimaxPlayer();
                 if (WhitePlayer is HumanPlayer || BlackPlayer is HumanPlayer)
                     numberOfGamesToPlay = 1;

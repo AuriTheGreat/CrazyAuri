@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace CrazyAuriConsole.Players
 {
-    public class BotPlayer : IPlayer
+    public class MonteCarloLegacyPlayer : IPlayer
     {
-        public MonteCarloBot bot = new MonteCarloBot();
+        public MonteCarloLegacyBot bot = new MonteCarloLegacyBot();
         public void MakeMove(Board board)
         {
             if (board.MakeMove(bot.GetMove(board)) == false)
