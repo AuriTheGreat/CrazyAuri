@@ -14,6 +14,10 @@ namespace CrazyAuriAI.SearchAlgorithms.MinimaxSearch
     {
         public TranspositionTable transpositionTable;
         public MainEvaluationFunction evaluationFunction;
+        public int exactTriggered = 0;
+        public int lowerTriggered = 0;
+        public int upperTriggered = 0;
+        public int totalPositions = 0;
         public Minimax()
         {
             transpositionTable = new TranspositionTable();
@@ -27,6 +31,9 @@ namespace CrazyAuriAI.SearchAlgorithms.MinimaxSearch
             {
                 result = NegaMaxWithTransposition(currentboard, i, alpha, beta);
             }
+            File.AppendAllText("transpositionResult.txt", currentboard.FullMoveClock + ", " 
+                + totalPositions + ", " + exactTriggered + ", " + lowerTriggered + 
+                ", " + upperTriggered + '\n');
             return result;
         }
 
@@ -35,22 +42,38 @@ namespace CrazyAuriAI.SearchAlgorithms.MinimaxSearch
             var color = currentboard.CurrentColor;
             var alphaOrig = alpha;
             var transpositionentry = transpositionTable.GetEntry(currentboard.GetPositionHash(), depth);
+            totalPositions += 1;
+            if (currentboard.GetWinner() != "0")
+            {
+                return ("", (color == true ? -1 : 1) * evaluationFunction.GetEvaluation(currentboard));
+            }
             if (transpositionentry != null)
             {
                 if (transpositionentry.flag == "EXACT")
+                {
+                    exactTriggered += 1;
                     return (transpositionentry.move, transpositionentry.value);
+                }
                 else if (transpositionentry.flag == "LOWERBOUND")
+                {
+                    lowerTriggered += 1;
                     alpha = Math.Max(alpha, transpositionentry.value);
+                }
                 else if (transpositionentry.flag == "UPPERBOUND")
+                {
+                    upperTriggered += 1;
                     beta = Math.Min(beta, transpositionentry.value);
+                }
 
                 if (alpha >= beta)
                     return (transpositionentry.move, transpositionentry.value);
             }
 
-            if (depth == 0 || currentboard.GetWinner() != "0")
+            if (depth == 0)
             {
-                return ("", (color == true ? -1 : 1) * evaluationFunction.GetEvaluation(currentboard));
+                var evaluationValue = (color == true ? -1 : 1) * evaluationFunction.GetEvaluation(currentboard);
+                transpositionTable.AddEntry(currentboard.GetPositionHash(), "", evaluationValue, depth, "EXACT");
+                return ("", evaluationValue);
             }
 
             var childNodes = currentboard.GetAllMoves();

@@ -147,18 +147,18 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 parentnode = node.parent;
                 if (!node.evaluated)
                 {
-                    foreach(var i in parentnode.childpositions)
+                    foreach (var i in parentnode.childpositions)
                     {
                         if (Math.Abs(node.minimaxValue) > 10000)
                             continue;
-                        localevaluation =moveevaluationfunction.GetEvaluation(parentnode.board, i.board, i.move);
+                        localevaluation = moveevaluationfunction.GetEvaluation(parentnode.board, i.board, i.move);
                         i.localevaluation = localevaluation;
                         i.evaluated = true;
-                        if(i.localevaluation<parentnode.lowestchildlocalevaluation)
+                        if (i.localevaluation < parentnode.lowestchildlocalevaluation)
                             parentnode.lowestchildlocalevaluation = localevaluation;
                     }
                 }
-                localevaluation = (parentnode.lowestchildlocalevaluation/4)+node.localevaluation;
+                localevaluation = (parentnode.lowestchildlocalevaluation / 4) + node.localevaluation;
             }
 
             var parentvisits = parentnode.visits;
@@ -166,8 +166,8 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
             var c1 = 0.7;
             var c2 = 0.01;
 
-            if (node.killerHeuristic.bestMove==node.move.ToString())
-                c1 *=2;
+            if (node.killerHeuristic.bestMove == node.move.ToString())
+                c1 *= 2;
 
             //return (node.scoreratio) + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits); // default MCTS
 
@@ -175,7 +175,9 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
             //var minimaxEvaluationWeight =  (Math.Min(Math.Max(node.minimaxValue - node.parent.minimaxValue, -300),300)+300)/600;
 
             // MCTS with heuristic evaluation
-            return localevaluation / node.visits;
+            return node.evaluationscoreratio
+                + c1 * Math.Sqrt(Math.Log(parentvisits) / node.visits)
+                + c2 * localevaluation / node.visits;
         }
 
         private Node SelectLeaf(Node node)

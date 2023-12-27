@@ -16,6 +16,11 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
         private int bestMoveCount=0;
         private int totalVisitCount = 0;
 
+        public override string ToString()
+        {
+            return bestMove + " " + (((double)bestMoveCount)/((double)totalVisitCount)).ToString();
+        }
+
         public int getMoveVisitCount(string move)
         {
             if (this.visitFrequencyAmongMoves.ContainsKey(move) && this.visitFrequencyAmongMoves[move] > 0)

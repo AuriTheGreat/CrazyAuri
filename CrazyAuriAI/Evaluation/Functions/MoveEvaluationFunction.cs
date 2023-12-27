@@ -77,6 +77,8 @@ namespace CrazyAuriAI.Evaluation.Functions
                 }
                 else
                 {
+                    if(move.piece.acronym!="p")
+                        squareAttackerDifference -= 1;
                     result += overProtectedSquarePenalty(squareAttackerDifference, newboard.inCheck());
                 }
 
