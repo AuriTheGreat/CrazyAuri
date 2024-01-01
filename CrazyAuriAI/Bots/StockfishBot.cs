@@ -13,7 +13,7 @@ namespace CrazyAuriAI.Bots
     public class StockfishBot : IBot
     {
         private Process stockfishProcess;
-        public int difficultylevel=1;
+        public int difficultylevel=0;
         private string move = null;
 
         public StockfishBot()

@@ -118,7 +118,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
 
         public bool continueRunningCheck(Node position, Stopwatch stopwatch, double time)
         {
-            if (stopwatch.Elapsed.TotalSeconds < 30)
+            if (stopwatch.Elapsed.TotalSeconds < 40)
             {
                 if (stopwatch.Elapsed.TotalSeconds < time)
                     return true;
@@ -171,7 +171,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 if (parentnode.historyHeuristic.getKillerHeuristic() == node.move.ToString())
                     c = 1.2;
                 else
-                    c = 1 + Math.Max(0, parentnode.historyHeuristic.getHistoryHeuristicRatio(node.move.ToString()));
+                    c = 1 + Math.Max(0, parentnode.historyHeuristic.getHistoryHeuristicRatio(node.move.ToString()) - 0.6);
                 return node.evaluationscoreratio + c * Math.Sqrt((2 * Math.Log(parentnode.visits) / node.visits));
             }
         }
