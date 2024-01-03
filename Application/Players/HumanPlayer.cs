@@ -95,5 +95,9 @@ namespace CrazyAuriApplication.Players
         {
         }
 
+        public string InstructionMessage()
+        {
+            return "It's your turn!";
+        }
     }
 }

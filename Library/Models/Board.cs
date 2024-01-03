@@ -257,7 +257,7 @@ namespace CrazyAuri.Models
 
         public override string ToString()
         {
-            return PrintFEN();
+            return GetFEN();
         }
 
         public void PrintBoard()
@@ -276,7 +276,7 @@ namespace CrazyAuri.Models
             }
         }
 
-        public string PrintFEN()
+        public string GetFEN()
         {
             StringBuilder sb = new StringBuilder("", 120);
 
@@ -445,7 +445,7 @@ namespace CrazyAuri.Models
 
         public string GetPositionHash()
         {
-            var positionFEN = PrintFEN().Split(" ");
+            var positionFEN = GetFEN().Split(" ");
 
             return positionFEN[0] + positionFEN[1] + positionFEN[2] + positionFEN[3];
         }

@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace CrazyAuriApplication.Players
 {
-    public class MinimaxPlayer : IPlayer
+    public class MinimaxPlayer : AbstractBotPlayer
     {
         public IBot bot = new MinimaxBot();
 
-        public void MakeMove(Board board, BoardScreen screen)
+        public override void MakeMove(Board board, BoardScreen screen)
         {
             if (board.MakeMove(bot.GetMove(board)) == false)
             {
@@ -23,11 +23,11 @@ namespace CrazyAuriApplication.Players
             screen.drawboard.Update();
         }
 
-        public void ReserveTileActionsWhenCicked(Board board, BoardScreen screen, string identifier)
+        public override void ReserveTileActionsWhenCicked(Board board, BoardScreen screen, string identifier)
         {
         }
 
-        public void TileActionsWhenCicked(Board board, BoardScreen screen, ImageButton tile)
+        public override void TileActionsWhenCicked(Board board, BoardScreen screen, ImageButton tile)
         {
         }
     }

@@ -2,14 +2,13 @@
 using CrazyAuriLibrary.Models.Moves.MoveTypes;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D.TextureAtlases;
 using Myra.Graphics2D.UI;
 using Myra.Graphics2D.UI.Styles;
-using SharpDX.Direct2D1.Effects;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,7 +19,8 @@ namespace CrazyAuriApplication.Screens.BoardScreenFiles
     {
         public Grid boardgrid = new Grid();
         public Grid reservegrid = new Grid();
-        public HorizontalSplitPane movehistoryview = new HorizontalSplitPane();
+        public TextBox movehistoryview = new TextBox();
+        public TextBox fenfield = new TextBox();
         private VerticalMenu movenumbermenu = new VerticalMenu();
         private VerticalMenu whitemovemenu = new VerticalMenu();
         private VerticalMenu blackmovemenu = new VerticalMenu();
@@ -66,19 +66,26 @@ namespace CrazyAuriApplication.Screens.BoardScreenFiles
                     };
                 }
             }
+            movehistoryview.Background = new SolidBrush("#041652");
+            movehistoryview.Top = 45;
+            movehistoryview.Left = 1020;
+            movehistoryview.Height = 605;
+            movehistoryview.Width = 160;
+            movehistoryview.Wrap = true;
+            movehistoryview.TextChanged += (s, a) =>
+            {
+                movehistoryview.Text = generateMoveHistory();
+            };
 
-            //movehistoryview.Background = new Myra.Graphics2D.Brushes.SolidBrush("#155ed4");
-            movenumbermenu.HorizontalAlignment = HorizontalAlignment.Center;
-            movehistoryview.Widgets.Add(movenumbermenu);
-            whitemovemenu.GridColumn = 1;
-            whitemovemenu.HorizontalAlignment = HorizontalAlignment.Center;
-            movehistoryview.Widgets.Add(whitemovemenu);
-            blackmovemenu.HorizontalAlignment = HorizontalAlignment.Center;
-            blackmovemenu.GridColumn = 2;
-            movehistoryview.Widgets.Add(blackmovemenu);
-            movehistoryview.SetSplitterPosition(0, (float)0.3);
-            movehistoryview.SetSplitterPosition(1, (float)0.5);
-            movehistoryview.Enabled = false;
+            fenfield.Background = null;
+            fenfield.Text = "";
+            fenfield.Left = 20;
+            fenfield.Height = 20;
+            fenfield.Width = 760;
+            fenfield.TextChanged += (s, a) =>
+            {
+                fenfield.Text = board.GetFEN();
+            };
 
             DrawReservePart(board, screen);
             Update();
@@ -86,8 +93,7 @@ namespace CrazyAuriApplication.Screens.BoardScreenFiles
 
         private void DrawReservePart(Board board, BoardScreen screen)
         {
-            //reservegrid.Background = new Myra.Graphics2D.Brushes.SolidBrush("#FFA500");
-            reservegrid.ShowGridLines = true;
+            reservegrid.Background = new SolidBrush("#6495ed");
             reservegrid.Height = 600;
             reservegrid.Width = 60;
             reservegrid.Top = 50;
@@ -128,6 +134,7 @@ namespace CrazyAuriApplication.Screens.BoardScreenFiles
                 }
             };
             var positionedText = new Label();
+            positionedText.Background = new Myra.Graphics2D.Brushes.SolidBrush("#041652");
             positionedText.Text = "0";
             positionedText.GridRow = boardTile.GridRow;
             positionedText.HorizontalAlignment = HorizontalAlignment.Right;
@@ -223,6 +230,8 @@ namespace CrazyAuriApplication.Screens.BoardScreenFiles
                     }
                 }
             }
+            fenfield.Text = board.GetFEN();
+            movehistoryview.Text = generateMoveHistory();
             reserveTileTexts[0].Text = board.BlackCrazyHousePawns.ToString();
             reserveTileTexts[1].Text = board.BlackCrazyHouseKnights.ToString();
             reserveTileTexts[2].Text = board.BlackCrazyHouseBishops.ToString();
@@ -235,7 +244,28 @@ namespace CrazyAuriApplication.Screens.BoardScreenFiles
             reserveTileTexts[9].Text = board.WhiteCrazyHousePawns.ToString();
         }
 
+        private string generateMoveHistory()
+        {
+            StringBuilder sb = new StringBuilder("", 10000);
+            for (int i = 0; i<board.movehistory.Count; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    if (i != 0)
+                    {
+                        sb.Append('\n');
+                    }
 
+                    sb.Append(i / 2 + 1 + ". ");
+                }
+                else
+                {
+                    sb.Append(", ");
+                }
+                sb.Append(board.movehistory[i]);
+            }
+            return sb.ToString();
+        }
 
     }
 }

@@ -118,7 +118,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
 
         public bool continueRunningCheck(Node position, Stopwatch stopwatch, double time)
         {
-            if (stopwatch.Elapsed.TotalSeconds < 40)
+            if (stopwatch.Elapsed.TotalSeconds < 40 || position.visits==0)
             {
                 if (stopwatch.Elapsed.TotalSeconds < time)
                     return true;

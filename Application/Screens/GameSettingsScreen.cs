@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using CrazyAuriApplication.Models;
 using CrazyAuriApplication.Players;
 using FontStashSharp;
+using Myra.Graphics2D.Brushes;
 
 namespace CrazyAuriApplication.Screens
 {
@@ -28,12 +29,19 @@ namespace CrazyAuriApplication.Screens
 
             var panel = new Panel();
 
+            var backgroundTexture = new Image();
+            backgroundTexture.Background = new SolidBrush("#041652");
+            backgroundTexture.Top = 670;
+            backgroundTexture.Height = 800;
+            backgroundTexture.Width = 1200;
+            panel.Widgets.Add(backgroundTexture);
+
             PlayerSelection(panel);
 
             var startButton = new TextButton();
             startButton.Text = "Play";
             startButton.Left = 980;
-            startButton.Top = 700;
+            startButton.Top = 580;
             startButton.Width = 200;
             startButton.Height = 80;
             panel.Widgets.Add(startButton);
@@ -46,7 +54,7 @@ namespace CrazyAuriApplication.Screens
             var returnButton = new TextButton();
             returnButton.Text = "Return";
             returnButton.Left = 20;
-            returnButton.Top = 700;
+            returnButton.Top = 580;
             returnButton.Width = 200;
             returnButton.Height = 80;
             panel.Widgets.Add(returnButton);

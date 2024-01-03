@@ -13,5 +13,6 @@ namespace CrazyAuriApplication.Players
         public void TileActionsWhenCicked(Board board, BoardScreen screen, ImageButton tile);
         public void ReserveTileActionsWhenCicked(Board board, BoardScreen screen, string identifier);
         public void MakeMove(Board board, BoardScreen screen);
+        public string InstructionMessage();
     }
 }

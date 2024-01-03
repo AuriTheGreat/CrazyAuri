@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 
 namespace CrazyAuriApplication.Players
 {
-    public class StockfishPlayer : IPlayer
+    public class StockfishPlayer : AbstractBotPlayer
     {
         public StockfishBot bot = new StockfishBot();
 
-        public void MakeMove(Board board, BoardScreen screen)
+        public override void MakeMove(Board board, BoardScreen screen)
         {
             string botmove = bot.GetMove(board);
             if (board.MakeMove(botmove) == false)
@@ -25,11 +25,11 @@ namespace CrazyAuriApplication.Players
             screen.drawboard.Update();
         }
 
-        public void ReserveTileActionsWhenCicked(Board board, BoardScreen screen, string identifier)
+        public override void ReserveTileActionsWhenCicked(Board board, BoardScreen screen, string identifier)
         {
         }
 
-        public void TileActionsWhenCicked(Board board, BoardScreen screen, ImageButton tile)
+        public override void TileActionsWhenCicked(Board board, BoardScreen screen, ImageButton tile)
         {
         }
     }
