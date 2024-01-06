@@ -158,8 +158,6 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
             // Move rating, which is fixed to a [0; 1] range
             moveEvaluation = (1 + (parentnode.lowestchildlocalevaluation + Math.Abs(parentnode.lowestchildlocalevaluation)+node.localevaluation)
                 / (parentnode.lowestchildlocalevaluation + Math.Abs(parentnode.lowestchildlocalevaluation)+parentnode.highestchildlocalevaluation))/2;
-            // Adds move rating, which adds any value in [-10; 10] range
-            moveEvaluation += Math.Min(10, Math.Max(-10, (node.localevaluation+30)/100));
             if (node.visits == 0)
             {
                 var parentNodeVisits = Math.Max(parentnode.visits, 1);
@@ -171,7 +169,7 @@ namespace CrazyAuriAI.SearchAlgorithms.MonteCarloSearch
                 if (parentnode.historyHeuristic.getKillerHeuristic() == node.move.ToString())
                     c = 1.2;
                 else
-                    c = 1 + Math.Max(0, parentnode.historyHeuristic.getHistoryHeuristicRatio(node.move.ToString()) - 0.6);
+                    c = 1 + Math.Max(0, parentnode.historyHeuristic.getHistoryHeuristicRatio(node.move.ToString()) - 0.2);
                 return node.evaluationscoreratio + c * Math.Sqrt((2 * Math.Log(parentnode.visits) / node.visits));
             }
         }
