@@ -67,9 +67,9 @@ namespace CrazyAuriApplication.Screens.BoardScreenFiles
                 }
             }
             movehistoryview.Background = new SolidBrush("#041652");
-            movehistoryview.Top = 45;
+            movehistoryview.Top = 50;
             movehistoryview.Left = 1020;
-            movehistoryview.Height = 605;
+            movehistoryview.Height = 600;
             movehistoryview.Width = 160;
             movehistoryview.Wrap = true;
             movehistoryview.TextChanged += (s, a) =>

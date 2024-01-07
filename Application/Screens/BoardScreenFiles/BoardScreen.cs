@@ -46,6 +46,10 @@ public class BoardScreen : GameScreen
 
     private Label instructionLabel;
 
+    private TextButton returnButton;
+    private bool canReturn = false;
+    public Stopwatch returnStopwatch = new Stopwatch();
+
     public override void LoadContent()
     {
         base.LoadContent();
@@ -89,7 +93,7 @@ public class BoardScreen : GameScreen
         FontSystem MainFontSystem = ((DynamicSpriteFont)colorLabel.Font).FontSystem;
         colorLabel.Background = new SolidBrush("#041652");
         colorLabel.Left = 720;
-        colorLabel.Top = 45;
+        colorLabel.Top = 50;
         colorLabel.Width = 285;
         colorLabel.Height = 35;
         colorLabel.Wrap = true;
@@ -100,7 +104,7 @@ public class BoardScreen : GameScreen
         timeLabel = new Label();
         timeLabel.Background = new SolidBrush("#041652");
         timeLabel.Left = 720;
-        timeLabel.Top = 90;
+        timeLabel.Top = 100;
         timeLabel.Width = 285;
         timeLabel.Height = 35;
         timeLabel.TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center;
@@ -110,14 +114,33 @@ public class BoardScreen : GameScreen
         instructionLabel = new Label();
         instructionLabel.Background = new SolidBrush("#041652");
         instructionLabel.Left = 720;
-        instructionLabel.Top = 135;
+        instructionLabel.Top = 150;
         instructionLabel.Width = 285;
         instructionLabel.Height = 35;
         instructionLabel.TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center;
         instructionLabel.Font = MainFontSystem.GetFont(30);
         panel.Widgets.Add(instructionLabel);
 
-
+        returnButton = new TextButton();
+        returnButton.Background = new SolidBrush("#041652");
+        returnButton.OverBackground = new SolidBrush("#051b66");
+        returnButton.Text = "Return";
+        returnButton.Left = 720;
+        returnButton.Top = 615;
+        returnButton.Width = 285;
+        returnButton.Height = 35;
+        panel.Widgets.Add(returnButton);
+        returnButton.TouchDown += (s, a) =>
+        {
+            if (canReturn)
+                Game.LoadStartMenuWithFade();
+            else
+            {
+                returnButton.Text = "Are you sure you want to return?";
+                canReturn = true;
+                returnStopwatch.Start();
+            }
+        };
 
         // Add it to the desktop
         _desktop = new Desktop();
@@ -126,8 +149,6 @@ public class BoardScreen : GameScreen
 
     public override void Update(GameTime gameTime)
     {
-        double.Round(stopwatch.Elapsed.TotalSeconds, 2);
-
         IPlayer Player;
         if (board.GetWinner() == "0")
         {
@@ -173,6 +194,13 @@ public class BoardScreen : GameScreen
                 timeLabel.Text = "Draw by repetition!";
             else
                 timeLabel.Text = "Game is over!";
+        }
+
+        if (returnStopwatch.Elapsed.TotalSeconds > 3)
+        {
+            returnButton.Text = "Return";
+            canReturn = false;
+            returnStopwatch.Reset();
         }
     }
 

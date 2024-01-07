@@ -9,6 +9,7 @@ using Myra.Graphics2D.UI;
 using System.IO;
 using MonoGame.Extended.Screens.Transitions;
 using MonoGame.Extended;
+using Myra.Graphics2D.Brushes;
 
 public class StartMenu : GameScreen
 {
@@ -22,8 +23,14 @@ public class StartMenu : GameScreen
         base.LoadContent();
 
         MyraEnvironment.Game = Game;
-
         var panel = new Panel();
+
+        var backgroundTexture = new Image();
+        backgroundTexture.Background = new SolidBrush("#041652");
+        backgroundTexture.Height = 800;
+        backgroundTexture.Width = 100;
+        panel.Widgets.Add(backgroundTexture);
+
         var positionedText = new Label();
         positionedText.HorizontalAlignment = HorizontalAlignment.Center;
         positionedText.Text = "CrazyAuri";
@@ -32,6 +39,8 @@ public class StartMenu : GameScreen
         panel.Widgets.Add(positionedText);
 
         var startButton = new TextButton();
+        startButton.Background = new SolidBrush("#041652");
+        startButton.OverBackground = new SolidBrush("#051b66");
         startButton.Text = "Start";
         startButton.HorizontalAlignment = HorizontalAlignment.Center;
         startButton.Top = 100;
@@ -45,6 +54,8 @@ public class StartMenu : GameScreen
         };
 
         var exitButton = new TextButton();
+        exitButton.Background = new SolidBrush("#041652");
+        exitButton.OverBackground = new SolidBrush("#051b66");
         exitButton.Text = "Exit";
         exitButton.HorizontalAlignment = HorizontalAlignment.Center;
         exitButton.Top = 200;

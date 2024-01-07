@@ -39,6 +39,8 @@ namespace CrazyAuriApplication.Screens
             PlayerSelection(panel);
 
             var startButton = new TextButton();
+            startButton.Background = new SolidBrush("#041652");
+            startButton.OverBackground = new SolidBrush("#051b66");
             startButton.Text = "Play";
             startButton.Left = 980;
             startButton.Top = 580;
@@ -52,6 +54,8 @@ namespace CrazyAuriApplication.Screens
             };
 
             var returnButton = new TextButton();
+            returnButton.Background = new SolidBrush("#041652");
+            returnButton.OverBackground = new SolidBrush("#051b66");
             returnButton.Text = "Return";
             returnButton.Left = 20;
             returnButton.Top = 580;

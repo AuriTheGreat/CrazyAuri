@@ -66,6 +66,11 @@ namespace CrazyAuriApplication
             _screenManager.LoadScreen(new StartMenu(this));
         }
 
+        public void LoadStartMenuWithFade()
+        {
+            _screenManager.LoadScreen(new StartMenu(this), new FadeTransition(GraphicsDevice, Color.Black));
+        }
+
         public void LoadMainMenu()
         {
             _screenManager.LoadScreen(new StartMenu(this), new FadeTransition(GraphicsDevice, Color.Black));
